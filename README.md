@@ -1,4 +1,1 @@
-# SampleText
-
-
-
+# The 4ᵗʰ Strike
