@@ -1,16 +1,21 @@
 <script src="basic.js"></script>
 <script>
+    localStorage.setItem('你来到了这里','就没想过好好玩吧')
     if (isWeChat()) {
         alert('请注意：微信浏览器可能无法正常使用此应用程序。建议使用其他浏览器访问。\n\nPlease note: WeChat browser may not work properly with this application. It is highly recommended to use another browser to access it.');
         if (localStorage.getItem('userid') == null) {
             // CONTENT LOADED
             if (localStorage.getItem('userid') == null) {
                 window.location.href = 'signup.html';
+            } else {
+                window.location.href = 'home.html';
             }
         }
     }else {
         if (localStorage.getItem('userid') == null) {
             window.location.href = 'signup.html';
+        } else {
+            window.location.href = 'home.html';
         }
     }
 </script>
