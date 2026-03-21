@@ -7,7 +7,7 @@
     <script src="totp.js"></script>
     <script>
         if (isWeChat()) {
-            document.getElementById("secret-display").style.overflow = "auto";
+            document.getElementById("secret-display").style.overflow = "scroll";
         }
         async function Signup() {
             const username = document.getElementById("username").value;
@@ -67,7 +67,7 @@
         </div>
 
         <textarea id="secret-display" readonly 
-            style="width: 575px; height: 350px; resize: none; padding: 10px; font-family: monospace; overflow: hidden;">
+            style="width: 575px; height: 300px; resize: none; padding: 10px; font-family: monospace; overflow: hidden;">
         </textarea>
     </div>
 </body>
