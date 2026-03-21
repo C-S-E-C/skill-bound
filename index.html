@@ -2,7 +2,10 @@
     if (isWeChat()) {
         alert('请注意：微信浏览器可能无法正常使用此应用程序。建议使用其他浏览器访问。\n\nPlease note: WeChat browser may not work properly with this application. It is highly recommended to use another browser to access it.');
         if (localStorage.getItem('userid') == null) {
-            window.location.href = 'signup.html';
+            // CONTENT LOADED
+            document.addEventListener('DOMContentLoaded', function() {
+                document.body.innerHTML = '<a href="signup.html">注册</a>';
+            });
         }
     }else {
         if (localStorage.getItem('userid') == null) {
