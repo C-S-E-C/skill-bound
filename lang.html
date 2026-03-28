@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Choose your language</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            background-color: black;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: system-ui, 'Segoe UI', 'Helvetica Neue', sans-serif;
+            overflow: hidden;
+        }
+        .black-bg {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            background-color: #2a2a2a;
+            display: flex;
+            overflow: hidden;
+        }
+        .circle {
+            top: 20%;
+            left: 5%;
+            position: relative;
+            width: 70vw;
+            height: 70vw;
+            max-width: 500px;
+            max-height: 500px;
+            min-width: 280px;
+            min-height: 280px;
+            border-radius: 50%;
+            background-color: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            box-shadow: 0 0 0 2px rgba(0,0,0,0.2), 0 0 0 4px rgba(255,255,255,0.05);
+            overflow: hidden;
+            backdrop-filter: blur(0px);
+        }
+        .circle::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.6);
+            pointer-events: none;
+            z-index: 2;
+        }
+        .moving-track {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: auto;
+            height: 100%;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            animation: scrollLeft 12s linear infinite;
+            will-change: transform;
+            animation: scrollLeft 10s linear infinite;
+            rotate: 23.66deg;
+            z-index: 1;
+            position: relative;
+        }
+        .moving-track img {
+            height: 100%;
+            width: auto;
+            object-fit: cover;
+            display: block;
+            flex-shrink: 0;
+            background-color: #2a2a2a;
+            box-sizing: content-box;
+        }
+        .lang-list {
+            color:white;
+            position: absolute;
+            top: 5%;
+            bottom: 5%;
+            left: 50%;
+            width: 45%;
+            height: 90%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 3;
+        }
+        .lang-list h1 {
+            font-size: 40px;
+        }
+        #lang-select {
+            display: block;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 75%;
+            width: 65%;
+            overflow-y: scroll;
+            list-style-type: none;
+            scrollbar-color: #4f4f4f #2a2a2a;
+        }
+        #lang-select li {
+            top: 0;
+            font-size: 15px;
+            margin: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+            cursor: pointer;
+            border-radius: 10px;
+            background-color: #4f4f4f;
+            width: 90%;
+        }
+        #lang-search {
+            height: 40px;
+            width: 65%;
+            margin: 10px;
+            color: white;
+            background-color: #4f4f4f;
+            border-radius: 10px;
+            border: none;
+            padding: 5px;
+        }
+        .translateSelectLanguage {
+            display: none;
+        }
+        @media (max-width: 600px) {
+            .circle {
+                width: 85vw;
+                height: 85vw;
+            }
+        }
+        @keyframes scrollLeft {
+            0% {
+                transform: translateX(0);
+            }
+            100% {
+                transform: translateX(-200%);
+            }
+       }
+    </style>
+    <script src="js/translate.min.js"></script>
+</head>
+<body>
+<div class="black-bg">
+    <div class="circle">
+        <div class="moving-track" id="movingTrack">
+            <img src="images/globe.jpg" alt="Globe" loading="lazy">
+            <img src="images/globe.jpg" alt="Globe" loading="lazy">
+        </div>
+    </div>
+    <div class="lang-list">
+        <h1>Choose your language!</h1>
+        <br  />
+        <input type="text" id="lang-search" placeholder="Search for a language" />
+        <ul id="lang-select"><br></ul>
+    </div>
+</div>
+<script>
+    function changeLanguage(lang) {
+        // Perform the language change logic here
+        console.log("Language changed to:", lang);
+        localStorage.setItem("to", lang);
+        window.location.href = "login.html";
+    }
+    const languages = [{"id":"mepeti","name":"Sepeti","serviceId":"nso"},{"id":"corsican","name":"hinaassicurasol","serviceId":"co"},{"id":"guarani","name":"ondoho","serviceId":"gn"},{"id":"kinyarwanda","name":"Kinyarwanda","serviceId":"rw"},{"id":"hausa","name":"dictionary variant","serviceId":"ha"},{"id":"norwegian","name":"Norge","serviceId":"no"},{"id":"dutch","name":"nederlands","serviceId":"nl"},{"id":"yoruba","name":"Yoruba","serviceId":"yo"},{"id":"english","name":"English","serviceId":"en"},{"id":"gongen","name":"गोंगेन हें नांव","serviceId":"gom"},{"id":"latin","name":"Latina","serviceId":"la"},{"id":"nepali","name":"नेपालीName","serviceId":"ne"},{"id":"french","name":"Français","serviceId":"fr"},{"id":"czech","name":"český","serviceId":"cs"},{"id":"hawaiian","name":"panekeʻhaka","serviceId":"haw"},{"id":"georgian","name":"ჯორჯიანიName","serviceId":"ka"},{"id":"russian","name":"Русский язык","serviceId":"ru"},{"id":"serbian","name":"Српски","serviceId":"sr"},{"id":"chinese_simplified","name":"简体中文","serviceId":"zh-CN"},{"id":"persian","name":"Persian","serviceId":"fa"},{"id":"bhojpuri","name":"हमार कपार दर्द करता।","serviceId":"bho"},{"id":"javanese","name":"basa jawa","serviceId":"jw"},{"id":"hindi","name":"हिन्दी","serviceId":"hi"},{"id":"belarusian","name":"БеларускаяName","serviceId":"be"},{"id":"esperanto","name":"Esperanto","serviceId":"eo"},{"id":"kazakh","name":"қазақ","serviceId":"kk"},{"id":"swahili","name":"Kiswahili","serviceId":"sw"},{"id":"oriya","name":"ଓଡିଆ","serviceId":"or"},{"id":"icelandic","name":"ÍslandName","serviceId":"is"},{"id":"yiddish","name":"ייַדיש","serviceId":"yi"},{"id":"twi","name":"Ma frɛ","serviceId":"ak"},{"id":"irish","name":"Íris","serviceId":"ga"},{"id":"gujarati","name":"ગુજરાતી","serviceId":"gu"},{"id":"khmer","name":"ភាសា​ខ្មែរName","serviceId":"km"},{"id":"slovak","name":"Slovenská","serviceId":"sk"},{"id":"hebrew","name":"היברית","serviceId":"iw"},{"id":"kannada","name":"ಕನ್ನಡ್Name","serviceId":"kn"},{"id":"hungarian","name":"magyar","serviceId":"hu"},{"id":"ilocano","name":"Ilocano","serviceId":"ilo"},{"id":"sundanese","name":"basa Sunda","serviceId":"su"},{"id":"tamil","name":"தாமில்","serviceId":"ta"},{"id":"arabic","name":"بالعربية","serviceId":"ar"},{"id":"bengali","name":"বেঙ্গালী","serviceId":"bn"},{"id":"azerbaijani","name":"azerbaijani","serviceId":"az"},{"id":"samoan","name":"lifiava","serviceId":"sm"},{"id":"afrikaans","name":"afrikaans","serviceId":"af"},{"id":"indonesian","name":"IndonesiaName","serviceId":"id"},{"id":"danish","name":"dansk","serviceId":"da"},{"id":"uyghur","name":"ئۇيغۇر","serviceId":"ug"},{"id":"afrikaans_xhosa","name":"Afrikaans isiXhosa","serviceId":"xh"},{"id":"meitei","name":"ꯃꯦꯏꯇꯦꯏ꯫","serviceId":"mni-Mtei"},{"id":"shona","name":"Shona","serviceId":"sn"},{"id":"bambara","name":"Bamanankan","serviceId":"bm"},{"id":"lithuanian","name":"Lietuva","serviceId":"lt"},{"id":"uzbek","name":"o'zbek","serviceId":"uz"},{"id":"vietnamese","name":"Tiếng Việt","serviceId":"vi"},{"id":"lingala","name":"Lingala","serviceId":"ln"},{"id":"maltese","name":"Malti","serviceId":"mt"},{"id":"turkmen","name":"Türkmençe","serviceId":"tk"},{"id":"assamese","name":"assamese","serviceId":"as"},{"id":"catalan","name":"català","serviceId":"ca"},{"id":"singapore","name":"සිංගාපුර්","serviceId":"si"},{"id":"cebuano","name":"cebuano","serviceId":"ceb"},{"id":"sanskrit","name":"Sanskrit","serviceId":"sa"},{"id":"polish","name":"Polski","serviceId":"pl"},{"id":"galician","name":"galico","serviceId":"gl"},{"id":"latvian","name":"latviešu","serviceId":"lv"},{"id":"ukrainian","name":"Україна","serviceId":"uk"},{"id":"tatar","name":"Татар","serviceId":"tt"},{"id":"scottish_gaelic","name":"Gàidhlig na h-Alba","serviceId":"gd"},{"id":"welsh","name":"Iaith Weleg","serviceId":"cy"},{"id":"japanese","name":"日本語","serviceId":"ja"},{"id":"filipino","name":"Pilipino","serviceId":"tl"},{"id":"aymara","name":"aymara.","serviceId":"ay"},{"id":"lao","name":"ກະຣຸນາ","serviceId":"lo"},{"id":"mongolian","name":"Монгол","serviceId":"mn"},{"id":"telugu","name":"తెలుగుName","serviceId":"te"},{"id":"romanian","name":"Română","serviceId":"ro"},{"id":"haitian_creole","name":"Kreyòl ayisyen","serviceId":"ht"},{"id":"dogrid","name":"कुकुरमुत्ता","serviceId":"doi"},{"id":"swedish","name":"Svenska","serviceId":"sv"},{"id":"maithili","name":"मरातिलीName","serviceId":"mai"},{"id":"malagasy","name":"Malagasy","serviceId":"mg"},{"id":"thai","name":"คนไทย","serviceId":"th"},{"id":"armenian","name":"Արմենյան","serviceId":"hy"},{"id":"burmese","name":"ဗာရမ်","serviceId":"my"},{"id":"pashto","name":"پښتوName","serviceId":"ps"},{"id":"hmong","name":"hmong","serviceId":"hmn"},{"id":"dhivehi","name":"ދިވާރީވް","serviceId":"dv"},{"id":"chinese_traditional","name":"繁體中文","serviceId":"zh-TW"},{"id":"luxembourgish","name":"LëtzebuergeschName","serviceId":"lb"},{"id":"sindhi","name":"سنڌي","serviceId":"sd"},{"id":"kurdish","name":"Kurdî","serviceId":"ku"},{"id":"turkish","name":"Türkçe","serviceId":"tr"},{"id":"macedonian","name":"Македонски","serviceId":"mk"},{"id":"bulgarian","name":"български","serviceId":"bg"},{"id":"malay","name":"Malay","serviceId":"ms"},{"id":"sesotho","name":"sesotho","serviceId":"st"},{"id":"luganda","name":"luganda","serviceId":"lg"},{"id":"south_african_zulu","name":"IsiZulu saseNingizimu Afrika","serviceId":"zu"},{"id":"marathi","name":"मराठीName","serviceId":"mr"},{"id":"estonian","name":"eesti keel","serviceId":"et"},{"id":"malayalam","name":"മലമാലം","serviceId":"ml"},{"id":"deutsch","name":"Deutsch","serviceId":"de"},{"id":"slovene","name":"slovenščina","serviceId":"sl"},{"id":"urdu","name":"اوردو","serviceId":"ur"},{"id":"portuguese","name":"português","serviceId":"pt"},{"id":"igbo","name":"igbo","serviceId":"ig"},{"id":"tigri","name":"ትግርኛ","serviceId":"ti"},{"id":"kurdish_sorani","name":"کوردی سۆرانی","serviceId":"ckb"},{"id":"oromo","name":"adeta","serviceId":"om"},{"id":"greek","name":"ελληνικά","serviceId":"el"},{"id":"spanish","name":"Español","serviceId":"es"},{"id":"frisian","name":"frysk","serviceId":"fy"},{"id":"somali","name":"Soomaali","serviceId":"so"},{"id":"mizo","name":"Mizo tawng","serviceId":"lus"},{"id":"amharic","name":"amharic","serviceId":"am"},{"id":"nyanja","name":"potakuyan","serviceId":"ny"},{"id":"punjabi","name":"ਪੰਜਾਬੀName","serviceId":"pa"},{"id":"basque","name":"baskoa","serviceId":"eu"},{"id":"italian","name":"italiano","serviceId":"it"},{"id":"albanian","name":"albanian","serviceId":"sq"},{"id":"korean","name":"한국어","serviceId":"ko"},{"id":"tajik","name":"ТаjikӣName","serviceId":"tg"},{"id":"finnish","name":"suomi","serviceId":"fi"},{"id":"kyrgyz","name":"Кыргыз тили","serviceId":"ky"},{"id":"ewe","name":"Eʋegbe","serviceId":"ee"},{"id":"croatian","name":"hrvatski","serviceId":"hr"},{"id":"zongjia","name":"zongjia","serviceId":"ts"},{"id":"creole","name":"a n:n","serviceId":"kri"},{"id":"quechua","name":"Quechua","serviceId":"qu"},{"id":"bosnian","name":"bosnian","serviceId":"bs"},{"id":"maori","name":"Maori","serviceId":"mi"}];
+    const selectelement = document.getElementById("lang-select");
+    for (var i = 0; i < languages.length; i++) {
+        let lang = languages[i];
+        let option = document.createElement("li");
+        option.onclick = () => changeLanguage(lang.id);
+        option.innerText = lang.name;
+        selectelement.appendChild(option);
+    }
+    translate.listener.start();
+    translate.execute();
+    const langsearch = document.getElementById("lang-search");
+    langsearch.addEventListener("input", function (e) {
+        const search = e.target.value.toLowerCase();
+        const options = selectelement.getElementsByTagName("li");
+        for (let i = 0; i < options.length; i++) {
+            const option = options[i];
+            const text = option.innerText.toLowerCase();
+            if (text.includes(search)) {
+                option.style.display = "";
+            } else {
+                option.style.display = "none";
+            }
+        }
+    });
+</script>
+</body>
+</html>

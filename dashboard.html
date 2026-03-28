@@ -3,6 +3,9 @@
 <head>
     <title>Dashboard</title>
     <style>
+        body {
+            background-color: rgb(22, 22, 22);
+        }
         #controls {
             position: absolute;
             bottom: 0;
@@ -15,7 +18,8 @@
         }
         #controls button {
             margin: 0;
-
+            color: white;
+            font-size: 30px;
             padding: 20px;
             height: 100%;
             width: 25%;
@@ -33,13 +37,81 @@
         #controls #fight:hover {
             background-color: rgb(255, 211, 67);
         }
+        #coins {
+            position: relative;
+            color: gold;
+            font-size: 20px;
+            left: 70%;
+            width: 10%;
+            overflow-y: hidden;
+        }
+        #energy {
+            position: relative;
+            color: rgb(44, 209, 132);
+            font-size: 20px;
+            left: 65%;
+            width: 10%;
+            overflow-y: hidden;
+        }
+        #settings {
+            position: relative;
+            font-size: 30px;
+            left: 75%;
+            background: none;
+            border: none;
+        }
+        #settings:hover {
+            cursor: pointer;
+        }
+        #top-bar {
+            position: absolute;
+            top: 0;
+            right: 0;
+            margin: 0;
+            width: 100%;
+            display: inline-flex;
+        }
+        #top-bar * {
+            scrollbar-color: #4f4f4f #161616;
+        }
     </style>
+    <script>
+        if (localStorage.getItem("lang") === null) {
+            window.location.href = "lang.html";
+        }
+        if (localStorage.getItem("coins") === null) {
+            localStorage.setItem("coins", 0);
+        }
+        if (localStorage.getItem("energy") === null) {
+            localStorage.setItem("energy", 0);
+        }
+    </script>
+    <script src="js/translate.min.js"></script>
+
 </head>
 <body>
+    <div id="top-bar">
+        <p id="energy"></p>
+        <p id="coins"></p>
+        <button id="settings" onclick="window.open('settings.html','_blank')">⚙️</button>
+    </div>
     <div id="controls">
         <button id="map">Map</button>
         <button id="fight">Fight!</button>
         <button id="manual">Manual</button>
     </div>
+    <script>
+        translate.listener.start();
+        translate.execute();
+        if (localStorage.getItem("userid") == null) {
+            window.location.href = "login.html";
+        }
+        document.getElementById("coins").innerHTML = "Coins: " + localStorage.getItem("coins");
+        document.getElementById("energy").innerHTML = "Energy: " + localStorage.getItem("energy");
+        setInterval(() => {
+            document.getElementById("coins").innerHTML = "Coins: " + localStorage.getItem("coins");
+            document.getElementById("energy").innerHTML = "Energy: " + localStorage.getItem("energy");
+        }, 1000);
+    </script>
 </body>
 </html>

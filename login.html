@@ -1,6 +1,10 @@
 <script>
     if (localStorage.getItem("userid") != null) {
-        window.location.href = "dashboard.html";
+        if (localStorage.getItem("to") != null) {
+            window.location.href = "dashboard.html";   
+        } else {
+            window.location.href = "lang.html";
+        }
     } else {
         window.location.href = "signup.html";
     }
