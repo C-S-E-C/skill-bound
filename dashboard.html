@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard</title>
+    <style>
+        #controls {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            margin: 0;
+            width: 100%;
+            height: 10%;
+            display: inline-flex;
+
+        }
+        #controls button {
+            margin: 0;
+
+            padding: 20px;
+            height: 100%;
+            width: 25%;
+            border: none;
+            background-color: rgb(29, 53, 173);
+        }
+        #controls button:hover {
+            background-color: rgb(46, 72, 205);
+            cursor: pointer;
+        }
+        #controls #fight {
+            width: 50%;
+            background-color: rgb(255, 195, 0);
+        }
+        #controls #fight:hover {
+            background-color: rgb(255, 211, 67);
+        }
+    </style>
+</head>
+<body>
+    <div id="controls">
+        <button id="map">Map</button>
+        <button id="fight">Fight!</button>
+        <button id="manual">Manual</button>
+    </div>
+</body>
+</html>
