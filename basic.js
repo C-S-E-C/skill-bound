@@ -32,6 +32,6 @@ function isWeChat(){
 var isnotie = (window.navigator.userAgent.toLowerCase().includes("edge") || window.navigator.userAgent.toLowerCase().includes("chrome") || window.navigator.userAgent.toLowerCase().includes("safari")) && window.navigator.userAgent.toLowerCase().includes("applewebkit");
 if (isnotie == false) {
     window.onload = function () {
-        this.document.body.innerHTML = "都2026年了，您老人家还在用ie呢，您是老北京人吧！请您换成edge或chrome吧！";
+        document.body.innerHTML = "都2026年了，您老人家还在用ie呢，您是老北京人吧！请您换成edge或chrome吧！";
     }
 }
