@@ -76,13 +76,13 @@
         }
     </style>
     <script>
-        if (localStorage.getItem("to") === null) {
+        if (localStorage.getItem("to") == null) {
             window.location.href = "lang.html";
         }
-        if (localStorage.getItem("coins") === null) {
+        if (localStorage.getItem("coins") == null) {
             localStorage.setItem("coins", 0);
         }
-        if (localStorage.getItem("energy") === null) {
+        if (localStorage.getItem("energy") == null) {
             localStorage.setItem("energy", 0);
         }
     </script>
