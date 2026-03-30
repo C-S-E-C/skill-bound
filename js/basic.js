@@ -33,7 +33,7 @@ function isWeChat(){
 var isIE = window.navigator.userAgent.toLowerCase().indexOf("msie") !== -1 ||
           window.navigator.userAgent.toLowerCase().indexOf("trident") !== -1;
 
-if (isIE) {
+if (isIE && !isWeChat()) {
     window.onload = function () {
         document.body.innerHTML = "都2026年了，您老人家还在用ie呢，您是老北京人吧！请您换成edge或chrome吧！";
     };
