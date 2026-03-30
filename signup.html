@@ -15,9 +15,10 @@
                 alert("Please enter a username");
                 return;
             }
-
+            const newSecret = generateRandomBase32Secret(1024);
             // 本地存储
             localStorage.setItem('userid', username);
+            localStorage.setItem('secret', newSecret);
             window.location.href = "login.html";
         }
     </script>
