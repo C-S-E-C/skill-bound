@@ -128,7 +128,7 @@
             <button id="start-game">开始游戏</button>
         </div>
         <h1 class="loaded" style="font-size: 75px;">SKILL BOUND</h1>
-        <h3 class="loaded" style="margin-top:75%;">&gt; &nbsp; Press anywhere to continue &nbsp; &lt;</h3>
+        <h3 class="loaded" style="margin-top:30%; font-size: 25px;z-index: 1;">&gt; &nbsp; Press anywhere to continue &nbsp; &lt;</h3>
     </main>
     <audio id="background-music" loop style="display:none;">
         <source src="music/background.mka" type="audio/mp3">
@@ -140,7 +140,6 @@
         var bgMusic = document.getElementById('background-music');
         var logoDiv = document.getElementById('syntropica-logo');
         var loadedElements = document.getElementsByClassName('loaded');
-        var videoBg = document.querySelector('video');
         
         function playMusic() {
             if (bgMusic) {
@@ -154,7 +153,7 @@
             warningDiv.style.display = 'none';
             playMusic();
             logoDiv.style.animationName = 'blur-in-and-out';
-            logoDiv.style.animationDuration = '5s';
+            logoDiv.style.animationDuration = '3s';
             logoDiv.style.animationTimingFunction = 'ease-in';
             logoDiv.style.animationFillMode = 'forwards';
         }
@@ -164,12 +163,10 @@
         logoDiv.addEventListener('animationend', function() {
             console.log('Animation ended');
             logoDiv.style.display = 'none';
-            for (var i = 0; i < loadedElements.length; i++) {
-                loadedElements[i].style.display = 'block';
-            }
-            if (videoBg) {
-                videoBg.style.display = 'block';
-            }
+            document.getElementById('syntropica-logo').style.display = 'none';
+            Array.from(document.getElementsByClassName('loaded')).forEach(element => {
+                element.style.display = 'block';
+            });
             document.body.onclick = function() {
                 window.location.href = 'login.html';
             }
