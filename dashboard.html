@@ -74,6 +74,9 @@
         #top-bar * {
             scrollbar-color: #4f4f4f #161616;
         }
+        .translateSelectLanguage {
+            display: none;
+        }
     </style>
     <script>
         if (localStorage.getItem("to") == null) {
@@ -92,7 +95,7 @@
 <body>
     <div id="top-bar">
         <p id="energy"></p>
-        <p id="coins"></p>
+        <p id="coins" onclick="window.open('coin.html','_blank')"></p>
         <button id="settings" onclick="window.open('settings.html','_blank')">⚙️</button>
     </div>
     <div id="controls">
@@ -106,10 +109,10 @@
         if (localStorage.getItem("userid") == null) {
             window.location.href = "login.html";
         }
-        document.getElementById("coins").innerHTML = "Coins: " + localStorage.getItem("coins");
+        document.getElementById("coins").innerHTML = "Coins: " + localStorage.getItem("coins") + "&nbsp;⊕";
         document.getElementById("energy").innerHTML = "Energy: " + localStorage.getItem("energy");
         setInterval(() => {
-            document.getElementById("coins").innerHTML = "Coins: " + localStorage.getItem("coins");
+            document.getElementById("coins").innerHTML = "Coins: " + localStorage.getItem("coins") + "&nbsp;⊕";
             document.getElementById("energy").innerHTML = "Energy: " + localStorage.getItem("energy");
         }, 1000);
     </script>
