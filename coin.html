@@ -1,512 +1,94 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>暗色星河 · 代币汇率看板</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>暗色硬币兑换</title>
     <style>
-        * {
+        /* 基础样式重置 */
+        body {
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            min-height: 100vh;
-            background: radial-gradient(circle at 20% 30%, #0a0f1e, #03060c);
-            font-family: 'Segoe UI', 'Inter', system-ui, 'Poppins', 'SF Pro Text', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #121212; /* 深灰近黑背景 */
+            color: #e0e0e0; /* 浅灰色文字，避免纯白刺眼 */
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 1.5rem;
-            position: relative;
+            height: 100vh;
         }
 
-        /* 动态噪点纹理 (增加暗色质感) */
-        body::before {
-            content: "";
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-            background-size: 32px 32px;
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        /* 主卡片容器 — 深邃玻璃质感 */
-        .glass-card {
-            position: relative;
-            z-index: 2;
-            max-width: 520px;
-            width: 100%;
-            background: rgba(12, 18, 28, 0.65);
-            backdrop-filter: blur(12px);
-            border-radius: 3rem;
-            border: 1px solid rgba(72, 187, 255, 0.2);
-            box-shadow: 0 25px 45px -12px rgba(0, 0, 0, 0.6), 0 0 0 0.5px rgba(0, 255, 255, 0.1) inset;
-            padding: 2rem 1.8rem 2.2rem;
-            transition: all 0.3s ease;
-        }
-
-        .glass-card:hover {
-            border-color: rgba(0, 212, 255, 0.5);
-            box-shadow: 0 30px 50px -18px black;
-        }
-
-        /* 标题与装饰 */
-        .brand {
-            display: flex;
-            align-items: baseline;
-            justify-content: space-between;
-            margin-bottom: 2rem;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-        }
-
-        .logo {
-            font-size: 1.8rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, #E0F2FE, #7DD3FC, #38BDF8);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            letter-spacing: -0.3px;
-            text-shadow: 0 2px 5px rgba(0,160,255,0.2);
-        }
-
-        .badge {
-            background: rgba(56, 189, 248, 0.12);
-            backdrop-filter: blur(4px);
-            padding: 0.3rem 0.9rem;
-            border-radius: 40px;
-            font-size: 0.75rem;
-            font-weight: 500;
-            color: #90e0ff;
-            border: 0.5px solid rgba(56, 189, 248, 0.4);
-            letter-spacing: 0.3px;
-        }
-
-        /* 汇率核心展示区 */
-        .exchange-area {
-            background: rgba(0, 0, 0, 0.35);
-            border-radius: 2rem;
-            padding: 1.8rem 1rem;
-            margin: 1rem 0 1.8rem 0;
+        /* 容器卡片 */
+        .container {
+            background-color: #1e1e1e;
+            padding: 2.5rem;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
             text-align: center;
-            border: 1px solid rgba(56, 189, 248, 0.2);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-            transition: all 0.2s;
+            max-width: 350px;
+            width: 90%;
+            border: 1px solid #333;
         }
 
-        .rate-label {
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            font-weight: 400;
-            color: #9ca3cf;
-            margin-bottom: 1rem;
-        }
-
-        .rate-value {
-            font-size: 3.4rem;
-            font-weight: 800;
-            font-family: 'JetBrains Mono', 'SF Mono', monospace;
-            color: #eef5ff;
-            background: linear-gradient(145deg, #ffffff, #b9e2ff);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            text-shadow: 0 2px 8px rgba(0,180,255,0.3);
-            letter-spacing: 1px;
-        }
-
-        .rate-sub {
-            font-size: 0.9rem;
-            color: #88a4d4;
-            margin-top: 0.7rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .live-dot {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            background-color: #2ef07c;
-            border-radius: 50%;
-            box-shadow: 0 0 6px #1eff8e;
-            animation: pulse 1.5s infinite;
-        }
-
-        @keyframes pulse {
-            0% { opacity: 0.4; transform: scale(0.8);}
-            100% { opacity: 1; transform: scale(1.2);}
-        }
-
-        /* 购买按钮 — 高级质感 */
-        .buy-section {
-            margin: 2rem 0 1rem;
-        }
-
-        .btn-buy {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            width: 100%;
-            background: linear-gradient(105deg, #0f212e, #07131f);
-            border: 1px solid rgba(0, 212, 255, 0.6);
-            border-radius: 60px;
-            padding: 1rem 0;
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: #d9f0ff;
-            text-decoration: none;
-            transition: 0.25s ease;
-            backdrop-filter: blur(8px);
-            letter-spacing: 0.5px;
-            box-shadow: 0 5px 12px rgba(0,0,0,0.4);
-            cursor: pointer;
-        }
-
-        .btn-buy:hover {
-            background: linear-gradient(105deg, #1a3343, #0a1725);
-            border-color: #5ee0ff;
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 12px 20px -8px rgba(0, 180, 255, 0.3);
-        }
-
-        .btn-buy:active {
-            transform: translateY(1px);
-        }
-
-        .coin-icon {
-            font-size: 1.5rem;
-            filter: drop-shadow(0 0 4px #6dd5ff);
-        }
-
-        /* 提示信息 / 动态状态 */
-        .info-message {
-            margin-top: 1.5rem;
-            font-size: 0.75rem;
-            text-align: center;
-            color: #7a8bbf;
-            background: rgba(0, 0, 0, 0.3);
-            padding: 0.7rem;
-            border-radius: 28px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            backdrop-filter: blur(4px);
-        }
-
-        /* 加载状态微动画 */
-        .loading-shimmer {
-            background: linear-gradient(110deg, #1e2a3a 0%, #2a3f4f 25%, #1e2a3a 50%);
-            background-size: 200% 100%;
-            animation: shimmer 1.2s infinite linear;
-            border-radius: 20px;
-            display: inline-block;
-            width: 160px;
-            height: 38px;
-        }
-
-        @keyframes shimmer {
-            0% { background-position: -200% 0; }
-            100% { background-position: 200% 0; }
-        }
-
-        /* 辅助 flex 工具 */
-        .flex-between {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        /* 适配小屏幕 */
-        @media (max-width: 480px) {
-            .glass-card {
-                padding: 1.5rem;
-            }
-            .rate-value {
-                font-size: 2.4rem;
-            }
-            .btn-buy {
-                font-size: 1rem;
-                padding: 0.8rem 0;
-            }
-        }
-
-        /* 隐藏旧版id样式但保留功能性 */
+        /* 汇率文本 */
         #ExchangeRate {
-            /* 原p标签不再用于显示主要数值，但为了稳妥保留隐藏，让新UI接管 */
-            display: none;
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+            color: #00e676; /* 亮绿色，突出汇率 */
+            font-weight: 500;
         }
 
-        /* 自定义链接样式覆盖原始a标签 */
-        .original-link-helper {
-            display: none;
+        /* 按钮美化 */
+        .buy-button {
+            display: inline-block;
+            text-decoration: none;
+            background: linear-gradient(135deg, #6200ee, #3700b3);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 15px rgba(98, 0, 238, 0.3);
         }
-        
-        /* 小装饰glow */
-        .glow-effect {
-            position: absolute;
-            width: 180px;
-            height: 180px;
-            background: radial-gradient(circle, rgba(0,180,255,0.2), transparent 70%);
-            border-radius: 50%;
-            filter: blur(40px);
-            z-index: 0;
-            pointer-events: none;
+
+        .buy-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(98, 0, 238, 0.5);
+            background: linear-gradient(135deg, #7c4dff, #6200ee);
+        }
+
+        .buy-button:active {
+            transform: translateY(0);
+        }
+
+        /* 加载中的占位样式 */
+        #ExchangeRate:empty::before {
+            content: "正在获取汇率...";
+            color: #888;
+            font-size: 0.9rem;
         }
     </style>
 </head>
 <body>
-    <!-- 背景光晕装饰 -->
-    <div class="glow-effect" style="top: 10%; left: -5%;"></div>
-    <div class="glow-effect" style="bottom: 0%; right: -5%; width: 240px; height: 240px; background: radial-gradient(circle, rgba(120,80,255,0.15), transparent 70%);"></div>
 
-    <div class="glass-card">
-        <div class="brand">
-            <span class="logo">✦ CRYPTO DARK</span>
-            <span class="badge">实时汇率 · 链上锚定</span>
-        </div>
-
-        <!-- 汇率核心展示区，动态填充内容 -->
-        <div class="exchange-area" id="exchangeDisplay">
-            <div class="rate-label">当前兑换率</div>
-            <div class="rate-value" id="dynamicRate">— / —</div>
-            <div class="rate-sub">
-                <span class="live-dot"></span>
-                <span id="rateDesc">等待数据同步...</span>
-            </div>
-        </div>
-
-        <!-- 购买按钮区块 (保留了原始链接行为但美化为按钮) -->
-        <div class="buy-section">
-            <a href="example" class="btn-buy" id="smartBuyBtn">
-                <span class="coin-icon">🪙</span>
-                <span>购买 Coins (1 CNY)</span>
-                <span style="opacity:0.8;">→</span>
-            </a>
-        </div>
-
-        <div class="info-message" id="systemMsg">
-            <span>📡</span> 数据源自 dynamic.json · 安全加密通道
-        </div>
-        <!-- 原本的p标签保留但隐藏，确保原始逻辑依旧可用 (数据拉取后不影响新界面) -->
-        <p id="ExchangeRate" style="display:none;"></p>
-        <!-- 原始a标签保留但隐藏样式，避免重复显示; 但为了链接功能保留，但我们会让新按钮使用相同href -->
-        <a href="example" id="originalAnchor" style="display:none;">Buy coins(1 CNY)</a>
+    <div class="container">
+        <h2 style="margin-top: 0; font-weight: 300;">硬币兑换</h2>
+        <p id="ExchangeRate"></p>
+        <a href="example" class="buy-button">立即购买 (1 CNY)</a>
     </div>
 
     <script>
-        (function() {
-            // 获取dom元素
-            const dynamicRateSpan = document.getElementById('dynamicRate');
-            const rateDescSpan = document.getElementById('rateDesc');
-            const exchangeRateOriginalP = document.getElementById('ExchangeRate');  // 隐藏p，仍保留用于兼容
-            const buyBtn = document.getElementById('smartBuyBtn');
-            const originalAnchor = document.getElementById('originalAnchor');
-            
-            // 统一设置购买按钮链接 (保证和原始example链接完全一致)
-            if (buyBtn && originalAnchor) {
-                // 确保新按钮的href与原始锚点相同
-                const originalHref = originalAnchor.getAttribute('href');
-                if (originalHref) {
-                    buyBtn.setAttribute('href', originalHref);
-                } else {
-                    // 保底使用 "example"
-                    buyBtn.setAttribute('href', 'example');
-                }
-            } else if (buyBtn) {
-                // 极端情况保险
-                buyBtn.setAttribute('href', 'example');
-            }
-            
-            // 优雅处理加载状态
-            function setLoadingState(isLoading) {
-                if (isLoading) {
-                    dynamicRateSpan.innerHTML = '<span class="loading-shimmer" style="width: 140px; height: 48px; display: inline-block;"></span>';
-                    rateDescSpan.innerHTML = '正在获取最新汇率...';
-                } else {
-                    // 清空加载占位, 等待data填充
-                }
-            }
-            
-            // 更新界面UI (基于汇率数字)
-            function updateUIWithExchangeRate(rate) {
-                if (rate === undefined || rate === null || isNaN(rate)) {
-                    // 无效数据展示优雅错误
-                    dynamicRateSpan.innerHTML = '⚡︎ 获取失败';
-                    dynamicRateSpan.style.background = 'none';
-                    dynamicRateSpan.style.webkitBackgroundClip = 'unset';
-                    dynamicRateSpan.style.color = '#ffa6a6';
-                    dynamicRateSpan.style.fontSize = '2rem';
-                    rateDescSpan.innerHTML = '数据暂不可用 · 检查 dynamic.json';
-                    return;
-                }
-                
-                // 格式化汇率显示：保留足够精度，通常交易所显示4-6位
-                let formattedRate;
-                if (Number.isInteger(rate)) {
-                    formattedRate = rate.toFixed(2);
-                } else if (rate < 0.001) {
-                    formattedRate = rate.toExponential(4);
-                } else {
-                    // 常见法币汇率最多6位小数
-                    formattedRate = rate.toLocaleString(undefined, { minimumFractionDigits: 4, maximumFractionDigits: 8 });
-                }
-                
-                // 更新主要数值区域 (优雅展示 1 Coin = X CNY)
-                dynamicRateSpan.innerHTML = `1 Coin = ${formattedRate} CNY`;
-                // 还原样式确保渐变色正常
-                dynamicRateSpan.style.background = "linear-gradient(145deg, #ffffff, #b9e2ff)";
-                dynamicRateSpan.style.webkitBackgroundClip = "text";
-                dynamicRateSpan.style.backgroundClip = "text";
-                dynamicRateSpan.style.color = "transparent";
-                dynamicRateSpan.style.fontSize = ""; // 恢复默认
-                
-                // 辅助描述
-                rateDescSpan.innerHTML = `⚡ 1 CNY 可兑换 ${ (1 / rate).toFixed(6) } Coins`;
-                
-                // 额外给隐藏的原p标签赋值，确保原脚本意图不破坏（如果有其他外部逻辑引用）
-                if (exchangeRateOriginalP) {
-                    exchangeRateOriginalP.innerHTML = `1 Coin = ${rate} CNY`;
-                }
-            }
-            
-            // 显示连接错误/异常友好提示
-            function handleFetchError(error) {
-                console.warn("Fetch error: ", error);
-                dynamicRateSpan.innerHTML = '⚠️ 汇率离线';
-                dynamicRateSpan.style.background = 'none';
-                dynamicRateSpan.style.webkitBackgroundClip = 'unset';
-                dynamicRateSpan.style.color = '#f28b82';
-                dynamicRateSpan.style.fontSize = '2rem';
-                rateDescSpan.innerHTML = '无法加载 dynamic.json · 请检查网络';
-                if (exchangeRateOriginalP) {
-                    exchangeRateOriginalP.innerHTML = '1 Coin = ? CNY (加载失败)';
-                }
-                // 也可以更新系统信息栏
-                const sysMsgDiv = document.getElementById('systemMsg');
-                if (sysMsgDiv) {
-                    sysMsgDiv.innerHTML = `<span>⚠️</span> 数据源连接失败 · 使用缓存或重试`;
-                    sysMsgDiv.style.border = '0.5px solid #ff6b6b30';
-                }
-            }
-            
-            // 核心数据获取并美化渲染
-            function fetchExchangeRate() {
-                setLoadingState(true);
-                // 请求 dynamic.json，同时增加时间戳防止缓存（可选但保留原始路径友好）
-                // 但务必遵循原有 fetch('dynamic.json') 行为，不过可以增加 no-cache 策略但不影响原始设计
-                fetch("dynamic.json", {
-                    method: 'GET',
-                    cache: 'no-cache',   // 确保实时获取最新汇率，提升体验
-                    headers: {
-                        'Cache-Control': 'no-cache',
-                        'Pragma': 'no-cache'
-                    }
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP ${response.status}: 无法获取汇率数据`);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    // 数据校验: 需包含 ExchangeRate 字段且为数字
-                    if (data && typeof data === 'object' && (data.ExchangeRate !== undefined && data.ExchangeRate !== null)) {
-                        let rate = parseFloat(data.ExchangeRate);
-                        if (isNaN(rate)) {
-                            throw new Error('ExchangeRate 字段不是有效数字');
-                        }
-                        updateUIWithExchangeRate(rate);
-                        // 额外更新系统消息 (显示最后更新时间)
-                        const now = new Date();
-                        const timeStr = now.toLocaleTimeString('zh-CN', { hour12: false, hour:'2-digit', minute:'2-digit', second:'2-digit' });
-                        const sysMsgDiv = document.getElementById('systemMsg');
-                        if (sysMsgDiv) {
-                            sysMsgDiv.innerHTML = `<span>🔄</span> 实时汇率已更新 · ${timeStr}`;
-                            sysMsgDiv.style.border = '0.5px solid #2dd4bf30';
-                        }
-                    } else {
-                        throw new Error('JSON 结构无效，缺少 ExchangeRate 字段');
-                    }
-                })
-                .catch(err => {
-                    handleFetchError(err);
-                    // 也可在控制台输出但不影响用户界面友好
-                })
-                .finally(() => {
-                    // 移除加载占位动画的额外处理(如果加载失败保留失败内容，无需重新置loading)
-                    // 但动态加载完成后如果loading占位没被替换，但是updateUIWithExchangeRate 或 handleFetchError 一定会替换内容
-                    // 额外保险: 如果仍在加载态且没有更新内容，但不存在这种情况
-                });
-            }
-            
-            // 启动时立刻获取一次汇率
-            fetchExchangeRate();
-            
-            // 添加自动刷新汇率（每45秒重新拉取，保持动态感，适合暗色看板）
-            let intervalId = setInterval(() => {
-                fetchExchangeRate();
-            }, 45000);
-            
-            // 页面可见性变化时，如果页面长期后台可降低频率但是保持优雅，不做多余操作。但关闭页面时清除定时器
-            window.addEventListener('beforeunload', () => {
-                if (intervalId) {
-                    clearInterval(intervalId);
-                }
+        // 模拟数据抓取 (保持你原有的逻辑)
+        fetch("dynamic.json")
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("ExchangeRate").innerHTML = 
+                    "<span style='font-size: 1.5rem;'>" + data.ExchangeRate + " Coin </span> = CNY";
+            })
+            .catch(err => {
+                document.getElementById("ExchangeRate").innerText = "无法加载汇率";
+                console.error(err);
             });
-            
-            // 附加体验: 点击购买按钮时有轻微光效反馈 + 涟漪感 (不干扰跳转)
-            if (buyBtn) {
-                buyBtn.addEventListener('click', (e) => {
-                    // 纯粹视觉反馈: 制造微光效后正常跳转，不阻止默认行为
-                    const originalBg = buyBtn.style.background;
-                    buyBtn.style.background = "linear-gradient(105deg, #2b4f64, #0f2a3a)";
-                    setTimeout(() => {
-                        buyBtn.style.background = originalBg;
-                    }, 120);
-                    // 可以加个简单的控制台记录，不阻碍跳转
-                });
-            }
-            
-            // 补充一个手动刷新入口? 为了用户体验，在信息栏上增加隐形点击刷新（可选但高级）
-            // 但不需要过于复杂，只需让用户双击汇率区域可刷新（带来玩味感）
-            const exchangeDiv = document.getElementById('exchangeDisplay');
-            if (exchangeDiv) {
-                let refreshTimer = null;
-                exchangeDiv.addEventListener('dblclick', () => {
-                    // 双击区域重新拉取汇率，并给予提示
-                    fetchExchangeRate();
-                    const originalDesc = rateDescSpan.innerHTML;
-                    rateDescSpan.innerHTML = '⟳ 手动刷新汇率中...';
-                    setTimeout(() => {
-                        if (rateDescSpan.innerHTML === '⟳ 手动刷新汇率中...') {
-                            // 如果没有及时更新（请求慢时），保留但不覆盖最终的
-                        }
-                    }, 600);
-                    // 震动感? 小反馈
-                    exchangeDiv.style.transform = 'scale(0.99)';
-                    setTimeout(() => { exchangeDiv.style.transform = ''; }, 150);
-                });
-            }
-            
-            // 为了符合原始要求: 网页打开后原来的p标签和a标签都存在，且美观现代，我们完美融合。
-            // 原始a标签虽然没有显示，但保留了链接；p标签隐藏但内容同步，不影响原本的结构语义
-            // 确保dynamic.json 格式示例提醒: 若用户测试无json, 展示离线处理，但依然优雅。
-            // 增加一点点控制台输出以告知开发者
-        })();
     </script>
 </body>
 </html>
