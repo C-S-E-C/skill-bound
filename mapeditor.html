@@ -44,6 +44,7 @@
         <button class="btn" onclick="setBrush('B', this)" style="background: #795548;">Block (B)</button>
         <button class="btn" onclick="setBrush('G', this)" style="background: #4caf50;">Bush (G)</button>
         <button class="btn" onclick="setBrush('W', this)" style="background: #2196f3;">Water (W)</button>
+        <button class="btn" onclick="setBrush('E', this)" style="background: #9900ff;">Exit (E)</button>
         <hr>
         <button class="btn" onclick="exportMap()" style="background: #f44336;">导出地图文本</button>
         <span>当前笔刷: <span id="current-brush-text">Air</span></span>
@@ -69,7 +70,8 @@
             'A': 'images/ground.webp',
             'B': 'images/block.webp',
             'G': 'images/bush.webp',
-            'W': 'images/water.webp'
+            'W': 'images/water.webp',
+            'E': 'images/exit.png'
         };
 
         // 1. 初始化 100x100 网格
