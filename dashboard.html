@@ -106,7 +106,7 @@
     <script>
         translate.listener.start();
         translate.execute();
-        if (sessionStorage.getItem("userid") == null) {
+        if (localStorage.getItem("userid") == null) {
             window.location.href = "login.html";
         }
         document.getElementById("coins").innerHTML = "🪙 " + sessionStorage.getItem("coins") + "&nbsp;⊕";
