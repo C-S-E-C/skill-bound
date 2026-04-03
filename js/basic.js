@@ -38,15 +38,3 @@ if (isIE && !isWeChat()) {
         document.body.innerHTML = "都2026年了，您老人家还在用ie呢，您是老北京人吧！请您换成edge或chrome吧！";
     };
 }
-
-self.addEventListener("install", event => {
-    event.waitUntil(
-        caches.open("v1").then(cache =>
-            cache.addAll([
-                "images/block.webp",
-                "images/ground.webp",
-                "images/water.webp"
-            ])
-        )
-    );
-});
