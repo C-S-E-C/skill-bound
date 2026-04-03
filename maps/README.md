@@ -1,7 +1,7 @@
 # This is a map folder
 ## how to make a map
 <hr>
-#### map should be 200\*200 or else it may have problems.
+#### map should be 100\*100 or else it may have problems.
 #### It's OPTIONAL to do multi-lines or not
 #### Use thease to make a map
 `
@@ -10,8 +10,6 @@ G - Bush
 W - Water
 
 B - Block
-
-F - Fire
 
 A - Air
 `

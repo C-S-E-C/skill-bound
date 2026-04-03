@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>Map Editor - 100x100</title>
+    <style>
+        body { font-family: sans-serif; background: #333; color: white; display: flex; flex-direction: column; align-items: center; }
+        .controls { margin: 20px; padding: 15px; background: #444; border-radius: 8px; position: sticky; top: 10px; z-index: 100; }
+        
+        /* 画布容器：设置滚动条，因为100x100很大 */
+        .canvas-container { 
+            width: 800px; height: 600px; 
+            overflow: auto; border: 2px solid #000; background: #eee; 
+        }
+        
+        #map-grid { 
+            display: grid; 
+            grid-template-columns: repeat(100, 20px); 
+            grid-template-rows: repeat(100, 20px);
+            user-select: none;
+        }
+
+        .cell {
+            width: 20px; height: 20px;
+            border: 0.1px solid rgba(0,0,0,0.05);
+            background-size: cover;
+            background-image: url('images/ground.webp'); /* 默认是空气/地面 */
+        }
+
+        .btn { padding: 10px 20px; cursor: pointer; border: none; border-radius: 4px; margin: 0 5px; font-weight: bold; }
+        .active { outline: 3px solid #ffeb3b; }
+        
+        /* 导出区域 */
+        #output-area { margin-top: 20px; width: 800px; }
+        textarea { width: 100%; height: 150px; background: #222; color: #0f0; font-family: monospace; }
+    </style>
+</head>
+<body>
+
+    <h2>地图编辑器 (100x100)</h2>
+
+    <div class="controls">
+        <button class="btn active" onclick="setBrush('A', this)" style="background: #ccc;">Air (A)</button>
+        <button class="btn" onclick="setBrush('B', this)" style="background: #795548;">Block (B)</button>
+        <button class="btn" onclick="setBrush('G', this)" style="background: #4caf50;">Bush (G)</button>
+        <button class="btn" onclick="setBrush('W', this)" style="background: #2196f3;">Water (W)</button>
+        <hr>
+        <button class="btn" onclick="exportMap()" style="background: #f44336;">导出地图文本</button>
+        <span>当前笔刷: <span id="current-brush-text">Air</span></span>
+    </div>
+
+    <div class="canvas-container">
+        <div id="map-grid"></div>
+    </div>
+
+    <div id="output-area">
+        <p>导出结果 (10000 字符):</p>
+        <textarea id="output-text" readonly placeholder="点击上方导出按钮..."></textarea>
+    </div>
+
+    <script>
+        const GRID_SIZE = 100;
+        const gridElement = document.getElementById('map-grid');
+        let currentBrush = 'A';
+        let isMouseDown = false;
+
+        // 资源映射
+        const assets = {
+            'A': 'images/ground.webp',
+            'B': 'images/block.webp',
+            'G': 'images/bush.webp',
+            'W': 'images/water.webp'
+        };
+
+        // 1. 初始化 100x100 网格
+        function initGrid() {
+            for (let i = 0; i < GRID_SIZE * GRID_SIZE; i++) {
+                const cell = document.createElement('div');
+                cell.classList.add('cell');
+                cell.dataset.type = 'A'; // 默认是 Air
+                
+                // 鼠标事件
+                cell.addEventListener('mousedown', () => { isMouseDown = true; applyBrush(cell); });
+                cell.addEventListener('mouseenter', () => { if (isMouseDown) applyBrush(cell); });
+                
+                gridElement.appendChild(cell);
+            }
+        }
+
+        window.addEventListener('mouseup', () => isMouseDown = false);
+
+        // 2. 切换笔刷
+        function setBrush(type, btn) {
+            currentBrush = type;
+            document.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById('current-brush-text').innerText = type;
+        }
+
+        // 3. 涂抹颜色/图片
+        function applyBrush(cell) {
+            cell.dataset.type = currentBrush;
+            cell.style.backgroundImage = `url('${assets[currentBrush]}')`;
+        }
+
+        // 4. 导出文本
+        function exportMap() {
+            const cells = document.querySelectorAll('.cell');
+            let result = "";
+            cells.forEach((cell, index) => {
+                result += cell.dataset.type;
+                // 如果你想要多行（每100个换行），可以取消下面注释：
+                // if ((index + 1) % 100 === 0) result += "\n";
+            });
+            document.getElementById('output-text').value = result;
+        }
+
+        initGrid();
+    </script>
+</body>
+</html>
