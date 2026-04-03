@@ -87,7 +87,7 @@
             .then(response => response.json())
             .then(data => {
                 document.getElementById("ExchangeRate").innerHTML = 
-                    "<span style='font-size: 1.5rem;'>" + data.ExchangeRate + " Coin </span> = 1 CNY";
+                    "1 CNY = <span style='font-size: 1.5rem;'>" + data.ExchangeRate + " Coin </span>";
             })
             .catch(err => {
                 document.getElementById("ExchangeRate").innerText = "无法加载汇率";
