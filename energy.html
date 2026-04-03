@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>暗色硬币兑换</title>
+    <title></title>
     <style>
         /* 基础样式重置 */
         body {
@@ -74,11 +74,14 @@
     <div class="container">
         <h2 style="margin-top: 0; font-weight: 300;">硬币兑换</h2>
         <p id="ExchangeRate"></p>
-        <a href="example" class="buy-button">立即购买 (1 CNY)</a>
+        <p style="font-size: 0.9rem; color: #888;" id="me"></p>
+        <a href="https://www.ifdian.net/item/3ee256e62f3e11f1a1c352540025c377" class="buy-button">立即购买 (1 CNY)</a>
+        <input type="text" id="redeem-code" placeholder="输入兑换码" style="margin-top: 1.5rem; padding: 10px; width: 80%; border-radius: 8px; border: none; background-color: #333; color: #e0e0e0;">
+        <button onclick="redeemCode()" style="margin-top: 1rem; padding: 10px 20px; border-radius: 8px; border: none; background-color: #6200ee; color: white; font-weight: bold;">兑换</button>
     </div>
 
     <script>
-        // 模拟数据抓取 (保持你原有的逻辑)
+        document.getElementById("me").innerHTML = "当前能量: " + sessionStorage.getItem("energy");
         fetch("dynamic.json")
             .then(response => response.json())
             .then(data => {

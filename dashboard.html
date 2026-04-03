@@ -79,14 +79,14 @@
         }
     </style>
     <script>
-        if (localStorage.getItem("to") == null) {
+        if (sessionStorage.getItem("to") == null) {
             window.location.href = "lang.html";
         }
-        if (localStorage.getItem("coins") == null) {
-            localStorage.setItem("coins", 0);
+        if (sessionStorage.getItem("coins") == null) {
+            sessionStorage.setItem("coins", 0);
         }
-        if (localStorage.getItem("energy") == null) {
-            localStorage.setItem("energy", 0);
+        if (sessionStorage.getItem("energy") == null) {
+            sessionStorage.setItem("energy", 0);
         }
     </script>
     <script src="js/translate.min.js"></script>
@@ -106,14 +106,14 @@
     <script>
         translate.listener.start();
         translate.execute();
-        if (localStorage.getItem("userid") == null) {
+        if (sessionStorage.getItem("userid") == null) {
             window.location.href = "login.html";
         }
-        document.getElementById("coins").innerHTML = "Coins: " + localStorage.getItem("coins") + "&nbsp;⊕";
-        document.getElementById("energy").innerHTML = "Energy: " + localStorage.getItem("energy");
+        document.getElementById("coins").innerHTML = "🪙 " + sessionStorage.getItem("coins") + "&nbsp;⊕";
+        document.getElementById("energy").innerHTML = "🔋 " + sessionStorage.getItem("energy") + "&nbsp;⊕";
         setInterval(() => {
-            document.getElementById("coins").innerHTML = "Coins: " + localStorage.getItem("coins") + "&nbsp;⊕";
-            document.getElementById("energy").innerHTML = "Energy: " + localStorage.getItem("energy");
+            document.getElementById("coins").innerHTML = "🪙 " + sessionStorage.getItem("coins") + "&nbsp;⊕";
+            document.getElementById("energy").innerHTML = "🔋 " + sessionStorage.getItem("energy") + "&nbsp;⊕";
         }, 1000);
     </script>
 </body>
