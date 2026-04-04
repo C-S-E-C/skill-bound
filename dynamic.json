@@ -1,3 +1,4 @@
 {
-    "ExchangeRate": 50
+    "ExchangeRate": 50,
+    "WSSever": "ws://comming.soon"
 }

@@ -136,6 +136,11 @@
     </audio>
     <video class="loaded" style="height:100%; width:100%; z-index:-1; position:absolute; margin:0; object-fit: fill;" src="https://vdse.bdstatic.com//192d9a98d782d9c74c96f09db9378d93.mp4" preload="auto" playsinline autoplay muted loop></video>
     <script>
+        fetch('dynamic.json')
+            .then(response => response.json())
+            .then(data => {
+                sessionStorage.setItem('WSServer', data.WSSever);
+            })
         var warningDiv = document.getElementById('warning');
         var startBtn = document.getElementById('start-game');
         var bgMusic = document.getElementById('background-music');

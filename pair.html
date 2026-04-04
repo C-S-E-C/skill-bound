@@ -268,7 +268,7 @@
             statusBox.innerText = "Connecting to server...";
             // 3. WebSocket 连接到服务器
             // FUCK WEBSOCKETS!!!!!
-            const socket = new WebSocket("ws://example.com").catch(error => statusBox.innerText = "WebSocket Error: " + error);
+            const socket = new WebSocket(sessionStorage.getItem("WSServer")).catch(error => statusBox.innerText = "WebSocket Error: " + error);
             socket.onopen = () => {
                 statusBox.innerText = "Connected. Waiting for match...";
                 console.log("WebSocket connection established.");
