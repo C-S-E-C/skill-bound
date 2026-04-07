@@ -1,0 +1,98 @@
+/* ============================================
+   Energy Page Styles
+   ============================================ */
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #121212;
+    color: #e0e0e0;
+}
+
+.container {
+    background-color: #1e1e1e;
+    padding: 2.5rem;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    text-align: center;
+    max-width: 350px;
+    width: 90%;
+    border: 1px solid #333;
+}
+
+h2 {
+    margin-top: 0;
+    font-weight: 300;
+}
+
+#ExchangeRate {
+    font-size: 1.2rem;
+    margin-bottom: 1.5rem;
+    color: #00e676;
+    font-weight: 500;
+}
+
+p {
+    color: #e0e0e0;
+}
+
+.buy-button {
+    display: inline-block;
+    text-decoration: none;
+    background: linear-gradient(135deg, #6200ee, #3700b3);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: bold;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 15px rgba(98, 0, 238, 0.3);
+}
+
+.buy-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(98, 0, 238, 0.5);
+    background: linear-gradient(135deg, #7c4dff, #6200ee);
+}
+
+.buy-button:active {
+    transform: translateY(0);
+}
+
+#ExchangeRate:empty::before {
+    content: "Loading exchange rate...";
+    color: #888;
+    font-size: 0.9rem;
+}
+
+#redeem-code {
+    margin-top: 1.5rem;
+    padding: 10px;
+    width: 80%;
+    border-radius: 8px;
+    border: none;
+    background-color: #333;
+    color: #e0e0e0;
+}
+
+#redeem-button {
+    margin-top: 1rem;
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: none;
+    background-color: #6200ee;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#redeem-button:hover {
+    background-color: #7c4dff;
+}
+
+#me {
+    font-size: 0.9rem;
+    color: #888;
+}

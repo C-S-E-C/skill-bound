@@ -1,198 +1,14 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Battle Menu - Cyberpunk Edition</title>
-    <style>
-        :root {
-            --primary-neon: #00f2ff;
-            --secondary-neon: #ff007b;
-            --bg-dark: #0a0b10;
-            --card-bg: #161b22;
-            --text-gray: #8b949e;
-        }
-
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            background-color: var(--bg-dark);
-            color: white;
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            margin: 0;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            overflow: hidden;
-        }
-
-        /* 背景装饰 */
-        body::before {
-            content: "";
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle at center, #1a1c2c 0%, #0a0b10 100%);
-            z-index: -1;
-        }
-
-        h1 {
-            font-size: 1.2rem;
-            margin-top: 25px;
-            color: var(--primary-neon);
-            text-shadow: 0 0 10px rgba(0, 242, 255, 0.3);
-        }
-
-        /* --- 屏幕 1: 选择界面 --- */
-        #screen1 {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-        }
-
-        .selection-group {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        select {
-            background: var(--card-bg);
-            color: white;
-            border: 2px solid #30363d;
-            padding: 12px 25px;
-            font-size: 1rem;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            outline: none;
-            min-width: 220px;
-            text-align: center;
-        }
-
-        select:hover {
-            border-color: var(--primary-neon);
-            box-shadow: 0 0 15px rgba(0, 242, 255, 0.1);
-        }
-
-        #start-fight {
-            margin-top: 40px;
-            padding: 15px 60px;
-            font-size: 1.4rem;
-            font-weight: bold;
-            background: transparent;
-            color: var(--secondary-neon);
-            border: 3px solid var(--secondary-neon);
-            border-radius: 50px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        #start-fight:hover {
-            background: var(--secondary-neon);
-            color: white;
-            box-shadow: 0 0 30px var(--secondary-neon);
-            transform: scale(1.05);
-        }
-
-        /* --- 屏幕 2: 匹配界面 --- */
-        #screen2 {
-            width: 100%;
-            height: 100vh;
-            display: none; /* 初始隐藏 */
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-
-        #people {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 40px;
-            width: 90%;
-            max-width: 1000px;
-            height: 400px;
-        }
-
-        .team-container {
-            flex: 1;
-            background-color: rgba(22, 27, 34, 0.6);
-            border: 2px solid #30363d;
-            border-radius: 15px;
-            height: 100%;
-            padding: 20px;
-            display: grid;
-            gap: 15px;
-            align-content: center;
-            justify-items: center;
-            transition: border-color 0.5s;
-        }
-
-        /* 队伍各自颜色标识 */
-        .ours { border-color: var(--primary-neon); }
-        .opponent { border-color: var(--secondary-neon); }
-
-        .vs-text {
-            font-size: 3rem;
-            font-weight: 900;
-            font-style: italic;
-            color: white;
-            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
-        }
-
-        /* 玩家头像插槽 */
-        .player-slot {
-            width: 70px;
-            height: 70px;
-            border-radius: 50%;
-            background: #21262d;
-            border: 2px solid transparent;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-        }
-
-        /* 我方头像风格 */
-        .ours .player-slot {
-            border-color: var(--primary-neon);
-            box-shadow: 0 0 15px rgba(0, 242, 255, 0.2);
-            background: radial-gradient(circle, #00f2ff44, #161b22);
-        }
-
-        /* 敌方头像风格 */
-        .opponent .player-slot {
-            border-color: var(--secondary-neon);
-            box-shadow: 0 0 15px rgba(255, 0, 123, 0.2);
-            background: radial-gradient(circle, #ff007b44, #161b22);
-        }
-
-        /* --- 核心布局逻辑 --- */
-
-        /* 1人布局: 居中 */
-        .layout-1 { grid-template-columns: 1fr; }
-
-        /* 2人布局: 上下排列 */
-        .layout-2 { grid-template-columns: 1fr; }
-
-        /* 3人布局: 三角形 (第一个人跨两列) */
-        .layout-3 { grid-template-columns: repeat(2, 0.5fr); }
-        .layout-3 .player-slot:nth-child(1) { grid-column: span 2; }
-
-        /* 4人布局: 正方形 (2x2) */
-        .layout-4 { grid-template-columns: repeat(2, 0.5fr); }
-
-    </style>
+    <title>Battle Arena</title>
+    <!-- External CSS Files -->
+    <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="css/pair.css">
 </head>
 <body>
-
     <audio id="background-music" loop style="display:none;">
         <source src="music/waiting.mp3" type="audio/mp3">
     </audio>
@@ -200,8 +16,7 @@
     <main id="screen1">
         <h1>Select Battlefield</h1>
         <div class="selection-group">
-            <select id="map-choice">
-            </select>
+            <select id="map-choice"></select>
         </div>
 
         <h1>Battle Mode</h1>
@@ -214,120 +29,20 @@
             </select>
         </div>
 
-        <button id="start-fight" onclick="pair()">START FIGHT</button>
+        <button id="start-fight">START FIGHT</button>
     </main>
 
     <main id="screen2">
         <h1 id="status-text">Searching for opponents...</h1>
         <div id="people">
-            <div id="our-team" class="team-container ours">
-                </div>
-
+            <div id="our-team" class="team-container ours"></div>
             <div class="vs-text">VS</div>
-
-            <div id="opponent-team" class="team-container opponent">
-                </div>
+            <div id="opponent-team" class="team-container opponent"></div>
         </div>
         <button id="start-fight" style="margin-top:30px; font-size: 1rem; padding: 10px 30px;" disabled>START</button>
     </main>
-
-    <script>
-        const music = document.getElementById("background-music");
-        music.currentTime = sessionStorage.getItem("bgmtime") || 0;
-        music.play().catch(() => {});
-        fetch("maps/index.json")
-            .then(response => response.json())
-            .then(maps => {
-                const mapSelect = document.getElementById("map-choice");
-                maps.forEach(map => {
-                    const option = document.createElement("option");
-                    option.value = map;
-                    option.textContent = map.toUpperCase().replace(".MAP", "");
-                    mapSelect.appendChild(option);
-                });
-            })
-            .catch(error => console.error("Failed to load maps:", error));
-        async function pair() {
-            const mode = parseInt(document.getElementById("mode-choice").value);
-            const battlefield = document.getElementById("map-choice").value;
-            const screen1 = document.getElementById("screen1");
-            const screen2 = document.getElementById("screen2");
-            const ourTeam = document.getElementById("our-team");
-            const opponentTeam = document.getElementById("opponent-team");
-
-            // 1. 切换屏幕显示
-            screen1.style.display = "none";
-            screen2.style.display = "flex";
-
-            // 2. 清空并设置布局类
-            ourTeam.innerHTML = '';
-            opponentTeam.innerHTML = '';
-            ourTeam.className = `team-container ours layout-${mode}`;
-            opponentTeam.className = `team-container opponent layout-${mode}`;
-            const statusBox = document.getElementById("status-text");
-            statusBox.innerText = "Connecting to server...";
-            // 3. WebSocket 连接到服务器
-            // FUCK WEBSOCKETS!!!!!
-            const socket = new WebSocket(sessionStorage.getItem("WSServer")).catch(error => statusBox.innerText = "WebSocket Error: " + error);
-            socket.onopen = () => {
-                statusBox.innerText = "Connected. Waiting for match...";
-                console.log("WebSocket connection established.");
-                // 发送匹配请求
-                socket.send(JSON.stringify({
-                    action: "start_pairing",
-                    mode: mode,
-                    battlefield: battlefield,
-                    userId: localStorage.getItem("userid")
-                }));
-            };
-            socket.onmessage = (event) => {
-                const data = JSON.parse(event.data);
-                if (data.type === "paired") {
-                    sessionStorage.setItem("groupId", data.groupId);
-                    sessionStorage.setItem("myTeam", data.playerId);
-                    sessionStorage.setItem("myId", data.myId);
-                } else if (data.type === "add_player") {
-                    // 更新匹配状态
-                    const player = document.createElement("div");
-                    player.className = "player-slot";
-                    player.innerHTML = `<small style="font-size:10px">${data.playerName}</small>`;
-                    if (data.playerTeam === sessionStorage.getItem("myTeam")) {
-                        ourTeam.appendChild(player);
-                    } else {
-                        opponentTeam.appendChild(player);
-                    }
-                } else if (data.type === "pairing_complete") {
-                    // 匹配完成，显示玩家信息
-                    statusBox.innerText = "Match Found!";
-                    document.getElementById("start-fight").disabled = false;
-                    document.getElementById("start-fight").onclick = () => {
-                        // 进入战斗界面
-                        window.location.href = "battle.html?matchId=" + data.matchId;
-                    };
-                }
-            };
-        }
-        (async () => {
-            const cache = await caches.open("cache");
-            const cachedFiles = [
-                // images
-                "images/block.webp",
-                "images/bush.webp",
-                "images/bushes.webp",
-                "images/fire.webp",
-                "images/ground.webp",
-                "images/water.webp",
-                "images/skins.webp",
-            ];
-            for (const file of cachedFiles) {
-                if (!await cache.match(file)) {
-                    await cache.add(file);
-                }
-            }
-        })();
-        setInterval(function() {
-            sessionStorage.setItem("bgmtime", document.getElementById("background-music").currentTime)
-        }, 50);
-    </script>
+    
+    <!-- Page-specific script -->
+    <script src="js/pair.js"></script>
 </body>
 </html>

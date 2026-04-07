@@ -1,0 +1,56 @@
+/* ============================================
+   Signup Page Styles
+   ============================================ */
+
+body {
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    background-color: black;
+}
+
+#signup {
+    margin-top: 25%;
+    text-align: center;
+    background-color: black;
+    color: white;
+    position: relative;
+}
+
+#signup h1 {
+    margin-bottom: 20px;
+}
+
+#signup input {
+    padding: 8px;
+    background-color: rgb(30, 30, 30);
+    color: white;
+    border: none;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    width: 200px;
+}
+
+#signup input::placeholder {
+    color: #999;
+}
+
+#signup button {
+    padding: 8px 16px;
+    background-color: rgb(30, 30, 30);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-left: 10px;
+}
+
+#signup button:hover {
+    background-color: rgb(50, 50, 50);
+}
+
+#note {
+    margin-top: 20px;
+    color: #999;
+}

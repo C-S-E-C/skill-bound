@@ -1,94 +1,13 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
-    <style>
-        body {
-            background-color: rgb(22, 22, 22);
-        }
-        #controls {
-            position: absolute;
-            bottom: 0;
-            right: 0;
-            margin: 0;
-            width: 100%;
-            height: 10%;
-            display: inline-flex;
-
-        }
-        #controls button {
-            margin: 0;
-            color: white;
-            font-size: 30px;
-            padding: 20px;
-            height: 100%;
-            width: 25%;
-            border: none;
-            background-color: rgb(29, 53, 173);
-        }
-        #controls button:hover {
-            background-color: rgb(46, 72, 205);
-            cursor: pointer;
-        }
-        #controls #fight {
-            width: 50%;
-            background-color: rgb(255, 195, 0);
-        }
-        #controls #fight:hover {
-            background-color: rgb(255, 211, 67);
-        }
-        #coins {
-            position: relative;
-            color: gold;
-            font-size: 20px;
-            left: 70%;
-            width: 10%;
-            overflow-y: hidden;
-        }
-        #energy {
-            position: relative;
-            color: rgb(44, 209, 132);
-            font-size: 20px;
-            left: 65%;
-            width: 10%;
-            overflow-y: hidden;
-        }
-        #settings {
-            position: relative;
-            font-size: 30px;
-            left: 75%;
-            background: none;
-            border: none;
-        }
-        #settings:hover {
-            cursor: pointer;
-        }
-        #top-bar {
-            position: absolute;
-            top: 0;
-            right: 0;
-            margin: 0;
-            width: 100%;
-            display: inline-flex;
-        }
-        #top-bar * {
-            scrollbar-color: #4f4f4f #161616;
-        }
-        .translateSelectLanguage {
-            display: none;
-        }
-    </style>
-    <script>
-        if (localStorage.getItem("to") == null) {
-            window.location.href = "lang.html";
-        }
-        if (sessionStorage.getItem("coins") == null) {
-            sessionStorage.setItem("coins", 0);
-        }
-        if (sessionStorage.getItem("energy") == null) {
-            sessionStorage.setItem("energy", 0);
-        }
-    </script>
+    <!-- External CSS Files -->
+    <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <!-- External JavaScript Libraries -->
     <script src="js/translate.min.js"></script>
     <script src="js/cache.js"></script>
 </head>
@@ -106,21 +25,7 @@
         <button id="fight" onclick="window.location.href='pair.html'">Fight!</button>
         <button id="manual">Manual</button>
     </div>
-    <script>
-        document.getElementById("background-music").currentTime = sessionStorage.getItem("bgmtime") || 0;
-        document.getElementById("background-music").play();
-        if (localStorage.getItem("userid") == null) {
-            window.location.href = "login.html";
-        }
-        document.getElementById("coins").innerHTML = "🪙 " + sessionStorage.getItem("coins") + "&nbsp;⊕";
-        document.getElementById("energy").innerHTML = "🔋 " + sessionStorage.getItem("energy") + "&nbsp;⊕";
-        setInterval(() => {
-            document.getElementById("coins").innerHTML = "🪙 " + sessionStorage.getItem("coins") + "&nbsp;⊕";
-            document.getElementById("energy").innerHTML = "🔋 " + sessionStorage.getItem("energy") + "&nbsp;⊕";
-        }, 1000);
-        setInterval(function() {
-            sessionStorage.setItem("bgmtime", document.getElementById("background-music").currentTime)
-        }, 50);
-    </script>
+    <!-- Page-specific script -->
+    <script src="js/dashboard.js"></script>
 </body>
 </html>

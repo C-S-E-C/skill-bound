@@ -1,121 +1,15 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SKILL BOUND</title>
+    <!-- External CSS Files -->
+    <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="css/index.css">
+    <!-- External JavaScript Files -->
     <script src="js/basic.min.js"></script>
     <script src="js/cache.js"></script>
-    <script>
-        localStorage.setItem('你来到了这里','就没想过好好玩吧');
-        if ("WebSocket" in window) {if (isWeChat()) {alert('请注意：微信浏览器可能无法正常使用此应用程序。建议使用其他浏览器访问。\n\nPlease note: WeChat browser may not work properly with this application. It is highly recommended to use another browser to access it.');}} else {document.write("你的浏览器不支持WebSockets,请用现代浏览器访问。\n\nYour browser does not support WebSockets. Please use a modern browser to access this application.");}
-    </script>
-    <style>
-        body {
-            width: 100%;
-            height: 100%;
-            margin: 0;
-            padding: 0;
-            font-family: Arial, sans-serif;
-            background-color: #000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            overflow: hidden;
-        }
-        noscript {
-            background-color: #fff3cd;
-            border: 1px solid #ffeeba;
-            padding: 20px;
-            border-radius: 5px;
-            text-align: center;
-        }
-        #syntropica-logo {
-            text-align: center;
-            color: #fff;
-            position: relative;
-            z-index: 10;
-        }
-        #syntropica-logo img {
-            width: 400px;
-            height: 400px;
-            margin-bottom: 20px;
-        }
-        #syntropica-logo h1 {
-            font-size: 55px;
-            margin: 0;
-        }
-        @keyframes blur-in-and-out {
-            0% {
-                filter: blur(10px);
-                opacity: 0;
-            }
-            25% {
-                filter: blur(0);
-                opacity: 1;
-            }
-            75% {
-                filter: blur(0);
-                opacity: 1;
-            }
-            100% {
-                filter: blur(10px);
-                opacity: 0;
-            }
-        }
-
-        .loaded {
-            position: relative;
-            text-align: center;
-            align-self: center;
-            color: #fff;
-            display: none;
-        }
-        #warning {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.95);
-            z-index: 1000;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            color: white;
-            backdrop-filter: blur(5px);
-        }
-        #warning h1 {
-            font-size: 48px;
-            color: #ff4444;
-            margin-bottom: 20px;
-        }
-        #warning p {
-            font-size: 24px;
-            margin-bottom: 40px;
-            max-width: 80%;
-        }
-        #start-game {
-            padding: 15px 40px;
-            font-size: 24px;
-            background: #ff4444;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-        #start-game:hover {
-            transform: scale(1.05);
-        }
-        main {
-            width: 100%;
-            height: 100%;
-            position: relative;
-        }
-    </style>
 </head>
 <body>
     <main>
@@ -125,8 +19,8 @@
         </div>
         <div id="warning">
             <h1>WARNING</h1>
-            <p>本游戏可能会有光敏反应，请确保在光线充足的环境下进行游戏。</p>
-            <button id="start-game">开始游戏</button>
+            <p>This game may cause photosensitive reactions. Please ensure you are in a well-lit environment while playing.</p>
+            <button id="start-game">Start Game</button>
         </div>
         <h1 class="loaded" style="font-size: 75px;">SKILL BOUND</h1>
         <h3 class="loaded" style="margin-top:30%; font-size: 25px;z-index: 1;">&gt; &nbsp; Press anywhere to continue &nbsp; &lt;</h3>
@@ -135,55 +29,11 @@
         <source src="music/waiting.mp3" type="audio/mp3">
     </audio>
     <video class="loaded" style="height:100%; width:100%; z-index:-1; position:absolute; margin:0; object-fit: fill;" src="https://vdse.bdstatic.com//192d9a98d782d9c74c96f09db9378d93.mp4" preload="auto" playsinline autoplay muted loop></video>
-    <script>
-        fetch('dynamic.json')
-            .then(response => response.json())
-            .then(data => {
-                sessionStorage.setItem('WSServer', data.WSSever);
-            })
-        var warningDiv = document.getElementById('warning');
-        var startBtn = document.getElementById('start-game');
-        var bgMusic = document.getElementById('background-music');
-        var logoDiv = document.getElementById('syntropica-logo');
-        var loadedElements = document.getElementsByClassName('loaded');
-        
-        function playMusic() {
-            if (bgMusic) {
-                bgMusic.play().catch(function(e) {
-                    console.log('音乐播放失败:', e);
-                });
-            }
-        }
-        
-        function startGame() {
-            warningDiv.style.display = 'none';
-            playMusic();
-            logoDiv.style.animationName = 'blur-in-and-out';
-            logoDiv.style.animationDuration = '3s';
-            logoDiv.style.animationTimingFunction = 'ease-in';
-            logoDiv.style.animationFillMode = 'forwards';
-        }
-        
-        startBtn.onclick = startGame;
-        
-        logoDiv.addEventListener('animationend', function() {
-            console.log('Animation ended');
-            logoDiv.style.display = 'none';
-            document.getElementById('syntropica-logo').style.display = 'none';
-            Array.from(document.getElementsByClassName('loaded')).forEach(element => {
-                element.style.display = 'block';
-            });
-            document.body.onclick = function() {
-                window.location.href = 'login.html';
-            }
-        });
-        setInterval(function() {
-            sessionStorage.setItem("bgmtime", document.getElementById("background-music").currentTime)
-        }, 50);
-    </script>
     <noscript>
         <p>JavaScript is required to run this application. Please enable JavaScript in your browser settings.</p>
         <p>If you are unable to enable JavaScript, please download a browser that supports JavaScript.</p>
     </noscript>
+    <!-- Page-specific script loaded at end -->
+    <script src="js/index.js"></script>
 </body>
 </html>

@@ -1,0 +1,107 @@
+/* ============================================
+   Index Page Styles
+   ============================================ */
+
+body {
+    background-color: #000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+    overflow: hidden;
+}
+
+#syntropica-logo {
+    text-align: center;
+    color: #fff;
+    position: relative;
+    z-index: 10;
+}
+
+#syntropica-logo img {
+    width: 400px;
+    height: 400px;
+    margin-bottom: 20px;
+}
+
+#syntropica-logo h1 {
+    font-size: 55px;
+    margin: 0;
+}
+
+@keyframes blur-in-and-out {
+    0% {
+        filter: blur(10px);
+        opacity: 0;
+    }
+    25% {
+        filter: blur(0);
+        opacity: 1;
+    }
+    75% {
+        filter: blur(0);
+        opacity: 1;
+    }
+    100% {
+        filter: blur(10px);
+        opacity: 0;
+    }
+}
+
+.loaded {
+    position: relative;
+    text-align: center;
+    align-self: center;
+    color: #fff;
+    display: none;
+}
+
+#warning {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.95);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color: white;
+    backdrop-filter: blur(5px);
+}
+
+#warning h1 {
+    font-size: 48px;
+    color: #ff4444;
+    margin-bottom: 20px;
+}
+
+#warning p {
+    font-size: 24px;
+    margin-bottom: 40px;
+    max-width: 80%;
+}
+
+#start-game {
+    padding: 15px 40px;
+    font-size: 24px;
+    background: #ff4444;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+#start-game:hover {
+    transform: scale(1.05);
+}
+
+main {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}

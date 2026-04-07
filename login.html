@@ -1,10 +1,15 @@
-<script>
-const userId = localStorage.getItem("userid");
-const target = localStorage.getItem("to");
-
-if (!userId) {
-    window.location.href = "signup.html";
-} else {
-    window.location.href = target ? "dashboard.html" : "lang.html";
-}
-</script>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <!-- External CSS Files -->
+    <link rel="stylesheet" href="css/global.css">
+</head>
+<body style="display: flex; justify-content: center; align-items: center; height: 100vh; background-color: black;">
+    <p style="color: white;">Loading...</p>
+    <!-- Page-specific script -->
+    <script src="js/login.js"></script>
+</body>
+</html>

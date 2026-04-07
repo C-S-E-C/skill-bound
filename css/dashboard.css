@@ -1,0 +1,89 @@
+/* ============================================
+   Dashboard Page Styles
+   ============================================ */
+
+body {
+    background-color: rgb(22, 22, 22);
+}
+
+#controls {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    margin: 0;
+    width: 100%;
+    height: 10%;
+    display: inline-flex;
+}
+
+#controls button {
+    margin: 0;
+    color: white;
+    font-size: 30px;
+    padding: 20px;
+    height: 100%;
+    width: 25%;
+    border: none;
+    background-color: rgb(29, 53, 173);
+}
+
+#controls button:hover {
+    background-color: rgb(46, 72, 205);
+    cursor: pointer;
+}
+
+#controls #fight {
+    width: 50%;
+    background-color: rgb(255, 195, 0);
+}
+
+#controls #fight:hover {
+    background-color: rgb(255, 211, 67);
+}
+
+#coins {
+    position: relative;
+    color: gold;
+    font-size: 20px;
+    left: 70%;
+    width: 10%;
+    overflow-y: hidden;
+}
+
+#energy {
+    position: relative;
+    color: rgb(44, 209, 132);
+    font-size: 20px;
+    left: 65%;
+    width: 10%;
+    overflow-y: hidden;
+}
+
+#settings {
+    position: relative;
+    font-size: 30px;
+    left: 75%;
+    background: none;
+    border: none;
+}
+
+#settings:hover {
+    cursor: pointer;
+}
+
+#top-bar {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin: 0;
+    width: 100%;
+    display: inline-flex;
+}
+
+#top-bar * {
+    scrollbar-color: #4f4f4f #161616;
+}
+
+.translateSelectLanguage {
+    display: none;
+}

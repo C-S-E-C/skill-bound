@@ -1,35 +1,24 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Signup</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up</title>
+    <!-- External CSS Files -->
+    <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="css/signup.css">
+    <!-- External JavaScript Libraries -->
     <script src="js/basic.min.js"></script>
     <script src="js/crypto.min.js"></script>
-    <script>
-        if (isWeChat()) {
-            document.getElementById("secret-display").style.overflow = "scroll";
-        }
-        async function Signup() {
-            const username = document.getElementById("username").value;
-            if (!username) {
-                alert("Please enter a username");
-                return;
-            }
-            const newSecret = generateRandomBase32Secret(1024);
-            // 本地存储
-            localStorage.setItem('userid', username);
-            localStorage.setItem('secret', newSecret);
-            window.location.href = "login.html";
-        }
-    </script>
 </head>
-
-<body style="width: 100%;height: 100vh;overflow: hidden;background-color: black;">
-    <div id="signup" style="margin-top: 25%; text-align: center;background-color: black;color: white;position: relative;">
-        <h1>Signup</h1>
-        <input type="text" id="username" placeholder="Username" style="padding: 8px;background-color: rgb(30, 30, 30);color: white;border: none;">
-        <button onclick="Signup()" style="padding: 8px 16px;background-color: rgb(30, 30, 30);color: white;border: none;">Signup</button>
+<body>
+    <div id="signup">
+        <h1>Sign Up</h1>
+        <input type="text" id="username" placeholder="Username">
+        <button>Sign Up</button>
         <p id="note"></p>
     </div>
+    <!-- Page-specific script -->
+    <script src="js/signup.js"></script>
 </body>
 </html>
