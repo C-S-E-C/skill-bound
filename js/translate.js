@@ -1,27 +1,47 @@
 (async () => {
-const lang = localStorage.getItem("lang");
-const cache = await caches.open("cache");
+  try {
+    const lang = localStorage.getItem("lang");
+    const cache = await caches.open("cache");
 
-if (lang == null) {
-	window.location.href = "lang.html";
-}
+    if (lang == null) {
+      window.location.href = "lang.html";
+      return;
+    }
 
-if (lang != "en_us") {
-    const translation = (await cache.match("./lang." + lang + ".json")).json() || await fetch("./lang." + lang + ".json").then(res => res.json());
-} else {
-    const translation = {};
-}
+    let translation = {};
 
-if (await cache.match("./lang." + lang + ".json") == null) {
-	cache.add("./lang." + lang + ".json");
-}
+    if (lang != "en_us") {
+      const cachedResponse = await cache.match("./lang/" + lang + ".json");
+      
+      if (cachedResponse) {
+        translation = await cachedResponse.json();
+      } else {
+        const fetchResponse = await fetch("./lang." + lang + ".json");
+        translation = await fetchResponse.json();
+      }
+    }
 
-const elements = document.querySelectorAll("*");
-elements.forEach(el => {
-	const original = el.innerText;
-	if (translation[original]) {
-		console.info("Translating:\t", original, "\t->\t", translation[original]);
-		el.innerText = translation[original];
-	} else {console.warn("No translation found for:", original);}
-});
+    // Add to cache if missing
+    const cachedCheck = await cache.match("./lang/" + lang + ".json");
+    if (cachedCheck == null && lang != "en_us") {
+      await cache.add("./lang/" + lang + ".json");
+    }
+
+    const elements = document.querySelectorAll("h1, h2, h3, h4, h5, h6, p, span, a, button");
+	var json = JSON.parse(localStorage.getItem("translation_cache") || "{}");
+    elements.forEach(el => {
+      const original = el.innerText;
+	  json[original] = "";
+      if (translation[original]) {
+        console.info("Translating:\t", original, "\t->\t", translation[original]);
+        el.innerText = translation[original];
+      } else if (original.trim() !== "") {
+        console.warn("No translation found for:", original);
+      }
+    });
+    localStorage.setItem("translation_cache", JSON.stringify(json));
+
+  } catch (error) {
+    console.error("Translation failed:", error);
+  }
 })();
