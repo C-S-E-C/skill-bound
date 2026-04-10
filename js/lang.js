@@ -6,6 +6,7 @@
 const languages = [
     {"id":"en_us","name":"English"},
     {"id":"zh_hans","name":"中文 (简体)"},
+    {"id":"zh_hant","name":"中文 (繁體)"},
 ];
 
 // Change language function
