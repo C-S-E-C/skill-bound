@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Battle - Skill Bound</title>
+    <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="css/battle.css">
+    <script src="js/basic.min.js"></script>
+    <script src="js/translate.min.js"></script>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="screen active">
+        <h1 id="loading-text">连接服务器中...</h1>
+    </div>
+
+    <!-- Pre-game Setup Screen -->
+    <div id="pregame-screen" class="screen">
+        <div id="pregame-header">
+            <h1>⚔️ 赛前准备</h1>
+            <div id="pregame-coins">🪙 <span id="pg-coins">0</span></div>
+        </div>
+
+        <div id="pregame-sections">
+            <!-- Attribute Selection -->
+            <div class="pregame-panel">
+                <h2>🌟 选择属性</h2>
+                <div id="attribute-grid"></div>
+            </div>
+
+            <!-- Skill Shop -->
+            <div class="pregame-panel">
+                <h2>🎲 技能抽取</h2>
+                <div id="skill-shop-area">
+                    <p style="font-size:0.65rem; color:var(--text-dim);">
+                        每次抽取花费 20 金币。概率：Lv1 60% / Lv2 30% / Lv3 8% / Lv4 2%
+                    </p>
+                    <button id="draw-skill-btn">🎲 抽取技能 (-20 金币)</button>
+                    <h3 style="font-size:0.75rem; color:var(--neon-blue); margin-top:8px;">背包</h3>
+                    <div id="inventory-grid"></div>
+                </div>
+            </div>
+
+            <!-- Skill Slot Configuration -->
+            <div class="pregame-panel">
+                <h2>🎯 配置技能槽 (共8槽)</h2>
+                <p style="font-size:0.6rem; color:var(--text-dim); margin-bottom:6px;">
+                    前2槽为🔒永久槽（不掉落），后6槽死亡时掉落
+                </p>
+                <div id="slot-config-area">
+                    <div id="slot-grid"></div>
+                    <p style="font-size:0.6rem; color:var(--text-dim);">
+                        点击背包中的技能，再点击槽位来装配
+                    </p>
+                </div>
+            </div>
+
+            <!-- Skill Synthesis -->
+            <div class="pregame-panel">
+                <h2>⚗️ 技能合成</h2>
+                <p style="font-size:0.6rem; color:var(--text-dim); margin-bottom:6px;">
+                    2×Lv1 → Lv2 &nbsp;|&nbsp; 4×Lv2 → Lv3 &nbsp;|&nbsp; 8×Lv3 → Lv4
+                </p>
+                <div id="synthesis-area">
+                    <p id="synth-selected" style="font-size:0.65rem; color:var(--text-dim);">从背包选择同类同级技能</p>
+                    <button id="synthesize-btn">⚗️ 合成</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Players Ready Status -->
+        <div id="ready-status"></div>
+
+        <div id="pregame-footer">
+            <button id="ready-btn" disabled>准备就绪</button>
+        </div>
+    </div>
+
+    <!-- Battle Screen -->
+    <div id="battle-screen" class="screen">
+        <!-- Top Bar -->
+        <div id="battle-topbar">
+            <div id="battle-timer">00:00</div>
+            <div id="battle-match-info">Loading...</div>
+            <div id="battle-my-coins">🪙 0</div>
+        </div>
+
+        <!-- Teams HP Display -->
+        <div id="battle-teams">
+            <div class="battle-team team-a" id="battle-team-a">
+                <div class="battle-team-label">🔵 队伍 A</div>
+            </div>
+            <div style="width:40px; display:flex; align-items:center; justify-content:center;
+                        font-size:1.2rem; font-weight:900; color:#fff; text-shadow:0 0 10px #fff;">
+                VS
+            </div>
+            <div class="battle-team team-b" id="battle-team-b">
+                <div class="battle-team-label">🔴 队伍 B</div>
+            </div>
+        </div>
+
+        <!-- Main Area: Event Log + Dropped Skills -->
+        <div id="battle-main">
+            <div id="event-log-panel">
+                <div class="event-entry system">战斗开始！</div>
+            </div>
+            <div id="dropped-skills-panel">
+                <h3>⬇️ 掉落技能</h3>
+                <div id="dropped-skills-list"></div>
+            </div>
+        </div>
+
+        <!-- Skill Bar -->
+        <div id="battle-skillbar">
+            <div id="self-hp-bar-wrap">
+                <div id="self-hp-bar" style="width:100%"></div>
+            </div>
+            <div id="self-hp-text">HP: 300 / 300</div>
+
+            <div id="skill-slots-row"></div>
+
+            <div id="battle-actions">
+                <button class="action-btn" id="attack-btn" disabled>⚔️ 普通攻击</button>
+                <button class="action-btn" id="revive-btn">💚 救起队友</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Result Screen -->
+    <div id="result-screen" class="screen">
+        <div id="result-title">-</div>
+        <div id="result-rewards"></div>
+        <button id="result-back-btn" onclick="window.location.href='dashboard.html'">返回大厅</button>
+    </div>
+
+    <!-- Skill Tooltip -->
+    <div id="skill-tooltip">
+        <h4 id="tt-name">-</h4>
+        <div class="tt-level" id="tt-level">-</div>
+        <div class="tt-cd" id="tt-cd">-</div>
+        <div class="tt-dmg" id="tt-dmg" style="display:none">-</div>
+        <div class="tt-range" id="tt-range">-</div>
+        <div class="tt-desc" id="tt-desc">-</div>
+    </div>
+
+    <script src="js/battle.js"></script>
+</body>
+</html>
