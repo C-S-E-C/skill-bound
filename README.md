@@ -1,7 +1,7 @@
 # Skill Bound 绝技夺魁
 ## [> 马上开玩！ <](https://skill-bound.syntropica.top/)
 
-#### [> 主要玩法](主要玩法.md)
+#### [> 玩法](玩法.md)
 
 #### [> 开发者名单](developers.md)
 
