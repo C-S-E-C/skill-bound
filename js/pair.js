@@ -46,7 +46,7 @@ async function pair() {
     // WebSocket connection to server
     const socket = new WebSocket(sessionStorage.getItem("WSServer"));
 
-    socket.onerror = () => {
+    socket.onerror = (error) => {
        console.error("WebSocket error:", error);
     };
    
