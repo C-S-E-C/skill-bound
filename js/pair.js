@@ -69,13 +69,16 @@ async function pair() {
         
         if (data.type === "paired") {
             sessionStorage.setItem("groupId", data.groupId);
-            sessionStorage.setItem("myTeam", data.playerId);
+            sessionStorage.setItem("myTeam", data.myTeam);
             sessionStorage.setItem("myId", data.myId);
         } else if (data.type === "add_player") {
             // Update matching status
             const player = document.createElement("div");
             player.className = "player-slot";
-            player.innerHTML = `<small style="font-size:10px">${data.playerName}</small>`;
+            const label = document.createElement("small");
+            label.style.fontSize = "10px";
+            label.textContent = data.playerName;
+            player.appendChild(label);
             
             if (data.playerTeam === sessionStorage.getItem("myTeam")) {
                 ourTeam.appendChild(player);
@@ -86,8 +89,8 @@ async function pair() {
             // Pairing complete, show player info
             statusBox.innerText = "Match Found!";
             statusBox.setAttribute('data-translated', 'false');
-            document.getElementById("start-fight").disabled = false;
-            document.getElementById("start-fight").onclick = () => {
+            document.getElementById("start-battle").disabled = false;
+            document.getElementById("start-battle").onclick = () => {
                 // Enter battle interface
                 window.location.href = "battle.html?matchId=" + data.matchId;
             };
