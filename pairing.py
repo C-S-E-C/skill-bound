@@ -79,13 +79,21 @@ async def start_pairing(data, websocket):
         "myTeam": my_team,
     })
 
-    # Broadcast all current players in group to everyone
+    # Send all existing players (including self) to the new player
     for player in users:
-        for recipient in users:
+        await new_user["websocket"].send_json_safe({
+            "type": "add_player",
+            "playerName": player["name"],
+            "playerTeam": player["team"],
+        })
+
+    # Notify existing players (all except the new one) about the new arrival
+    for recipient in users:
+        if recipient["id"] != new_user["id"]:
             await recipient["websocket"].send_json_safe({
                 "type": "add_player",
-                "playerName": player["name"],
-                "playerTeam": player["team"],
+                "playerName": new_user["name"],
+                "playerTeam": new_user["team"],
             })
 
     # Check if group is full
