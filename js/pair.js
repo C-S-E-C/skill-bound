@@ -40,7 +40,7 @@ async function pair() {
     opponentTeam.className = `team-container opponent layout-${mode}`;
     
     const statusBox = document.getElementById("status-text");
-    statusBox.innerText = "Connecting to server...";
+    statusBox.innerHTML = '<span id="loading-animation"></span>Connecting to server';
     statusBox.setAttribute('data-translated', 'false');
     
     // WebSocket connection to server
@@ -48,10 +48,11 @@ async function pair() {
 
     socket.onerror = (error) => {
        console.error("WebSocket error:", error);
+       statusBox.innerHTML = "Connection error. Please try again later.";
     };
    
     socket.onopen = () => {
-        statusBox.innerText = "Connected. Waiting for match...";
+        statusBox.innerHTML = '<span id="loading-animation"></span>Connected. Waiting for match';
         statusBox.setAttribute('data-translated', 'false');
         console.log("WebSocket connection established.");
         

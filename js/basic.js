@@ -38,3 +38,21 @@ if (isIE && !isWeChat()) {
         document.body.innerHTML = "都2026年了，您老人家还在用ie呢，您是老北京人吧！请您换成edge或chrome吧！";
     };
 }
+
+//loading animation
+function showLoadingAnimation() {
+    const e = document.getElementById("loading-animation");
+    if (e) {
+        var state = 0;
+        const chars = ["⣿", "⡿", "⠿", "⠻", "⠛", "⠙", "⠉", "⠁", "⠀", "⡀", "⣀", "⣠", "⣤", "⣦", "⣶", "⣾"];
+        setInterval(() => {
+            e.innerText = chars[state];
+            state -=- 1;
+            if (state > chars.length - 1) state = 0;
+        }, 500);
+    }
+}
+//DomContentLoaded
+document.addEventListener("DOMContentLoaded", function () {
+    showLoadingAnimation();
+})
