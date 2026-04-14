@@ -20,5 +20,13 @@
 
 <br  /><br  />
 
+## Special thanks 特别鸣谢
+### Deepseek (AI)
+### Gemma & Gemmini (AI)
+### Github Copilot (AI)
+### V0 (AI)
+
+<br  /><br  />
+
 ##### Ps: Alphabetical order
 ##### 注: 排序按首字母英文排序，不分前后
