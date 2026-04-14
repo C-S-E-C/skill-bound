@@ -47,7 +47,7 @@ function showLoadingAnimation() {
         const chars = ["⣿", "⡿", "⠿", "⠻", "⠛", "⠋", "⠉", "⠈", "⠀", "⡀", "⣀", "⣠", "⣤", "⣦", "⣶", "⣾"];
         setInterval(() => {
             const e = document.getElementById("loading-animation");
-            e.innerText = chars[state];
+            if(e) {e.innerText = chars[state];}
             state -=- 1;
             if (state > chars.length - 1) state = 0;
         }, 200);
