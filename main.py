@@ -230,6 +230,7 @@ async def handler(websocket):
     finally:
         if player_id:
             PLAYER_SOCKETS.pop(player_id, None)
+            pairing.remove_from_pairing(player_id)
 
 
 def _get_match(data, player_id):

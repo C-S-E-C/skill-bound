@@ -103,7 +103,7 @@ async def start_pairing(data, websocket):
         # Notify all players that pairing is complete
         players_data = [
             {
-                "player_id": str(u["id"]),
+                "player_id": u["name"],
                 "player_name": u["name"],
                 "team": u["team"],
                 "websocket": u["websocket"],
@@ -115,7 +115,7 @@ async def start_pairing(data, websocket):
                 "type": "pairing_complete",
                 "matchId": match_id,
                 "players": [
-                    {"id": str(p["id"]), "name": p["name"], "team": p["team"]}
+                    {"id": p["name"], "name": p["name"], "team": p["team"]}
                     for p in users
                 ],
             })
@@ -125,3 +125,12 @@ async def start_pairing(data, websocket):
         return match_id, players_data
 
     return None, None
+
+
+def remove_from_pairing(user_name):
+    """Remove a user from any pending pairing group. Clean up empty groups."""
+    for gid in list(PENDING_PAIRING.keys()):
+        group = PENDING_PAIRING[gid]
+        group["users"] = [u for u in group["users"] if u["name"] != user_name]
+        if not group["users"]:
+            del PENDING_PAIRING[gid]
