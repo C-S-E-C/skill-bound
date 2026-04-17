@@ -7,7 +7,7 @@
 let TILE_SIZE = 32;
 const DEFAULT_MAP = "air.map";
 let MOVE_SPEED = 180; // world units/sec
-const SEND_INTERVAL_MS = 80;
+let SEND_INTERVAL_MS = 80;
 const DIAGONAL_SPEED_MULTIPLIER = 1 / Math.sqrt(2);
 
 let ws = null;
