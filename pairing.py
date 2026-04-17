@@ -75,8 +75,10 @@ async def start_pairing(data, websocket):
     await websocket.send_json_safe({
         "type": "paired",
         "groupId": group_id,
+        "sessionId": group_id,
         "myId": my_id,
         "myTeam": my_team,
+        "battlefield": battlefield,
     })
 
     # Send all existing players (including self) to the new player
@@ -114,6 +116,8 @@ async def start_pairing(data, websocket):
             await u["websocket"].send_json_safe({
                 "type": "pairing_complete",
                 "matchId": match_id,
+                "sessionId": match_id,
+                "battlefield": battlefield,
                 "players": [
                     {"id": p["name"], "name": p["name"], "team": p["team"]}
                     for p in users

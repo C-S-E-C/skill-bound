@@ -152,6 +152,37 @@ async def handler(websocket):
                 result = await session.player_ready(pid)
                 await wrapped.send_json_safe({"type": "action_result", "action": action, **result})
 
+            # ---- Battle: explicit start game ----
+            elif action == "start_game":
+                match_id = _get_match(data, player_id)
+                session = GAME_SESSIONS.get(match_id)
+                if not session:
+                    await wrapped.send_json_safe({"error": "Match not found"})
+                    continue
+                pid = data.get("userId", player_id)
+                result = await session.start_game()
+                if "error" in result:
+                    await wrapped.send_json_safe({"type": "error", "message": result["error"]})
+                else:
+                    await wrapped.send_json_safe({"type": "action_result", "action": action, **result})
+
+            # ---- Battle: movement sync ----
+            elif action == "move":
+                match_id = _get_match(data, player_id)
+                session = GAME_SESSIONS.get(match_id)
+                if not session:
+                    await wrapped.send_json_safe({"error": "Match not found"})
+                    continue
+                pid = data.get("userId", player_id)
+                result = await session.move_player(
+                    pid,
+                    x=data.get("x"),
+                    y=data.get("y"),
+                    direction=data.get("direction"),
+                )
+                if "error" in result:
+                    await wrapped.send_json_safe({"type": "error", "message": result["error"]})
+
             # ---- Battle: basic attack ----
             elif action == "basic_attack":
                 match_id = _get_match(data, player_id)

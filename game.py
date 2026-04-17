@@ -18,6 +18,9 @@ DROPPABLE_SLOTS = 6    # slots 2..7 (index 2-7) are droppable; 0,1 are permanent
 BASIC_ATTACK_DAMAGE = 20
 BASIC_ATTACK_COOLDOWN = 1.0
 CRIT_THRESHOLD = 3     # after 3 consecutive hits, next hit crits (double damage)
+MAP_WIDTH = 3200
+MAP_HEIGHT = 3200
+MOVE_STEP = 40
 
 
 def _draw_skill_random():
@@ -65,6 +68,8 @@ class PlayerState:
         self.last_basic_attack_time = 0
         self.shield = 0              # current shield points
         self.armor = 0               # current armor points
+        self.x = 0
+        self.y = 0
         # Attribute-related state
         self.out_of_combat_timer = None
         self.stealth = False
@@ -106,6 +111,9 @@ class PlayerState:
             ],
             "skill_slots": slots,
             "ready": self.ready,
+            "x": self.x,
+            "y": self.y,
+            "position": {"x": self.x, "y": self.y},
         }
         if include_private:
             inv = []
@@ -220,6 +228,7 @@ class GameSession:
         self.start_time = None
         self.event_log = []  # list of log messages
 
+        team_counts = {"A": 0, "B": 0}
         for pd in players_data:
             p = PlayerState(
                 player_id=pd["player_id"],
@@ -228,7 +237,17 @@ class GameSession:
                 coins=pd.get("coins", 0)
             )
             p.websocket = pd["websocket"]
+            index = team_counts.get(p.team, 0)
+            p.x, p.y = self._initial_position(p.team, index)
+            team_counts[p.team] = index + 1
             self.players[pd["player_id"]] = p
+
+    def _initial_position(self, team, index):
+        spacing = 120
+        lane_offset = 420
+        if team == "A":
+            return 300 + (index * spacing), lane_offset
+        return 300 + (index * spacing), MAP_HEIGHT - lane_offset
 
     # -----------------------------------------------------------------------
     # Broadcasting helpers
@@ -417,12 +436,15 @@ class GameSession:
 
     async def start_game(self):
         if self.started:
-            return
+            return {"ok": True, "already_started": True}
+        if self.ended:
+            return {"error": "Game already ended"}
         self.started = True
         self.start_time = time.time()
         self.add_log("战斗开始！")
         await self.broadcast({"type": "game_start", "state": self.get_public_state()})
         self.game_loop_task = asyncio.create_task(self.game_loop())
+        return {"ok": True}
 
     async def game_loop(self):
         """Periodic server tick: handle DoTs, regen, downed timers, etc."""
@@ -515,6 +537,49 @@ class GameSession:
     # -----------------------------------------------------------------------
     # Battle actions
     # -----------------------------------------------------------------------
+
+    async def move_player(self, player_id, x=None, y=None, direction=None):
+        p = self.players.get(player_id)
+        if not p:
+            return {"error": "Player not found"}
+        if not self.started or self.ended:
+            return {"error": "Game not in progress"}
+        if p.is_downed or p.is_dead:
+            return {"error": "You are downed/dead"}
+        if p.has_effect("frozen") or p.has_effect("rooted") or p.has_effect("stunned") or p.has_effect("sleeping"):
+            return {"error": "You cannot move right now"}
+
+        next_x = p.x
+        next_y = p.y
+
+        if x is not None and y is not None:
+            try:
+                next_x = float(x)
+                next_y = float(y)
+            except (TypeError, ValueError):
+                return {"error": "Invalid position"}
+        elif isinstance(direction, dict):
+            try:
+                dx = float(direction.get("x", 0))
+                dy = float(direction.get("y", 0))
+            except (TypeError, ValueError):
+                return {"error": "Invalid direction"}
+            next_x = p.x + (dx * MOVE_STEP)
+            next_y = p.y + (dy * MOVE_STEP)
+        else:
+            return {"error": "Missing movement data"}
+
+        next_x = max(0, min(MAP_WIDTH, next_x))
+        next_y = max(0, min(MAP_HEIGHT, next_y))
+
+        p.x = int(next_x)
+        p.y = int(next_y)
+
+        await self.broadcast({
+            "type": "player_update",
+            "player": p.to_dict()
+        })
+        return {"ok": True, "x": p.x, "y": p.y}
 
     async def basic_attack(self, attacker_id, target_id):
         attacker = self.players.get(attacker_id)
