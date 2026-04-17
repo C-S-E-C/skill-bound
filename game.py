@@ -113,7 +113,6 @@ class PlayerState:
             "ready": self.ready,
             "x": self.x,
             "y": self.y,
-            "position": {"x": self.x, "y": self.y},
         }
         if include_private:
             inv = []
@@ -569,11 +568,11 @@ class GameSession:
         else:
             return {"error": "Missing movement data"}
 
-        next_x = max(0, min(MAP_WIDTH, next_x))
-        next_y = max(0, min(MAP_HEIGHT, next_y))
+        next_x = max(0, min(MAP_WIDTH - 1, next_x))
+        next_y = max(0, min(MAP_HEIGHT - 1, next_y))
 
-        p.x = int(next_x)
-        p.y = int(next_y)
+        p.x = int(round(next_x))
+        p.y = int(round(next_y))
 
         await self.broadcast({
             "type": "player_update",
