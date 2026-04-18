@@ -9,6 +9,12 @@ const DEFAULT_MAP = "air.map";
 let MOVE_SPEED = 180; // world units/sec
 let SEND_INTERVAL_MS = 32;
 const DIAGONAL_SPEED_MULTIPLIER = 1 / Math.sqrt(2);
+const TILE_IMAGES = {
+    "A": "images/ground.webp",
+    "G": "images/bushes.webp",
+    "W": "images/water.webp",
+    "B": "images/block.webp",
+};
 
 let ws = null;
 let myId = null;
@@ -383,15 +389,8 @@ function renderMap() {
 }
 
 function tileImage(cell) {
-    const cells = {
-        "A": "images/ground.webp",
-        "G": "images/bushes.webp",
-        "W": "images/water.webp",
-        "B": "images/block.webp",
-    };
-
-    if (cell in cells) {
-        return cells[cell];
+    if (cell in TILE_IMAGES) {
+        return TILE_IMAGES[cell];
     }
     return "images/ground.webp";
 }
