@@ -372,7 +372,9 @@ function renderMap() {
         const row = mapRows[y] || "";
         for (let x = 0; x < mapWidth; x++) {
             const cell = row[x] || DEFAULT_TILE;
-            const img = tileSpriteCache.get(cell) || tileSpriteCache.get(DEFAULT_TILE);
+            const defaultImg = tileSpriteCache.get(DEFAULT_TILE);
+            // If DEFAULT_TILE is also missing, we intentionally fall back to a solid color tile.
+            const img = tileSpriteCache.get(cell) || defaultImg;
             if (!img) {
                 ctx.fillStyle = "#1d2b3e";
                 ctx.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
@@ -416,7 +418,7 @@ async function preloadTileSprites() {
             const img = await loadImage(src);
             tileSpriteCache.set(key, img);
         } catch (err) {
-            log(err.message);
+            log(`${key}: ${err.message}`);
         }
     });
     await Promise.all(tasks);
