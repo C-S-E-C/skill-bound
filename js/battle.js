@@ -15,6 +15,7 @@ const TILE_IMAGES = {
     "W": "images/water.webp",
     "B": "images/block.webp",
 };
+const tileSpriteCache = new Map();
 
 let ws = null;
 let myId = null;
@@ -340,6 +341,7 @@ async function loadMap(mapName) {
         dom.playersLayer.style.width = canvas.width + "px";
         dom.playersLayer.style.height = canvas.height + "px";
 
+        await preloadTileSprites();
         renderMap();
         log(`Map loaded: ${safeMapName}`);
     } catch {
@@ -351,6 +353,7 @@ async function loadMap(mapName) {
         canvas.width = mapWidth * TILE_SIZE;
         canvas.height = mapHeight * TILE_SIZE;
 
+        await preloadTileSprites();
         renderMap();
         log(`Map fallback used: ${safeMapName}`);
     }
@@ -364,14 +367,14 @@ function renderMap() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     for (let y = 0; y < mapRows.length; y++) {
-        const row = mapRows[y] || "";
-        for (let x = 0; x < mapWidth; x++) {
-            const cell = row[x] || "A";
-            const img = new Image();
-            img.src = tileImage(cell);
-            ctx.drawImage(img, x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+            const row = mapRows[y] || "";
+            for (let x = 0; x < mapWidth; x++) {
+                const cell = row[x] || "A";
+                const img = tileSpriteCache.get(cell) || tileSpriteCache.get("A");
+                if (!img) continue;
+                ctx.drawImage(img, x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+            }
         }
-    }
 
     ctx.strokeStyle = "rgba(255,255,255,0.06)";
     for (let x = 0; x <= mapWidth; x += 2) {
@@ -393,6 +396,25 @@ function tileImage(cell) {
         return TILE_IMAGES[cell];
     }
     return "images/ground.webp";
+}
+
+async function preloadTileSprites() {
+    const keys = new Set(["A", ...Object.keys(TILE_IMAGES)]);
+    const tasks = Array.from(keys).map(async (key) => {
+        const src = tileImage(key);
+        const img = await loadImage(src);
+        tileSpriteCache.set(key, img);
+    });
+    await Promise.all(tasks);
+}
+
+function loadImage(src) {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = reject;
+        img.src = src;
+    });
 }
 
 function renderPlayers() {
