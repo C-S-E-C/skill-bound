@@ -382,29 +382,18 @@ function renderMap() {
     }
 }
 
-async function tileImage(cell) {
+function tileImage(cell) {
     const cells = {
         "A": "images/ground.webp",
         "G": "images/bushes.webp",
         "W": "images/water.webp",
         "B": "images/block.webp",
     };
-    
-    const cache = await caches.open("cache");
-    let targetsrc;
+
     if (cell in cells) {
-        targetsrc = cells[cell];
-    } else {
-        targetsrc = "images/ground.webp";
+        return cells[cell];
     }
-    const cachedResponse = await cache.match(targetsrc);
-    if (cachedResponse) {
-        const blob = await cachedResponse.blob();
-        return URL.createObjectURL(blob);
-    } else {
-        await cache.add(targetsrc);
-        return targetsrc;
-    }
+    return "images/ground.webp";
 }
 
 function renderPlayers() {
