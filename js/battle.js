@@ -390,10 +390,11 @@ async function tileImage(cell) {
         "B": "images/block.webp",
     };
     const cache = await caches.open("cache");
+    let targetsrc;
     if (cell in cells) {
-        const targetsrc = cells[cell];
+        targetsrc = cells[cell];
     }
-    const targetsrc = "images/ground.webp";
+    targetsrc = "images/ground.webp";
 
     const cachedResponse = await cache.match(targetsrc);
     if (cachedResponse) {
