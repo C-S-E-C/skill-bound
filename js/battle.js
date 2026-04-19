@@ -473,17 +473,15 @@ function updateSelfMovement(dt, now) {
     const dir = getInputDirection();
     if (dir.dx === 0 && dir.dy === 0) return;
 
-    const baseMoveX = dir.dx * MOVE_SPEED * dt;
-    const baseMoveY = dir.dy * MOVE_SPEED * dt;
-    const projectedX = selfState.x + baseMoveX;
-    const projectedY = selfState.y + baseMoveY;
+    const moveX = dir.dx * MOVE_SPEED * dt;
+    const moveY = dir.dy * MOVE_SPEED * dt;
+    const projectedX = selfState.x + moveX;
+    const projectedY = selfState.y + moveY;
     const onWaterNow = isWaterTile(selfState.x, selfState.y);
     const enteringWater = isWaterTile(projectedX, projectedY);
-    const speedMultiplier = (onWaterNow || enteringWater)
+    MOVE_SPEED = (onWaterNow || enteringWater)
         ? WATER_SPEED_MULTIPLIER
         : 1;
-    const moveX = baseMoveX * speedMultiplier;
-    const moveY = baseMoveY * speedMultiplier;
 
     const maxX = mapWidth * TILE_SIZE;
     const maxY = mapHeight * TILE_SIZE;
