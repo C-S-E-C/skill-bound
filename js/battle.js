@@ -7,10 +7,10 @@
 let TILE_SIZE = 32;
 const DEFAULT_MAP = "air.map";
 const DEFAULT_TILE = "A";
-let MOVE_SPEED = 180; // world units/sec
+let MOVE_SPEED = 200; // world units/sec
 let SEND_INTERVAL_MS = 32;
 const DIAGONAL_SPEED_MULTIPLIER = 1 / Math.sqrt(2);
-const WATER_SPEED_MULTIPLIER = 0.8;
+const WATER_SPEED_MULTIPLIER = 0.6;
 const PLAYER_HITBOX_RADIUS = 14;
 const PLAYER_HITBOX_RADIUS_SQUARED = PLAYER_HITBOX_RADIUS * PLAYER_HITBOX_RADIUS;
 const BLOCK_TILE = "B";
