@@ -479,9 +479,7 @@ function updateSelfMovement(dt, now) {
     const projectedY = selfState.y + moveY;
     const onWaterNow = isWaterTile(selfState.x, selfState.y);
     const enteringWater = isWaterTile(projectedX, projectedY);
-    MOVE_SPEED = (onWaterNow || enteringWater)
-        ? WATER_SPEED_MULTIPLIER
-        : 1;
+    MOVE_SPEED = (onWaterNow || enteringWater) ? (WATER_SPEED_MULTIPLIER * 180) : 180;
 
     const maxX = mapWidth * TILE_SIZE;
     const maxY = mapHeight * TILE_SIZE;
