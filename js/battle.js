@@ -476,7 +476,9 @@ function updateSelfMovement(dt, now) {
     const baseMoveY = dir.dy * MOVE_SPEED * dt;
     const projectedX = selfState.x + baseMoveX;
     const projectedY = selfState.y + baseMoveY;
-    const speedMultiplier = (isWaterTile(selfState.x, selfState.y) || isWaterTile(projectedX, projectedY))
+    const onWaterNow = isWaterTile(selfState.x, selfState.y);
+    const enteringWater = isWaterTile(projectedX, projectedY);
+    const speedMultiplier = (onWaterNow || enteringWater)
         ? WATER_SPEED_MULTIPLIER
         : 1;
     const moveX = baseMoveX * speedMultiplier;
@@ -490,11 +492,16 @@ function updateSelfMovement(dt, now) {
     const nextX = clamp(prevX + moveX, 0, maxX);
     const nextY = clamp(prevY + moveY, 0, maxY);
 
-    if (!isBlockedByTile(nextX, prevY)) {
+    const canMoveX = !isBlockedByTile(nextX, prevY);
+    const canMoveY = !isBlockedByTile(prevX, nextY);
+    const canMoveDiagonal = !isBlockedByTile(nextX, nextY);
+
+    if (canMoveX && canMoveY && canMoveDiagonal) {
         selfState.x = nextX;
-    }
-    if (!isBlockedByTile(prevX, nextY)) {
         selfState.y = nextY;
+    } else {
+        if (canMoveX) selfState.x = nextX;
+        if (canMoveY) selfState.y = nextY;
     }
 
     if (now - lastSendTime >= SEND_INTERVAL_MS) {
