@@ -7,7 +7,8 @@
 let TILE_SIZE = 32;
 const DEFAULT_MAP = "air.map";
 const DEFAULT_TILE = "A";
-let MOVE_SPEED = 200; // world units/sec
+const BASIC_MOVE_SPEED = 200; // world units/sec
+let Speed_Now;
 let SEND_INTERVAL_MS = 32;
 const DIAGONAL_SPEED_MULTIPLIER = 1 / Math.sqrt(2);
 const WATER_SPEED_MULTIPLIER = 0.6;
@@ -464,7 +465,7 @@ function gameLoop(timestamp) {
     if (!lastFrameTime) lastFrameTime = timestamp;
     const dt = Math.max(0, (timestamp - lastFrameTime) / 1000);
     lastFrameTime = timestamp;
-
+    Speed_Now = BASIC_MOVE_SPEED;
     updateSelfMovement(dt, timestamp);
     updateCamera();
 
@@ -480,7 +481,7 @@ function updateSelfMovement(dt, now) {
     const projectedX = selfState.x + moveX;
     const projectedY = selfState.y + moveY;
     const Needs_slow_down = isTile(selfState.x, selfState.y, "W") || isTile(projectedX, projectedY, "W") || isTile(selfState.x, selfState.y, "G") || isTile(projectedX, projectedY, "G");
-    MOVE_SPEED = Needs_slow_down ? (WATER_SPEED_MULTIPLIER * 180) : 180;
+    Speed_Now = Needs_slow_down ? (WATER_SPEED_MULTIPLIER * Speed_Now) : Speed_Now;
 
     const maxX = mapWidth * TILE_SIZE;
     const maxY = mapHeight * TILE_SIZE;
