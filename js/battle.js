@@ -563,7 +563,7 @@ function circleIntersectsTile(cx, cy, radius, tileX, tileY) {
     const dx = cx - nearestX;
     const dy = cy - nearestY;
 
-    return (dx * dx + dy * dy) < (radius * radius);
+    return (dx * dx + dy * dy) <= (radius * radius);
 }
 
 function updateCamera() {
