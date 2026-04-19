@@ -492,10 +492,10 @@ function getInputDirection() {
     let dx = 0;
     let dy = 0;
 
-    if (keys.has("w") || keys.has("arrowup") || document.getElementById("up").classList.contains("active")) dy -= 1;
-    if (keys.has("s") || keys.has("arrowdown") || document.getElementById("down").classList.contains("active")) dy += 1;
-    if (keys.has("a") || keys.has("arrowleft") || document.getElementById("left").classList.contains("active")) dx -= 1;
-    if (keys.has("d") || keys.has("arrowright") || document.getElementById("right").classList.contains("active")) dx += 1;
+    if (keys.has("w") || keys.has("arrowup")) dy -= 1;
+    if (keys.has("s") || keys.has("arrowdown")) dy += 1;
+    if (keys.has("a") || keys.has("arrowleft")) dx -= 1;
+    if (keys.has("d") || keys.has("arrowright")) dx += 1;
 
     if (dx !== 0 && dy !== 0) {
         dx *= DIAGONAL_SPEED_MULTIPLIER;
