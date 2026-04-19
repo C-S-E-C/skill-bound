@@ -472,20 +472,28 @@ function updateSelfMovement(dt, now) {
     const dir = getInputDirection();
     if (dir.dx === 0 && dir.dy === 0) return;
 
-    const speedMultiplier = isWaterTile(selfState.x, selfState.y) ? WATER_SPEED_MULTIPLIER : 1;
-    const moveX = dir.dx * MOVE_SPEED * speedMultiplier * dt;
-    const moveY = dir.dy * MOVE_SPEED * speedMultiplier * dt;
+    const baseMoveX = dir.dx * MOVE_SPEED * dt;
+    const baseMoveY = dir.dy * MOVE_SPEED * dt;
+    const projectedX = selfState.x + baseMoveX;
+    const projectedY = selfState.y + baseMoveY;
+    const speedMultiplier = (isWaterTile(selfState.x, selfState.y) || isWaterTile(projectedX, projectedY))
+        ? WATER_SPEED_MULTIPLIER
+        : 1;
+    const moveX = baseMoveX * speedMultiplier;
+    const moveY = baseMoveY * speedMultiplier;
 
     const maxX = mapWidth * TILE_SIZE;
     const maxY = mapHeight * TILE_SIZE;
 
-    const nextX = clamp(selfState.x + moveX, 0, maxX);
-    if (!isBlockedByTile(nextX, selfState.y)) {
+    const prevX = selfState.x;
+    const prevY = selfState.y;
+    const nextX = clamp(prevX + moveX, 0, maxX);
+    const nextY = clamp(prevY + moveY, 0, maxY);
+
+    if (!isBlockedByTile(nextX, prevY)) {
         selfState.x = nextX;
     }
-
-    const nextY = clamp(selfState.y + moveY, 0, maxY);
-    if (!isBlockedByTile(selfState.x, nextY)) {
+    if (!isBlockedByTile(prevX, nextY)) {
         selfState.y = nextY;
     }
 
