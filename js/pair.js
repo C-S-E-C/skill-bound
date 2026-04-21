@@ -125,27 +125,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Cache image files for offline support
-(async () => {
-    const cache = await caches.open("cache");
-    const cachedFiles = [
-        "images/block.webp",
-        "images/bush.webp",
-        "images/bushes.webp",
-        "images/fire.webp",
-        "images/ground.webp",
-        "images/water.webp",
-        "images/skins.webp",
-        "images/skills.webp",
-    ];
-    
-    for (const file of cachedFiles) {
-        if (!await cache.match(file)) {
-            await cache.add(file);
-        }
-    }
-})();
-
 // Track music playback time
 setInterval(function() {
     sessionStorage.setItem("bgmtime", document.getElementById("background-music").currentTime)

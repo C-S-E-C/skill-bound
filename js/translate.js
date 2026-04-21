@@ -1,7 +1,6 @@
 (async () => {
   try {
     const lang = localStorage.getItem("lang");
-    const cache = await caches.open("cache");
 
     if (lang == null) {
       window.location.href = "lang.html";
@@ -11,20 +10,8 @@
     let translation = {};
 
     if (lang != "en_us") {
-      const cachedResponse = await cache.match("./lang/" + lang + ".json");
-      
-      if (cachedResponse) {
-        translation = await cachedResponse.json();
-      } else {
-        const fetchResponse = await fetch("./lang." + lang + ".json");
-        translation = await fetchResponse.json();
-      }
-    }
-
-    // Add to cache if missing
-    const cachedCheck = await cache.match("./lang/" + lang + ".json");
-    if (cachedCheck == null && lang != "en_us") {
-      await cache.add("./lang/" + lang + ".json");
+      const fetchResponse = await fetch("./lang/" + lang + ".json");
+      translation = await fetchResponse.json();
     }
 
     const elements = document.querySelectorAll("h1, h2, h3, h4, h5, h6, p, span, a, button");
