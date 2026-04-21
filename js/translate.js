@@ -15,10 +15,8 @@
     }
 
     const elements = document.querySelectorAll("h1, h2, h3, h4, h5, h6, p, span, a, button");
-	var json = JSON.parse(localStorage.getItem("translation_cache") || "{}");
     elements.forEach(el => {
       const original = el.innerText;
-	  json[original] = "";
       if (translation[original]) {
         console.info("Translating:\t", original, "\t->\t", translation[original]);
         el.innerText = translation[original];
@@ -26,7 +24,6 @@
         console.warn("No translation found for:", original);
       }
     });
-    localStorage.setItem("translation_cache", JSON.stringify(json));
 
   } catch (error) {
     console.error("Translation failed:", error);
