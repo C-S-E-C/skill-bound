@@ -13,13 +13,14 @@ let SEND_INTERVAL_MS = 32;
 const DIAGONAL_SPEED_MULTIPLIER = 1 / Math.sqrt(2);
 const WATER_SPEED_MULTIPLIER = 0.6;
 const PLAYER_HITBOX_RADIUS = 14;
-const PLAYER_HITBOX_RADIUS_SQUARED = PLAYER_HITBOX_RADIUS * PLAYER_HITBOX_RADIUS;
+const PLAYER_HITBOX_RADIUS_SQUARED =
+    PLAYER_HITBOX_RADIUS * PLAYER_HITBOX_RADIUS;
 const BLOCK_TILE = "B";
 const TILE_IMAGES = {
-    "A": "images/ground.webp",
-    "G": "images/bushes.webp",
-    "W": "images/water.webp",
-    "B": "images/block.webp",
+    A: "images/ground.webp",
+    G: "images/bushes.webp",
+    W: "images/water.webp",
+    B: "images/block.webp",
 };
 const tileSpriteCache = new Map();
 
@@ -61,19 +62,23 @@ async function init() {
     myId = localStorage.getItem("userid") || sessionStorage.getItem("myId");
 
     const params = new URLSearchParams(window.location.search);
-    sessionId = params.get("sessionId")
-        || params.get("matchId")
-        || sessionStorage.getItem("sessionId")
-        || sessionStorage.getItem("matchId")
-        || sessionStorage.getItem("groupId");
+    sessionId =
+        params.get("sessionId") ||
+        params.get("matchId") ||
+        sessionStorage.getItem("sessionId") ||
+        sessionStorage.getItem("matchId") ||
+        sessionStorage.getItem("groupId");
 
-    battlefield = params.get("battlefield")
-        || sessionStorage.getItem("battlefield")
-        || DEFAULT_MAP;
+    battlefield =
+        params.get("battlefield") ||
+        sessionStorage.getItem("battlefield") ||
+        DEFAULT_MAP;
 
     if (!myId || !sessionId) {
         setStatus("Missing user/session id. Back to pair...");
-        setTimeout(() => { window.location.href = "pair.html"; }, 1200);
+        setTimeout(() => {
+            window.location.href = "pair.html";
+        }, 1200);
         return;
     }
 
@@ -107,7 +112,22 @@ function cacheDom() {
 
 function bindEvents() {
     window.addEventListener("keydown", (e) => {
-        if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "w", "a", "s", "d", "W", "A", "S", "D"].includes(e.key)) {
+        if (
+            [
+                "ArrowUp",
+                "ArrowDown",
+                "ArrowLeft",
+                "ArrowRight",
+                "w",
+                "a",
+                "s",
+                "d",
+                "W",
+                "A",
+                "S",
+                "D",
+            ].includes(e.key)
+        ) {
             e.preventDefault();
         }
         keys.add(e.key.toLowerCase());
@@ -135,7 +155,8 @@ function bindEvents() {
 }
 
 function connectWebSocket() {
-    const wsUrl = sessionStorage.getItem("WSServer") || "wss://1.s.syntropica.top:10012";
+    const wsUrl =
+        sessionStorage.getItem("WSServer") || "wss://1.s.syntropica.top:10012";
     if (!wsUrl) {
         setStatus("WSServer missing in sessionStorage");
         return;
@@ -175,16 +196,21 @@ function connectWebSocket() {
 
 function wsSend(payload) {
     if (!ws || ws.readyState !== WebSocket.OPEN) return;
-    ws.send(JSON.stringify({
-        userId: myId,
-        matchId: sessionId,
-        sessionId: sessionId,
-        ...payload,
-    }));
+    ws.send(
+        JSON.stringify({
+            userId: myId,
+            matchId: sessionId,
+            sessionId: sessionId,
+            ...payload,
+        }),
+    );
 }
 
 function handleMessage(msg) {
-    if (msg.type === "paired" && (msg.matchId || msg.sessionId || msg.groupId)) {
+    if (
+        msg.type === "paired" &&
+        (msg.matchId || msg.sessionId || msg.groupId)
+    ) {
         sessionId = msg.matchId || msg.sessionId || msg.groupId;
         dom.sessionId.textContent = sessionId;
         sessionStorage.setItem("sessionId", sessionId);
@@ -271,6 +297,7 @@ function applyGameState(state) {
         next.set(record.id, record);
 
         if (record.id === String(myId)) {
+            // The server can echo slightly stale self positions; throttle correction so local movement stays responsive.
             if (SelfUpdaateMessageCount % 10 === 0) {
                 selfState = { ...selfState, ...record };
             }
@@ -316,7 +343,10 @@ function readPlayerPos(player) {
     const px = Number(player.x ?? player.pos?.x ?? player.position?.x);
     const py = Number(player.y ?? player.pos?.y ?? player.position?.y);
 
-    const fallbackSeed = hashCode(String(player.id || player.userId || "unknown"));
+    // Keep players visible even when older/newer server payloads omit position fields.
+    const fallbackSeed = hashCode(
+        String(player.id || player.userId || "unknown"),
+    );
     const safeRangeX = Math.max(1, mapWidth * TILE_SIZE - 400);
     const safeRangeY = Math.max(1, mapHeight * TILE_SIZE - 400);
     const fallbackX = 200 + (fallbackSeed % safeRangeX);
@@ -335,7 +365,10 @@ async function loadMap(mapName) {
         if (!resp.ok) throw new Error("map not found");
 
         const raw = await resp.text();
-        mapRows = raw.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+        mapRows = raw
+            .split(/\r?\n/)
+            .map((line) => line.trim())
+            .filter(Boolean);
 
         if (!mapRows.length) throw new Error("empty map");
 
@@ -385,14 +418,25 @@ function renderMap() {
             const img = tileSpriteCache.get(cell) || defaultImg;
             if (!img) {
                 ctx.fillStyle = "#1d2b3e";
-                ctx.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+                ctx.fillRect(
+                    x * TILE_SIZE,
+                    y * TILE_SIZE,
+                    TILE_SIZE,
+                    TILE_SIZE,
+                );
                 if (!hasLoggedMissingTileSprite) {
                     hasLoggedMissingTileSprite = true;
                     log("Map tile sprite missing; using color fallback.");
                 }
                 continue;
             }
-            ctx.drawImage(img, x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+            ctx.drawImage(
+                img,
+                x * TILE_SIZE,
+                y * TILE_SIZE,
+                TILE_SIZE,
+                TILE_SIZE,
+            );
         }
     }
 
@@ -436,7 +480,12 @@ function loadImage(src) {
     return new Promise((resolve, reject) => {
         const img = new Image();
         img.onload = () => resolve(img);
-        img.onerror = () => reject(new Error(`Failed to load image: ${src}. Check that the file exists and is accessible.`));
+        img.onerror = () =>
+            reject(
+                new Error(
+                    `Failed to load image: ${src}. Check that the file exists and is accessible.`,
+                ),
+            );
         img.src = src;
     });
 }
@@ -540,9 +589,14 @@ function isBlockedByTile(worldX, worldY) {
     const minTileY = Math.floor((worldY - PLAYER_HITBOX_RADIUS) / TILE_SIZE);
     const maxTileY = Math.floor((worldY + PLAYER_HITBOX_RADIUS) / TILE_SIZE);
 
+    // Check every tile touched by the circular hitbox, not only the tile under the player's center.
     for (let tileY = minTileY; tileY <= maxTileY; tileY++) {
         for (let tileX = minTileX; tileX <= maxTileX; tileX++) {
-            if (getMapCell(tileX, tileY) !== "W" && getMapCell(tileX, tileY) !== "B") continue;
+            if (
+                getMapCell(tileX, tileY) !== "W" &&
+                getMapCell(tileX, tileY) !== "B"
+            )
+                continue;
             if (circleIntersectsTile(worldX, worldY, tileX, tileY)) {
                 return true;
             }
@@ -576,7 +630,7 @@ function circleIntersectsTile(cx, cy, tileX, tileY) {
     const dx = cx - nearestX;
     const dy = cy - nearestY;
 
-    return (dx * dx + dy * dy) <= PLAYER_HITBOX_RADIUS_SQUARED;
+    return dx * dx + dy * dy <= PLAYER_HITBOX_RADIUS_SQUARED;
 }
 
 function updateCamera() {
@@ -604,7 +658,7 @@ function clamp(value, min, max) {
 function hashCode(str) {
     let hash = 0;
     for (let i = 0; i < str.length; i++) {
-        hash = ((hash << 5) - hash) + str.charCodeAt(i);
+        hash = (hash << 5) - hash + str.charCodeAt(i);
         hash |= 0;
     }
     return Math.abs(hash);

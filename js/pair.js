@@ -8,17 +8,17 @@ music.play().catch(() => {});
 
 // Load available maps
 fetch("maps/index.json")
-    .then(response => response.json())
-    .then(maps => {
+    .then((response) => response.json())
+    .then((maps) => {
         const mapSelect = document.getElementById("map-choice");
-        maps.forEach(map => {
+        maps.forEach((map) => {
             const option = document.createElement("option");
             option.value = map;
             option.textContent = map.toUpperCase().replace(".MAP", "");
             mapSelect.appendChild(option);
         });
     })
-    .catch(error => console.error("Failed to load maps:", error));
+    .catch((error) => console.error("Failed to load maps:", error));
 
 // Main pairing function
 async function pair() {
@@ -34,37 +34,42 @@ async function pair() {
     screen2.style.display = "flex";
 
     // Clear and set layout classes
-    ourTeam.innerHTML = '';
-    opponentTeam.innerHTML = '';
+    ourTeam.innerHTML = "";
+    opponentTeam.innerHTML = "";
     ourTeam.className = `team-container ours layout-${mode}`;
     opponentTeam.className = `team-container opponent layout-${mode}`;
-    
+
     const statusBox = document.getElementById("status-text");
-    statusBox.innerHTML = '<span id="loading-animation"></span>Connecting to server';
-    statusBox.setAttribute('data-translated', 'false');
-    
+    statusBox.innerHTML =
+        '<span id="loading-animation"></span>Connecting to server';
+    statusBox.setAttribute("data-translated", "false");
+
     // WebSocket connection to server
     const socket = new WebSocket(sessionStorage.getItem("WSServer"));
 
     socket.onerror = (error) => {
-       console.error("WebSocket error:", error);
-       statusBox.innerHTML = "Connection error. Please try again later. Error:"+error;
+        console.error("WebSocket error:", error);
+        statusBox.innerHTML =
+            "Connection error. Please try again later. Error:" + error;
     };
-   
+
     socket.onopen = () => {
-        statusBox.innerHTML = '<span id="loading-animation"></span>Connected. Waiting for match';
-        statusBox.setAttribute('data-translated', 'false');
+        statusBox.innerHTML =
+            '<span id="loading-animation"></span>Connected. Waiting for match';
+        statusBox.setAttribute("data-translated", "false");
         console.log("WebSocket connection established.");
-        
+
         // Send pairing request
-        socket.send(JSON.stringify({
-            action: "start_pairing",
-            mode: mode,
-            battlefield: battlefield,
-            userId: localStorage.getItem("userid")
-        }));
+        socket.send(
+            JSON.stringify({
+                action: "start_pairing",
+                mode: mode,
+                battlefield: battlefield,
+                userId: localStorage.getItem("userid"),
+            }),
+        );
     };
-    
+
     const storeSession = (sessionId) => {
         if (!sessionId) return;
         sessionStorage.setItem("sessionId", sessionId);
@@ -73,7 +78,7 @@ async function pair() {
 
     socket.onmessage = (event) => {
         const data = JSON.parse(event.data);
-        
+
         if (data.type === "paired") {
             sessionStorage.setItem("groupId", data.groupId);
             sessionStorage.setItem("myTeam", data.myTeam);
@@ -90,7 +95,7 @@ async function pair() {
             label.style.fontSize = "10px";
             label.textContent = data.playerName;
             player.appendChild(label);
-            
+
             if (data.playerTeam === sessionStorage.getItem("myTeam")) {
                 ourTeam.appendChild(player);
             } else {
@@ -99,10 +104,13 @@ async function pair() {
         } else if (data.type === "pairing_complete") {
             // Pairing complete, show player info
             statusBox.innerText = "Match Found!";
-            statusBox.setAttribute('data-translated', 'false');
+            statusBox.setAttribute("data-translated", "false");
             document.getElementById("start-battle").disabled = false;
             document.getElementById("start-battle").onclick = () => {
-                const sessionId = data.matchId || data.sessionId || sessionStorage.getItem("sessionId");
+                const sessionId =
+                    data.matchId ||
+                    data.sessionId ||
+                    sessionStorage.getItem("sessionId");
                 storeSession(sessionId);
                 if (data.battlefield) {
                     sessionStorage.setItem("battlefield", data.battlefield);
@@ -110,18 +118,21 @@ async function pair() {
                 // Enter battle interface
                 const query = new URLSearchParams();
                 if (sessionId) query.set("sessionId", sessionId);
-                if (data.battlefield) query.set("battlefield", data.battlefield);
-                window.location.href = "battle.html" + (query.toString() ? "?" + query.toString() : "");
+                if (data.battlefield)
+                    query.set("battlefield", data.battlefield);
+                window.location.href =
+                    "battle.html" +
+                    (query.toString() ? "?" + query.toString() : "");
             };
         }
     };
 }
 
 // Attach event listener to start fight button
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener("DOMContentLoaded", function () {
     const startFightBtn = document.getElementById("start-fight");
     if (startFightBtn) {
-        startFightBtn.addEventListener('click', pair);
+        startFightBtn.addEventListener("click", pair);
     }
 });
 
@@ -138,15 +149,18 @@ document.addEventListener('DOMContentLoaded', function() {
         "images/skins.webp",
         "images/skills.webp",
     ];
-    
+
     for (const file of cachedFiles) {
-        if (!await cache.match(file)) {
+        if (!(await cache.match(file))) {
             await cache.add(file);
         }
     }
 })();
 
 // Track music playback time
-setInterval(function() {
-    sessionStorage.setItem("bgmtime", document.getElementById("background-music").currentTime)
+setInterval(function () {
+    sessionStorage.setItem(
+        "bgmtime",
+        document.getElementById("background-music").currentTime,
+    );
 }, 50);

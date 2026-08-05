@@ -18,22 +18,22 @@ async function Signup() {
         alert("Please enter a username");
         return;
     }
-    
+
     // Generate a new secret key
     const newSecret = generateRandomBase32Secret(1024);
-    
+
     // Store in local storage
-    localStorage.setItem('userid', username);
-    localStorage.setItem('secret', newSecret);
-    
+    localStorage.setItem("userid", username);
+    localStorage.setItem("secret", newSecret);
+
     // Redirect to login page
     window.location.href = "login.html";
 }
 
 // Attach event listener to signup button
-document.addEventListener('DOMContentLoaded', function() {
-    const signupBtn = document.querySelector('#signup button');
+document.addEventListener("DOMContentLoaded", function () {
+    const signupBtn = document.querySelector("#signup button");
     if (signupBtn) {
-        signupBtn.addEventListener('click', Signup);
+        signupBtn.addEventListener("click", Signup);
     }
 });

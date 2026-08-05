@@ -8,7 +8,7 @@ if (!use_cache) {
     });
 }
 
-window.addEventListener("DOMContentLoaded", async function() {
+window.addEventListener("DOMContentLoaded", async function () {
     const cache = await caches.open("cache");
     const elements = document.querySelectorAll("*[src]"); // Select all elements with a src attribute
     for (const el of elements) {
@@ -25,7 +25,9 @@ window.addEventListener("DOMContentLoaded", async function() {
         } else {
             // Not in cache? Fetch and add it for next time
             // Note: This may fail if CORS is not configured on the server
-            cache.add(requestUrl).catch(err => console.warn("CORS/Cache error:", err));
+            cache
+                .add(requestUrl)
+                .catch((err) => console.warn("CORS/Cache error:", err));
             console.log("Added to cache:", requestUrl);
         }
     }

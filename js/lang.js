@@ -4,9 +4,9 @@
 
 // Language data
 const languages = [
-    {"id":"en_us","name":"English"},
-    {"id":"zh_hans","name":"中文 (简体)"},
-    {"id":"zh_hant","name":"中文 (繁體)"},
+    { id: "en_us", name: "English" },
+    { id: "zh_hans", name: "中文 (简体)" },
+    { id: "zh_hant", name: "中文 (繁體)" },
 ];
 
 // Change language function
@@ -37,7 +37,9 @@ langsearch.addEventListener("input", function (e) {
         const options = selectelement.getElementsByTagName("li");
         for (let i = 0; i < options.length; i++) {
             const option = options[i];
-            const matches = option.innerText.toLowerCase().includes(search) || option.getAttribute("value").toString().includes(search);
+            const matches =
+                option.innerText.toLowerCase().includes(search) ||
+                option.getAttribute("value").toString().includes(search);
             option.style.display = matches ? "" : "none";
         }
     }, 150);
@@ -49,9 +51,9 @@ function continue_() {
 }
 
 // Attach event listener to continue button
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener("DOMContentLoaded", function () {
     const continueBtn = document.getElementById("continue");
     if (continueBtn) {
-        continueBtn.addEventListener('click', continue_);
+        continueBtn.addEventListener("click", continue_);
     }
 });
