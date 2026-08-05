@@ -1,4 +1,4 @@
-window.location.pathname = "/return";
+if(location.host=="skill-bound.syntropica.top") location.pathname = "/return";
 
 sessionStorage.setItem(
     "WSServer",
