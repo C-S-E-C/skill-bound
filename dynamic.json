@@ -1,4 +1,5 @@
 {
   "ExchangeRate": 50,
-  "WSSever": "wss://1.s.syntropica.top:10012"
+  "ETServer": "wss://1.s.syntropica.top:10012",
+  "CacheVersion": "0"
 }

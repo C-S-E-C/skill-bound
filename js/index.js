@@ -69,7 +69,7 @@ setInterval(function () {
 fetch("dynamic.json")
     .then((response) => response.json())
     .then((data) => {
-        sessionStorage.setItem("WSServer", data.WSSever);
+        sessionStorage.setItem("ETServer", data.ETSever);
     })
     .catch((error) =>
         console.error("Failed to load dynamic configuration:", error),
