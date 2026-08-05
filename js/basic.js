@@ -1,4 +1,5 @@
 window.location.pathname = "/return";
+
 sessionStorage.setItem("WSServer", fetch("https://skill-bound.syntropica.top/dynamic.json").then(res => res.json())["WSSever"]);
 const socket = new WebSocket(sessionStorage.getItem("WSServer"));
 // wait in async functions: await wait(1000) // wait for 1 second
@@ -15,12 +16,7 @@ function download(content, fileName, contentType) {
     URL.revokeObjectURL(a.href); // 释放内存
 }
 
-function importscript(url) {
-    var script = document.createElement("script");
-    script.type = "text/javascript";
-    script.src = url;
-    document.getElementsByTagName("head")[0].appendChild(script);
-}
+
 // copy content to clipboard (need user interaction)
 function copyToClipboard(content) {
     navigator.clipboard.writeText(content).then(() => {
@@ -63,6 +59,19 @@ function showLoadingAnimation() {
         }, 200);
     }
 }
+
+function using(url) {
+    document.querySelectorAll("head script").forEach(script => {
+        if (script.src === url) {
+            return;
+        }
+    });
+    const script = document.createElement("script");
+    script.src = url;
+    document.head.appendChild(script);
+}
+window.using = using;
+
 //DomContentLoaded
 document.addEventListener("DOMContentLoaded", function () {
     showLoadingAnimation();

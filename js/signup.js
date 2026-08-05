@@ -2,6 +2,7 @@
    Signup Page Script
    ============================================ */
 
+using("/js/crypto.js");
 // Handle WeChat browser issue
 if (isWeChat()) {
     const secretDisplay = document.getElementById("secret-display");

@@ -19,11 +19,16 @@
         .preview { outline: 2px solid #ffcc00; outline-offset: -2px; }
 
         #grid-viewport {
-            width: 80vh;
-            height: 80vh;
+            max-width: calc(100vw - 32px);
+            max-height: 70vh;
             overflow: auto;
             border: 2px solid #555;
             background: #ddd;
+        }
+
+        #grid-scale-box {
+            width: 899px;
+            height: 899px;
         }
 
         #grid-container { 
@@ -34,6 +39,7 @@
             background: #ddd; 
             user-select: none;
             touch-action: none;
+            transform-origin: 0 0;
         }
         .cell { width: 8px; height: 8px; cursor: crosshair; }
         
@@ -68,16 +74,18 @@
             <option value="ring">环形</option>
         </select>
         <span>缩放：</span>
-        <button onclick="changeZoom(-0.05)">-</button>
+        <button onclick="changeZoom(-0.25)">-</button>
         <span id="zoom-value">100%</span>
-        <button onclick="changeZoom(0.05)">+</button>
-        <button onclick="setZoom(0.80)">重置</button>
+        <button onclick="changeZoom(0.25)">+</button>
+        <button onclick="setZoom(1)">重置</button>
         <button onclick="clearMap()">清空</button>
         <button class="export-btn" onclick="exportMap()">导出地图数据</button>
     </div>
 
     <div id="grid-viewport">
-        <div id="grid-container"></div>
+        <div id="grid-scale-box">
+            <div id="grid-container"></div>
+        </div>
     </div>
 
     <div class="output-area">
@@ -100,6 +108,7 @@
         let zoom = 1;
 
         const container = document.getElementById('grid-container');
+        const scaleBox = document.getElementById('grid-scale-box');
         const statusEl = document.getElementById('status');
         const outputEl = document.getElementById('output-text');
         const mapSelect = document.getElementById('map-select');
@@ -184,9 +193,9 @@
         function getGridPoint(event) {
             event.preventDefault();
             const rect = container.getBoundingClientRect();
-            const x = event.clientX - rect.left;
-            const y = event.clientY - rect.top;
-            const step = currentCellSize() + CELL_GAP;
+            const x = (event.clientX - rect.left) / zoom;
+            const y = (event.clientY - rect.top) / zoom;
+            const step = CELL_SIZE + CELL_GAP;
             const col = Math.floor(x / step);
             const row = Math.floor(y / step);
             if (col < 0 || col >= COLS || row < 0 || row >= ROWS) return null;
@@ -257,18 +266,14 @@
 
         function setZoom(value) {
             zoom = Math.min(4, Math.max(0.5, value));
-            const size = currentCellSize();
-            container.style.gridTemplateColumns = 'repeat(' + COLS + ', ' + size + 'px)';
-            container.style.gridTemplateRows = 'repeat(' + ROWS + ', ' + size + 'px)';
-            container.querySelectorAll('.cell').forEach(cell => {
-                cell.style.width = size + 'px';
-                cell.style.height = size + 'px';
-            });
+            const baseWidth = COLS * CELL_SIZE + (COLS - 1) * CELL_GAP;
+            const baseHeight = ROWS * CELL_SIZE + (ROWS - 1) * CELL_GAP;
+            container.style.transform = 'scale(' + zoom + ')';
+            container.style.width = baseWidth + 'px';
+            container.style.height = baseHeight + 'px';
+            scaleBox.style.width = (baseWidth * zoom) + 'px';
+            scaleBox.style.height = (baseHeight * zoom) + 'px';
             zoomValueEl.innerText = Math.round(zoom * 100) + '%';
-        }
-
-        function currentCellSize() {
-            return Math.max(4, Math.round(CELL_SIZE * zoom));
         }
 
         function exportMap() {
@@ -361,7 +366,7 @@
             statusEl.innerText = message;
         }
 
-        setZoom(0.8);
+        setZoom(1);
     </script>
 </body>
 </html>
