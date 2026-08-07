@@ -2,6 +2,9 @@
    Pair/Battle Page Script
    ============================================ */
 
+using("/js/easytier.js");
+using("/js/crypto.js");
+
 const music = document.getElementById("background-music");
 music.currentTime = sessionStorage.getItem("bgmtime") || 0;
 music.play().catch(() => {});
@@ -20,119 +23,101 @@ fetch("maps/index.json")
     })
     .catch((error) => console.error("Failed to load maps:", error));
 
-// Main pairing function
-async function pair() {
-    const mode = parseInt(document.getElementById("mode-choice").value);
-    const battlefield = document.getElementById("map-choice").value;
-    const screen1 = document.getElementById("screen1");
-    const screen2 = document.getElementById("screen2");
-    const ourTeam = document.getElementById("our-team");
-    const opponentTeam = document.getElementById("opponent-team");
 
-    // Switch screen display
-    screen1.style.display = "none";
-    screen2.style.display = "flex";
 
-    // Clear and set layout classes
-    ourTeam.innerHTML = "";
-    opponentTeam.innerHTML = "";
-    ourTeam.className = `team-container ours layout-${mode}`;
-    opponentTeam.className = `team-container opponent layout-${mode}`;
-
-    const statusBox = document.getElementById("status-text");
-    statusBox.innerHTML =
-        '<span id="loading-animation"></span>Connecting to server';
-    statusBox.setAttribute("data-translated", "false");
-
-    // WebSocket connection to server
-    const socket = new WebSocket(sessionStorage.getItem("WSServer"));
-
-    socket.onerror = (error) => {
-        console.error("WebSocket error:", error);
-        statusBox.innerHTML =
-            "Connection error. Please try again later. Error:" + error;
-    };
-
-    socket.onopen = () => {
-        statusBox.innerHTML =
-            '<span id="loading-animation"></span>Connected. Waiting for match';
-        statusBox.setAttribute("data-translated", "false");
-        console.log("WebSocket connection established.");
-
-        // Send pairing request
-        socket.send(
-            JSON.stringify({
-                action: "start_pairing",
-                mode: mode,
-                battlefield: battlefield,
-                userId: localStorage.getItem("userid"),
-            }),
-        );
-    };
-
-    const storeSession = (sessionId) => {
-        if (!sessionId) return;
-        sessionStorage.setItem("sessionId", sessionId);
-        sessionStorage.setItem("matchId", sessionId);
-    };
-
-    socket.onmessage = (event) => {
-        const data = JSON.parse(event.data);
-
-        if (data.type === "paired") {
-            sessionStorage.setItem("groupId", data.groupId);
-            sessionStorage.setItem("myTeam", data.myTeam);
-            sessionStorage.setItem("myId", data.myId);
-            storeSession(data.matchId || data.sessionId || data.groupId);
-            if (data.battlefield) {
-                sessionStorage.setItem("battlefield", data.battlefield);
-            }
-        } else if (data.type === "add_player") {
-            // Update matching status
-            const player = document.createElement("div");
-            player.className = "player-slot";
-            const label = document.createElement("small");
-            label.style.fontSize = "10px";
-            label.textContent = data.playerName;
-            player.appendChild(label);
-
-            if (data.playerTeam === sessionStorage.getItem("myTeam")) {
-                ourTeam.appendChild(player);
-            } else {
-                opponentTeam.appendChild(player);
-            }
-        } else if (data.type === "pairing_complete") {
-            // Pairing complete, show player info
-            statusBox.innerText = "Match Found!";
-            statusBox.setAttribute("data-translated", "false");
-            document.getElementById("start-battle").disabled = false;
-            document.getElementById("start-battle").onclick = () => {
-                const sessionId =
-                    data.matchId ||
-                    data.sessionId ||
-                    sessionStorage.getItem("sessionId");
-                storeSession(sessionId);
-                if (data.battlefield) {
-                    sessionStorage.setItem("battlefield", data.battlefield);
-                }
-                // Enter battle interface
-                const query = new URLSearchParams();
-                if (sessionId) query.set("sessionId", sessionId);
-                if (data.battlefield)
-                    query.set("battlefield", data.battlefield);
-                window.location.href =
-                    "battle.html" +
-                    (query.toString() ? "?" + query.toString() : "");
-            };
+class PairingHandlerClass {
+    constructor() {
+        this.CurStats = {
+            ETloading: 0,
+            PrivateRoom: 1,
+            OpenToPublic: 2,
+            InRoom: 3,
         }
-    };
+        this.CurStat = this.CurStats.ETloading;
+        this.RoomID = "";
+        this.etconnected = false;
+        this.teamMates = [];
+    }
+
+    async connectET() {
+        if (this.etconnected) return;
+        var ETLoaded = false;
+        while (!ETLoaded) {
+            ETLoaded = typeof easytier != "undefined";
+        }
+        await easytier.connect(
+            location.protocol == "https:" ? "wss" : "ws",
+            localStorage.getItem("etserver") || "cn-sh-0.s.syntropica.top",
+            location.protocol == "https:" ? 11011 : 11012,
+            "skillbound", ""
+        );
+        while (!easytier.connected) {
+            await new Promise((resolve) => setTimeout(resolve, 100));
+        }
+        this.etconnected = true;
+        this.ETPingInterval = setInterval(() => {
+            easytier.ping();
+        }, 5000);
+    }
+
+    async getPairEls() {
+        var pairEls = {};
+        pairEls.screen1 = {};
+        pairEls.screen2 = {};
+        pairEls.screen3 = {};
+
+        pairEls.screen1.self = document.getElementById("screen1");
+        pairEls.screen2.self = document.getElementById("screen2");
+        pairEls.screen3.self = document.getElementById("screen3");
+
+        pairEls.screen1.mode = parseInt(document.getElementById("mode-choice").value);
+        pairEls.screen1.battlefield = document.getElementById("map-choice").value;
+
+        pairEls.screen2.PlayerList = document.getElementById("connected-players");
+        pairEls.screen2.statusText = document.getElementById("status-text-screen2");
+
+        pairEls.screen3.ourTeam = document.getElementById("our-team");
+        pairEls.screen3.opponentTeam = document.getElementById("opponent-team");
+        pairEls.screen3.statusText = document.getElementById("status-text-screen3");
+        return pairEls;
+    }
+
+    async startPairing() {
+        await connectET();
+        pairEls.screen1.self.style.display = "none";
+        pairEls.screen2.self.style.display = "flex";
+        this.CurStat = this.CurStats.OpenToPublic;
+        this.RoomID = generateRandomBase32Secret(20);
+        this.teamMates = [];
+        this.teamMates.push({
+            'name': localStorage.getItem("userid") || "Player",
+            'ETid': easytier.status().localPeerId
+        });
+    }
+
+    async publicPair() {
+        var pairEls = await this.getPairEls();
+        await this.startPairing();
+    }
+    
+    async privatePair() {
+        var pairEls = await this.getPairEls();
+        await this.startPairing();
+    }
+
 }
+
+const pairingHandler = new PairingHandlerClass();
 
 // Attach event listener to start fight button
 document.addEventListener("DOMContentLoaded", function () {
     const startFightBtn = document.getElementById("start-fight");
+    const newRoomBtn = document.getElementById("new-room");
     if (startFightBtn) {
-        startFightBtn.addEventListener("click", pair);
+        startFightBtn.addEventListener("click", () => pairingHandler.publicPair());
+    }
+    if (newRoomBtn) {
+        newRoomBtn.addEventListener("click", () => pairingHandler.privatePair());
     }
 });
 
@@ -157,6 +142,8 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 })();
 
+connectET();
+
 // Track music playback time
 setInterval(function () {
     sessionStorage.setItem(
@@ -164,3 +151,20 @@ setInterval(function () {
         document.getElementById("background-music").currentTime,
     );
 }, 50);
+
+
+
+// ==================================================
+//                   ET LISTENERS
+// ==================================================
+
+easytier.on("packet", (packet) => {
+    if (packet.type == easytier.PacketType.RPC_REQUEST) {
+        try {
+            data = JSON.parse(new TextDecoder().decode(packet.payload));
+        } catch (e) {
+            return;
+        }
+        
+    }
+});

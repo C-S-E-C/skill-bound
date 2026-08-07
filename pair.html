@@ -32,10 +32,33 @@
         </div>
 
         <button id="start-fight">START FIGHT</button>
+        <button id="new-room">NEW ROOM</button>
     </main>
 
     <main id="screen2">
-        <h1 id="status-text"><span id="loading-animation"></span>Searching for opponents</h1>
+        <h1 id="status-text-screen2"><span id="loading-animation"></span>Waiting for players...</h1>
+        <section id="connected-players">
+            <div class="player-row">
+                <span class="player-status"></span>
+                <span class="player-name">PLAYER 1</span>
+            </div>
+            <div class="player-row">
+                <span class="player-status"></span>
+                <span class="player-name">PLAYER 2</span>
+            </div>
+            <div class="player-row">
+                <span class="player-status"></span>
+                <span class="player-name">PLAYER 3</span>
+            </div>
+            <div class="player-row">
+                <span class="player-status"></span>
+                <span class="player-name">PLAYER 4</span>
+            </div>
+        </section>
+    </main>
+
+    <main id="screen3">
+        <h1 id="status-text-screen3">Please choose your team</h1>
         <br/>
         <div id="people">
             <div id="our-team" class="team-container ours"></div>
@@ -43,6 +66,7 @@
             <div id="opponent-team" class="team-container opponent"></div>
         </div>
         <button id="start-battle" style="margin-top:30px; font-size: 1rem; padding: 10px 30px;" disabled>START</button>
+        <button id="create-room" style="margin-top:30px; font-size: 1rem; padding: 10px 30px;" disabled>CREATE ROOM</button>
     </main>
 
     <!-- Page-specific script -->
