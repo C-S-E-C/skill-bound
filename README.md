@@ -20,7 +20,7 @@
 
 #### [> 玩法](玩法.md)
 
-#### [> 开发者名单](developers.md)
+#### [> 贡献者名单](CONTRIBUTORS.md)
 
 #### [> 源代码协议](LICENSE.md)
 
