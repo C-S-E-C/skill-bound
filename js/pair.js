@@ -12,6 +12,7 @@ music.play().catch(() => {});
 const PAIR_PROTOCOL = "skillbound.pairing.v2";
 const PUBLIC_VERIFY_CODE = 0;
 const PEER_SYNC_INTERVAL_MS = 2500;
+const PUBLIC_SCAN_RADIUS = 256;
 const PACKET_TYPES = {
     RequestPair: 0,
     RefusePair: 1,
@@ -141,9 +142,11 @@ class PairingHandlerClass {
         this.battlefield = "air.map";
         this.leaderPeerId = null;
         this.isPrivate = false;
+        this.pairingActive = false;
         this.verifyCode = PUBLIC_VERIFY_CODE;
         this.packetUnsubscribe = null;
         this.peerSyncTimer = null;
+        this.publicScanBusy = false;
     }
 
     async connectET() {
@@ -165,6 +168,7 @@ class PairingHandlerClass {
             this.packetUnsubscribe = easytier.on("packet", (packet) =>
                 this.handlePacket(packet),
             );
+            easytier.on("peer-observed", () => this.syncObservedPeers());
         }
     }
 
@@ -251,6 +255,7 @@ class PairingHandlerClass {
         this.battlefield = pairEls.screen1.battlefield;
         this.RoomID = makeRoomId();
         this.isPrivate = isPrivate;
+        this.pairingActive = true;
         this.verifyCode = PUBLIC_VERIFY_CODE;
         this.CurStat = isPrivate ? this.Stats.PrivateRoom : this.Stats.OpenToPublic;
         this.resetLeaderList();
@@ -260,12 +265,12 @@ class PairingHandlerClass {
         pairEls.screen1.self.style.display = "none";
         pairEls.screen2.self.style.display = "flex";
         await this.renderPlayers();
-        await this.showTeamScreen();
     }
 
     async publicPair() {
         await this.startPairing(false);
         this.setStatus("Public pairing active. Scanning observed EasyTier peers...");
+        this.syncObservedPeers();
     }
 
     async privatePair() {
@@ -289,6 +294,7 @@ class PairingHandlerClass {
         this.battlefield = pairEls.screen1.battlefield;
         this.RoomID = makeRoomId();
         this.isPrivate = true;
+        this.pairingActive = true;
         this.verifyCode = parsed.verifyCode;
         this.CurStat = this.Stats.InRoom;
         this.players = [this.selfPlayer()];
@@ -331,6 +337,11 @@ class PairingHandlerClass {
     syncObservedPeers() {
         if (!this.etconnected || !this.RoomID) return;
         const observed = easytier.listPeers().map((peer) => peer.id);
+        if (!observed.length) {
+            this.scanNearbyPublicPeers();
+            this.updateRoomStatus();
+            return;
+        }
         uniqueNumbers([...observed, ...this.peerList]).forEach((peerId) => {
             if (peerId === this.localPeerId()) return;
             if (this.isLeader()) {
@@ -339,6 +350,28 @@ class PairingHandlerClass {
                 this.sendPairMessage(peerId, PACKET_TYPES.SyncPair, this.roomSnapshot());
             }
         });
+        this.updateRoomStatus();
+    }
+
+    async scanNearbyPublicPeers() {
+        if (this.isPrivate || this.publicScanBusy || !this.isLeader()) return;
+        this.publicScanBusy = true;
+        const localPeerId = this.localPeerId();
+        const start = Math.max(1, localPeerId - PUBLIC_SCAN_RADIUS);
+        const end = Math.min(0xffffffff, localPeerId + PUBLIC_SCAN_RADIUS);
+        try {
+            const peers = await easytier.scanPeerIds({
+                start,
+                end,
+                timeoutMs: 1200,
+                maxCount: PUBLIC_SCAN_RADIUS * 2 + 1,
+            });
+            peers.forEach((peer) => this.sendRequestPair(peer.peerId));
+        } catch (error) {
+            console.warn("Public peer scan failed:", error);
+        } finally {
+            this.publicScanBusy = false;
+        }
     }
 
     sendRequestPair(peerId) {
@@ -380,7 +413,9 @@ class PairingHandlerClass {
     }
 
     handlePairRequest(peerId, data) {
-        if (!this.RoomID) return;
+        if (!this.RoomID) {
+            return;
+        }
         const incomingRoom = data?.room || {};
         const incomingPlayers = Array.isArray(incomingRoom.players)
             ? incomingRoom.players.map(normalizePlayer)
@@ -621,6 +656,22 @@ class PairingHandlerClass {
     async setStatus(text) {
         const pairEls = await this.getPairEls();
         pairEls.screen2.statusText.innerText = text;
+        pairEls.screen3.statusText.innerText = text;
+    }
+
+    async updateRoomStatus() {
+        const pairEls = await this.getPairEls();
+        const observedCount = easytier.listPeers().length;
+        const prefix = this.isPrivate
+            ? `Room ${this.RoomID}`
+            : `Public pairing, observed ${observedCount}`;
+        const text =
+            `${prefix}. Players ${this.players.length}/${this.maxPlayers()}. ` +
+            `Leader ${this.peerList[0] || "-"}.`;
+        // pairEls.screen2.statusText.innerText = text;
+        if (pairEls.screen3.self.style.display !== "none") {
+            pairEls.screen3.statusText.innerText = text;
+        }
     }
 }
 
