@@ -2,6 +2,7 @@ name: scorecode
 on:
   push:
     branches: [frontend]
+  workflow_dispatch:
 permissions:
   contents: write
 jobs:
