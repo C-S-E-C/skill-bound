@@ -103,11 +103,11 @@ jobs:
           else
             echo "有新的变更需要提交"
             echo "has_changes=true" >> $GITHUB_ENV
-            git commit -m `Update code quality score: ${{ steps.getscore.outputs.score }}/100
+            git commit -m "Update code quality score: ${{ steps.getscore.outputs.score }}/100
 
               从 frontend 分支自动更新
               提交: ${{ github.sha }}
-              分数: ${{ steps.getscore.outputs.score }}/100`
+              分数: ${{ steps.getscore.outputs.score }}/100"
           fi
 
       - name: Push to main branch
