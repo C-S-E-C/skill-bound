@@ -1,8 +1,8 @@
 <div align="center">
 
-# Skill Bound
+# Skill Bound 绝技夺魁
 
-[English](README.md) | [简体中文](README-zh_hans.md)
+[English](README.md) | 简体中文
 
 <div align="center">
 
@@ -14,20 +14,18 @@
 
 [![Coin Exchange Rate](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fskill-bound.syntropica.top%2Fdynamic.json&query=ExchangeRate&label=Coin%20Exchange%20Rate%20(1RMB%3A%3FCOIN)&color=gold)](http://skill-bound.syntropica.top/redeem)
 
-Skill Bound is a gameplay-driven strategy action game built around skill drafting, build crafting, and tactical growth. Players collect, combine, and upgrade skills during play, then shape those skills into distinct combat systems that fit different situations and team roles. The core tension is in the links and tradeoffs between skills: every pickup can change the direction of a build, and raw skill strength matters less than how well each choice supports the whole kit.
 
-As a match progresses, players face escalating pressure and must refine their loadout, positioning, and tactics to move from survival to mastery. Skill Bound supports both players who enjoy exploring unusual builds and players who want to optimize every choice. Each round is designed to create new combinations, new risks, and new routes to victory.
+《Skill Bound》是一款以“技能构筑与策略成长”为核心的玩法导向游戏。玩家将在游戏中通过不断获取、组合和强化不同技能，构建属于自己的独特战斗体系，在多变的环境与挑战中寻找最优解。游戏强调“技能之间的联动与取舍”，每一次选择都会影响整体玩法风格。玩家不仅需要提升单个技能的强度，更需要思考技能组合带来的协同效果，从而形成多样化的流派与策略路径。在不断推进的过程中，玩家将面对逐渐升级的挑战，通过优化技能构筑、调整战术思路，实现从生存到精通的成长转变。游戏整体节奏兼顾策略深度与操作体验，既适合探索不同构筑的玩家，也适合追求极限优化的挑战者。《Skill Bound》鼓励玩家尝试不同搭配，在变化中寻找最适合自己的战斗方式，每一局游戏都将带来全新的体验与可能性。
 
-## [> Play Now <](https://skill-bound.syntropica.top/)
-## [> Download <](https://github.com/C-S-E-C/skill-bound/releases)
+## [> 马上开玩! <](https://skill-bound.syntropica.top/)
+## [> 点击下载 <](https://github.com/C-S-E-C/skill-bound/releases)
 
-#### [> Gameplay](GAMEPLAY.md)
+#### [> 玩法](玩法-zh_hans.md)
 
-#### [> Contributors](CONTRIBUTORS.md)
+#### [> 贡献者名单](CONTRIBUTORS.md)
 
-#### [> License](LICENSE.md)
+#### [> 源代码协议](LICENSE.md)
 
-#### [> Frontend Source](https://github.com/C-S-E-C/skill-bound/tree/frontend)
+#### [> 查看前端代码](https://github.com/C-S-E-C/skill-bound/tree/frontend)
 
-#### [> Backend Source](https://github.com/C-S-E-C/skill-bound/tree/backend)
-
+#### [> 查看后端代码](https://github.com/C-S-E-C/skill-bound/tree/backend)
