@@ -1,4 +1,4 @@
-# Developers 开发人员名单
+# Contributors 贡献者名单
 ## Art 美术
 ### 康康
 ### Gemma (AI)

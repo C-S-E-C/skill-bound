@@ -29,5 +29,4 @@ As a match progresses, players face escalating pressure and must refine their lo
 
 #### [> Frontend Source](https://github.com/C-S-E-C/skill-bound/tree/frontend)
 
-#### [> Backend Source](https://github.com/C-S-E-C/skill-bound/tree/backend)
-
+#### [> [Deprecated] Backend Source](https://github.com/C-S-E-C/skill-bound/tree/backend)
