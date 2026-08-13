@@ -2,7 +2,7 @@ name: Update Main with Score
 on:
   # 当 frontend 分支有新的 artifact 时触发
   workflow_run:
-    workflows: ["scorecode"]
+    workflows: ["code-score"]
     types:
       - completed
     branches:
