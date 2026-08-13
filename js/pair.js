@@ -27,16 +27,17 @@ fetch("maps/index.json")
 
 class PairingHandlerClass {
     constructor() {
-        this.CurStats = {
+        this.Stats = {
             ETloading: 0,
             PrivateRoom: 1,
             OpenToPublic: 2,
             InRoom: 3,
         }
-        this.CurStat = this.CurStats.ETloading;
+        this.CurStat = this.Stats.ETloading;
         this.RoomID = "";
         this.etconnected = false;
         this.teamMates = [];
+        this.ETVerCode = 0;
     }
 
     async connectET() {
@@ -86,7 +87,7 @@ class PairingHandlerClass {
         await connectET();
         pairEls.screen1.self.style.display = "none";
         pairEls.screen2.self.style.display = "flex";
-        this.CurStat = this.CurStats.OpenToPublic;
+        this.CurStat = this.Stats.OpenToPublic;
         this.RoomID = generateRandomBase32Secret(20);
         this.teamMates = [];
         this.teamMates.push({
@@ -98,11 +99,16 @@ class PairingHandlerClass {
     async publicPair() {
         var pairEls = await this.getPairEls();
         await this.startPairing();
+        this.CurStat = this.Stats.OpenToPublic;
     }
     
     async privatePair() {
         var pairEls = await this.getPairEls();
         await this.startPairing();
+        this.ETVerCode = Math.floor(Math.random() * (255)) + 1; //randint(1,255)
+        this.CurStat = this.Stats.PrivateRoom;
+        const code = `0x${`${easytier.status().localPeerId.toString(16).padStart(8, "0")}${ETVerCode.toString(16).padStart(2, "0")}`.toUpperCase()}`
+        pairEls.screen2.statusText.innerText = `Send this code to your friends to join: ${code}`;
     }
 
 }
@@ -151,20 +157,3 @@ setInterval(function () {
         document.getElementById("background-music").currentTime,
     );
 }, 50);
-
-
-
-// ==================================================
-//                   ET LISTENERS
-// ==================================================
-
-easytier.on("packet", (packet) => {
-    if (packet.type == easytier.PacketType.RPC_REQUEST) {
-        try {
-            data = JSON.parse(new TextDecoder().decode(packet.payload));
-        } catch (e) {
-            return;
-        }
-        
-    }
-});
