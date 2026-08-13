@@ -11,7 +11,9 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 1
+          sparse-checkout: |
+            js/
 
       - name: JET2HOLIDAY
         run: echo "DARLING HOLD MY HAND🥵‼️🗣️🗣️NOTHING BEATS A JET 2 HOLIDAY 🔥😭🙏🔛🔝🔝🗣️🗣️🗣️🗣️AND RIGHT NOW YOU SAVE 50 POUNDS 💷💷💷 PER PERSON🗣🔊🔊🔥‼️‼️‼️‼️THAT'S 200 💷 💷 💷 OFF FOR A FAMILY OF 4 🗣️🗣️🗣️🔥🔥🔥💯 💯 💯💃🏻💃🏻💃🏻💃🏻💃🏻"
