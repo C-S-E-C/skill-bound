@@ -16,6 +16,7 @@ const PLAYER_HITBOX_RADIUS = 14;
 const PLAYER_HITBOX_RADIUS_SQUARED =
     PLAYER_HITBOX_RADIUS * PLAYER_HITBOX_RADIUS;
 const BLOCK_TILE = "B";
+const BATTLE_PROTOCOL = "skillbound.battle.v1";
 const TILE_IMAGES = {
     A: "images/ground.webp",
     G: "images/bushes.webp",
@@ -24,7 +25,9 @@ const TILE_IMAGES = {
 };
 const tileSpriteCache = new Map();
 
-let ws = null;
+let rtcReady = false;
+let battlePeerIds = [];
+let battlePlayers = [];
 let myId = null;
 let sessionId = null;
 let battlefield = DEFAULT_MAP;
@@ -90,9 +93,10 @@ async function init() {
 
     dom.sessionId.textContent = sessionId;
     dom.selfName.textContent = myId;
+    players.set(myId, selfState);
 
     await loadMap(battlefield);
-    connectWebSocket();
+    await connectBattleWebRTC();
     bindEvents();
 
     requestAnimationFrame(gameLoop);
@@ -146,64 +150,151 @@ function bindEvents() {
     });
 
     dom.startGame.addEventListener("click", () => {
-        wsSend({ action: "player_ready" });
-        wsSend({ action: "start_game" });
+        battleSend({ type: "game_start", state: buildGameState() });
         started = true;
         dom.startGame.disabled = true;
         log("Start requested.");
     });
 }
 
-function connectWebSocket() {
-    const wsUrl =
-        sessionStorage.getItem("WSServer") || "wss://1.s.syntropica.top:10012";
-    if (!wsUrl) {
-        setStatus("WSServer missing in sessionStorage");
-        return;
+async function connectBattleWebRTC() {
+    readBattleSession();
+
+    while (typeof easytier === "undefined" || typeof easytierWebRTC === "undefined") {
+        await wait(50);
     }
 
-    ws = new WebSocket(wsUrl);
+    await easytier.connect(
+        location.protocol === "https:" ? "wss" : "ws",
+        localStorage.getItem("etserver") || "cn-sh-0.s.syntropica.top",
+        location.protocol === "https:" ? 11012 : 11011,
+        "skillbound",
+        "",
+    ).catch((error) => {
+        if (!/already connected/i.test(error.message)) throw error;
+    });
 
-    ws.onopen = () => {
-        setStatus("Connected");
-        wsSend({
-            action: "join_match",
-            matchId: sessionId,
-            sessionId: sessionId,
-            groupId: sessionStorage.getItem("groupId") || undefined,
-        });
-        log("Joined session " + sessionId);
-    };
-
-    ws.onmessage = (event) => {
+    easytierWebRTC.on("open", (peer) => {
+        rtcReady = true;
+        setStatus("WebRTC connected");
+        log("WebRTC open: " + peer.peerId);
+        battleSend({ type: "match_joined", state: buildGameState() }, peer.peerId);
+    });
+    easytierWebRTC.on("message", (event) => {
         let data;
         try {
             data = JSON.parse(event.data);
         } catch {
             return;
         }
-        handleMessage(data);
-    };
+        if (data.protocol !== BATTLE_PROTOCOL || data.sessionId !== sessionId) return;
+        handleMessage(data.payload);
+        relayBattleEnvelope(data, event.peerId);
+    });
+    easytierWebRTC.on("error", (error) => {
+        setStatus("WebRTC error");
+        log("WebRTC error: " + error.message);
+    });
 
-    ws.onerror = () => {
-        setStatus("Connection error");
-    };
+    const localPeerId = easytier.status().localPeerId;
+    const targetPeers = battlePeerIds.filter((peerId) => peerId !== localPeerId);
+    if (!targetPeers.length) {
+        rtcReady = true;
+        setStatus("Solo WebRTC");
+        applyInitialPlayers();
+        return;
+    }
 
-    ws.onclose = () => {
-        setStatus("Disconnected");
-    };
+    if (battlePeerIds[0] === localPeerId) {
+        await easytierWebRTC.connectMany(targetPeers);
+    }
+    applyInitialPlayers();
+    setStatus("WebRTC signaling");
 }
 
-function wsSend(payload) {
-    if (!ws || ws.readyState !== WebSocket.OPEN) return;
-    ws.send(
-        JSON.stringify({
+function readBattleSession() {
+    try {
+        battlePeerIds = JSON.parse(sessionStorage.getItem("battlePeers") || "[]")
+            .map(Number)
+            .filter(Boolean);
+    } catch {
+        battlePeerIds = [];
+    }
+    try {
+        battlePlayers = JSON.parse(sessionStorage.getItem("battlePlayers") || "[]");
+    } catch {
+        battlePlayers = [];
+    }
+}
+
+function applyInitialPlayers() {
+    if (!battlePlayers.length) return;
+    const statePlayers = {};
+    battlePlayers.forEach((player) => {
+        statePlayers[player.id || player.name] = {
+            id: player.id || player.name,
+            name: player.name || player.id,
+            team: player.team || "A",
+        };
+    });
+    applyGameState({ battlefield, players: statePlayers });
+}
+
+function battleSend(payload, peerId) {
+    const envelope = {
+        protocol: BATTLE_PROTOCOL,
+        sessionId,
+        senderId: myId,
+        messageId:
+            myId +
+            "-" +
+            Date.now().toString(36) +
+            "-" +
+            Math.random().toString(36).slice(2),
+        payload: {
             userId: myId,
             matchId: sessionId,
-            sessionId: sessionId,
+            sessionId,
             ...payload,
-        }),
-    );
+        },
+    };
+    seenBattleMessages.add(envelope.messageId);
+    sendBattleEnvelope(envelope, peerId);
+}
+
+const seenBattleMessages = new Set();
+
+function sendBattleEnvelope(envelope, peerId) {
+    const encoded = JSON.stringify(envelope);
+    try {
+        if (peerId) {
+            easytierWebRTC.send(encoded, peerId);
+        } else {
+            easytierWebRTC.broadcast(encoded);
+        }
+    } catch (_) {
+        // The local state still advances before every send; broadcasts are best-effort while channels open.
+    }
+}
+
+function relayBattleEnvelope(envelope, fromPeerId) {
+    if (!envelope.messageId || seenBattleMessages.has(envelope.messageId)) return;
+    seenBattleMessages.add(envelope.messageId);
+    easytierWebRTC.status().openPeerIds.forEach((peerId) => {
+        if (peerId !== fromPeerId) sendBattleEnvelope(envelope, peerId);
+    });
+}
+
+function buildGameState() {
+    const statePlayers = {};
+    players.forEach((player, id) => {
+        statePlayers[id] = player;
+    });
+    statePlayers[selfState.id] = selfState;
+    return {
+        battlefield,
+        players: statePlayers,
+    };
 }
 
 function handleMessage(msg) {
@@ -553,12 +644,19 @@ function updateSelfMovement(dt, now) {
 
     if (now - lastSendTime >= SEND_INTERVAL_MS) {
         lastSendTime = now;
-        wsSend({
+        const update = {
+            type: "player_update",
             action: "move",
+            player: {
+                ...selfState,
+                x: Math.round(selfState.x),
+                y: Math.round(selfState.y),
+            },
             direction: { x: dir.dx, y: dir.dy },
             x: Math.round(selfState.x),
             y: Math.round(selfState.y),
-        });
+        };
+        battleSend(update);
     }
 }
 

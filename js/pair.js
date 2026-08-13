@@ -9,7 +9,20 @@ const music = document.getElementById("background-music");
 music.currentTime = sessionStorage.getItem("bgmtime") || 0;
 music.play().catch(() => {});
 
-// Load available maps
+const PAIR_PROTOCOL = "skillbound.pairing.v2";
+const PUBLIC_VERIFY_CODE = 0;
+const PEER_SYNC_INTERVAL_MS = 2500;
+const PACKET_TYPES = {
+    RequestPair: 0,
+    RefusePair: 1,
+    AcceptPair: 2,
+    RedirectPair: 3,
+    UpdatePair: 4,
+    StartBattle: 5,
+    SyncPair: 6,
+    TeamChange: 7,
+};
+
 fetch("maps/index.json")
     .then((response) => response.json())
     .then((maps) => {
@@ -23,7 +36,92 @@ fetch("maps/index.json")
     })
     .catch((error) => console.error("Failed to load maps:", error));
 
+function sleep(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
+function uniqueNumbers(values) {
+    return Array.from(new Set(values.map(Number))).filter(
+        (value) =>
+            Number.isInteger(value) &&
+            value > 0 &&
+            value <= 0xffffffff,
+    );
+}
+
+function parsePairPayload(packet) {
+    if (
+        packet.encrypted ||
+        (packet.type !== easytier.PacketType.RPC_REQUEST &&
+            packet.type !== easytier.PacketType.RPC_RESPONSE)
+    ) {
+        return null;
+    }
+
+    try {
+        const message = JSON.parse(new TextDecoder().decode(packet.payload));
+        if (message && message.protocol === PAIR_PROTOCOL) return message;
+    } catch (_) {
+        return null;
+    }
+    return null;
+}
+
+function makeRoomId() {
+    if (typeof generateRandomBase32Secret === "function") {
+        return generateRandomBase32Secret(12).replace(/=+$/g, "");
+    }
+    return Math.random().toString(36).slice(2, 14).toUpperCase();
+}
+
+function normalizePlayer(player) {
+    return {
+        name: String(player?.name || "Player").slice(0, 24),
+        id: String(player?.id || player?.name || "Player").slice(0, 64),
+        ETid: Number(player?.ETid || 0),
+        team: player?.team === "B" ? "B" : "A",
+    };
+}
+
+function mergePlayers(left, right) {
+    const merged = new Map();
+    [...left, ...right].forEach((player) => {
+        const normalized = normalizePlayer(player);
+        if (normalized.ETid) merged.set(normalized.ETid, normalized);
+    });
+    return Array.from(merged.values());
+}
+
+function assignRandomTeams(players, teamSize) {
+    const shuffled = [...players].sort(() => Math.random() - 0.5);
+    const assignments = new Map();
+    shuffled.forEach((player, index) => {
+        assignments.set(player.ETid, index < teamSize ? "A" : "B");
+    });
+    return players.map((player) => ({
+        ...player,
+        team: assignments.get(player.ETid) || "A",
+    }));
+}
+
+function fillTeams(players, teamSize) {
+    let teamACount = players.filter((player) => player.team === "A").length;
+    let teamBCount = players.filter((player) => player.team === "B").length;
+    return players.map((player) => {
+        if (player.team === "A" && teamACount <= teamSize) return player;
+        if (player.team === "B" && teamBCount <= teamSize) return player;
+
+        const next = { ...player };
+        if (teamACount <= teamBCount && teamACount < teamSize) {
+            next.team = "A";
+            teamACount++;
+        } else {
+            next.team = "B";
+            teamBCount++;
+        }
+        return next;
+    });
+}
 
 class PairingHandlerClass {
     constructor() {
@@ -32,128 +130,544 @@ class PairingHandlerClass {
             PrivateRoom: 1,
             OpenToPublic: 2,
             InRoom: 3,
-        }
+        };
         this.CurStat = this.Stats.ETloading;
         this.RoomID = "";
         this.etconnected = false;
-        this.teamMates = [];
-        this.ETVerCode = 0;
+        this.players = [];
+        this.peerList = [];
+        this.mode = 1;
+        this.teamMode = "random";
+        this.battlefield = "air.map";
+        this.leaderPeerId = null;
+        this.isPrivate = false;
+        this.verifyCode = PUBLIC_VERIFY_CODE;
+        this.packetUnsubscribe = null;
+        this.peerSyncTimer = null;
     }
 
     async connectET() {
-        if (this.etconnected) return;
-        var ETLoaded = false;
-        while (!ETLoaded) {
-            ETLoaded = typeof easytier != "undefined";
-        }
+        while (typeof easytier === "undefined") await sleep(50);
+        if (this.etconnected && easytier.status().connected) return;
+
         await easytier.connect(
-            location.protocol == "https:" ? "wss" : "ws",
+            location.protocol === "https:" ? "wss" : "ws",
             localStorage.getItem("etserver") || "cn-sh-0.s.syntropica.top",
-            location.protocol == "https:" ? 11011 : 11012,
-            "skillbound", ""
+            location.protocol === "https:" ? 11012 : 11011,
+            "skillbound",
+            "",
         );
-        while (!easytier.connected) {
-            await new Promise((resolve) => setTimeout(resolve, 100));
-        }
+
+        while (!easytier.status().connected) await sleep(100);
         this.etconnected = true;
-        this.ETPingInterval = setInterval(() => {
-            easytier.ping();
-        }, 5000);
+
+        if (!this.packetUnsubscribe) {
+            this.packetUnsubscribe = easytier.on("packet", (packet) =>
+                this.handlePacket(packet),
+            );
+        }
     }
 
     async getPairEls() {
-        var pairEls = {};
-        pairEls.screen1 = {};
-        pairEls.screen2 = {};
-        pairEls.screen3 = {};
-
-        pairEls.screen1.self = document.getElementById("screen1");
-        pairEls.screen2.self = document.getElementById("screen2");
-        pairEls.screen3.self = document.getElementById("screen3");
-
-        pairEls.screen1.mode = parseInt(document.getElementById("mode-choice").value);
-        pairEls.screen1.battlefield = document.getElementById("map-choice").value;
-
-        pairEls.screen2.PlayerList = document.getElementById("connected-players");
-        pairEls.screen2.statusText = document.getElementById("status-text-screen2");
-
-        pairEls.screen3.ourTeam = document.getElementById("our-team");
-        pairEls.screen3.opponentTeam = document.getElementById("opponent-team");
-        pairEls.screen3.statusText = document.getElementById("status-text-screen3");
-        return pairEls;
+        return {
+            screen1: {
+                self: document.getElementById("screen1"),
+                mode: parseInt(document.getElementById("mode-choice").value, 10),
+                teamMode: document.getElementById("team-mode-choice").value,
+                battlefield: document.getElementById("map-choice").value,
+            },
+            screen2: {
+                self: document.getElementById("screen2"),
+                PlayerList: document.getElementById("connected-players"),
+                statusText: document.getElementById("status-text-screen2"),
+            },
+            screen3: {
+                self: document.getElementById("screen3"),
+                ourTeam: document.getElementById("our-team"),
+                opponentTeam: document.getElementById("opponent-team"),
+                statusText: document.getElementById("status-text-screen3"),
+                startBattle: document.getElementById("start-battle"),
+                createRoom: document.getElementById("create-room"),
+            },
+        };
     }
 
-    async startPairing() {
-        await connectET();
-        pairEls.screen1.self.style.display = "none";
-        pairEls.screen2.self.style.display = "flex";
-        this.CurStat = this.Stats.OpenToPublic;
-        this.RoomID = generateRandomBase32Secret(20);
-        this.teamMates = [];
-        this.teamMates.push({
-            'name': localStorage.getItem("userid") || "Player",
-            'ETid': easytier.status().localPeerId
+    localPeerId() {
+        return easytier.status().localPeerId;
+    }
+
+    selfPlayer() {
+        const userId = localStorage.getItem("userid") || "Player";
+        return normalizePlayer({
+            name: userId,
+            id: userId,
+            ETid: this.localPeerId(),
         });
     }
 
-    async publicPair() {
-        var pairEls = await this.getPairEls();
-        await this.startPairing();
-        this.CurStat = this.Stats.OpenToPublic;
-    }
-    
-    async privatePair() {
-        var pairEls = await this.getPairEls();
-        await this.startPairing();
-        this.ETVerCode = Math.floor(Math.random() * (255)) + 1; //randint(1,255)
-        this.CurStat = this.Stats.PrivateRoom;
-        const code = `0x${`${easytier.status().localPeerId.toString(16).padStart(8, "0")}${ETVerCode.toString(16).padStart(2, "0")}`.toUpperCase()}`
-        pairEls.screen2.statusText.innerText = `Send this code to your friends to join: ${code}`;
+    teamSize() {
+        return Math.max(1, Math.min(4, Number(this.mode) || 1));
     }
 
+    maxPlayers() {
+        return this.teamSize() * 2;
+    }
+
+    requiredStartVotes() {
+        return Math.ceil((this.players.length * 2) / 3);
+    }
+
+    isLeader() {
+        return this.peerList[0] === this.localPeerId();
+    }
+
+    resetLeaderList() {
+        this.peerList = [this.localPeerId()];
+        this.leaderPeerId = this.localPeerId();
+    }
+
+    sendPairMessage(peerId, type, data, response = false) {
+        if (!peerId || peerId === this.localPeerId()) return;
+        easytier.send(
+            response
+                ? easytier.PacketType.RPC_RESPONSE
+                : easytier.PacketType.RPC_REQUEST,
+            JSON.stringify({
+                protocol: PAIR_PROTOCOL,
+                type,
+                roomId: this.RoomID,
+                data,
+            }),
+            peerId,
+        );
+    }
+
+    async startPairing(isPrivate) {
+        const pairEls = await this.getPairEls();
+        await this.connectET();
+
+        this.mode = pairEls.screen1.mode;
+        this.teamMode = pairEls.screen1.teamMode;
+        this.battlefield = pairEls.screen1.battlefield;
+        this.RoomID = makeRoomId();
+        this.isPrivate = isPrivate;
+        this.verifyCode = PUBLIC_VERIFY_CODE;
+        this.CurStat = isPrivate ? this.Stats.PrivateRoom : this.Stats.OpenToPublic;
+        this.resetLeaderList();
+        this.players = [this.selfPlayer()];
+        this.startPeerSync();
+
+        pairEls.screen1.self.style.display = "none";
+        pairEls.screen2.self.style.display = "flex";
+        await this.renderPlayers();
+        await this.showTeamScreen();
+    }
+
+    async publicPair() {
+        await this.startPairing(false);
+        this.setStatus("Public pairing active. Scanning observed EasyTier peers...");
+    }
+
+    async privatePair() {
+        await this.startPairing(true);
+        this.verifyCode = Math.floor(Math.random() * 255) + 1;
+        const code = `0x${this.localPeerId().toString(16).padStart(8, "0")}${this.verifyCode.toString(16).padStart(2, "0")}`.toUpperCase();
+        this.setStatus(`Room code: ${code}`);
+    }
+
+    async joinPrivateRoom(rawCode) {
+        const pairEls = await this.getPairEls();
+        const parsed = this.parseRoomCode(rawCode);
+        if (!parsed) {
+            pairEls.screen1.self.querySelector("#room-code").focus();
+            return;
+        }
+
+        await this.connectET();
+        this.mode = pairEls.screen1.mode;
+        this.teamMode = pairEls.screen1.teamMode;
+        this.battlefield = pairEls.screen1.battlefield;
+        this.RoomID = makeRoomId();
+        this.isPrivate = true;
+        this.verifyCode = parsed.verifyCode;
+        this.CurStat = this.Stats.InRoom;
+        this.players = [this.selfPlayer()];
+        this.peerList = [parsed.peerId];
+        this.leaderPeerId = parsed.peerId;
+        this.startPeerSync();
+
+        pairEls.screen1.self.style.display = "none";
+        pairEls.screen2.self.style.display = "flex";
+        pairEls.screen2.statusText.innerText = "Joining private room...";
+        this.renderPlayers();
+        this.sendRequestPair(parsed.peerId);
+    }
+
+    parseRoomCode(rawCode) {
+        const cleaned = String(rawCode || "")
+            .trim()
+            .replace(/^0x/i, "")
+            .replace(/\s+/g, "");
+        if (!/^[0-9a-fA-F]{10}$/.test(cleaned)) {
+            this.setStatus("Invalid room code.");
+            return null;
+        }
+
+        const peerId = parseInt(cleaned.slice(0, 8), 16);
+        const verifyCode = parseInt(cleaned.slice(8), 16);
+        if (!peerId) {
+            this.setStatus("Invalid room code.");
+            return null;
+        }
+        return { peerId, verifyCode };
+    }
+
+    startPeerSync() {
+        if (this.peerSyncTimer) clearInterval(this.peerSyncTimer);
+        this.peerSyncTimer = setInterval(() => this.syncObservedPeers(), PEER_SYNC_INTERVAL_MS);
+        this.syncObservedPeers();
+    }
+
+    syncObservedPeers() {
+        if (!this.etconnected || !this.RoomID) return;
+        const observed = easytier.listPeers().map((peer) => peer.id);
+        uniqueNumbers([...observed, ...this.peerList]).forEach((peerId) => {
+            if (peerId === this.localPeerId()) return;
+            if (this.isLeader()) {
+                this.sendRequestPair(peerId);
+            } else {
+                this.sendPairMessage(peerId, PACKET_TYPES.SyncPair, this.roomSnapshot());
+            }
+        });
+    }
+
+    sendRequestPair(peerId) {
+        this.sendPairMessage(peerId, PACKET_TYPES.RequestPair, {
+            verifyCode: this.isPrivate ? this.verifyCode : PUBLIC_VERIFY_CODE,
+            room: this.roomSnapshot(),
+            player: this.selfPlayer(),
+        });
+    }
+
+    handlePacket(packet) {
+        const message = parsePairPayload(packet);
+        if (!message) return;
+
+        switch (message.type) {
+            case PACKET_TYPES.RequestPair:
+                this.handlePairRequest(packet.fromPeerId, message.data);
+                break;
+            case PACKET_TYPES.RefusePair:
+                this.setStatus(message.data?.reason || "Pair request refused.");
+                break;
+            case PACKET_TYPES.AcceptPair:
+                this.acceptRoom(message.data);
+                break;
+            case PACKET_TYPES.RedirectPair:
+                this.handleRedirect(message.data);
+                break;
+            case PACKET_TYPES.UpdatePair:
+            case PACKET_TYPES.SyncPair:
+                this.syncRoom(message.data);
+                break;
+            case PACKET_TYPES.TeamChange:
+                this.handleTeamChange(message.data);
+                break;
+            case PACKET_TYPES.StartBattle:
+                this.startBattle(message.data);
+                break;
+        }
+    }
+
+    handlePairRequest(peerId, data) {
+        if (!this.RoomID) return;
+        const incomingRoom = data?.room || {};
+        const incomingPlayers = Array.isArray(incomingRoom.players)
+            ? incomingRoom.players.map(normalizePlayer)
+            : [];
+        const incomingPeerList = uniqueNumbers(incomingRoom.peerList || []);
+
+        if (!this.isLeader()) {
+            this.sendPairMessage(peerId, PACKET_TYPES.RedirectPair, {
+                leaderPeerId: this.peerList[0] || this.leaderPeerId,
+                room: this.roomSnapshot(),
+            });
+            return;
+        }
+
+        if (this.isPrivate && Number(data?.verifyCode) !== this.verifyCode) {
+            this.sendPairMessage(
+                peerId,
+                PACKET_TYPES.RefusePair,
+                { reason: "Verification code mismatch." },
+                true,
+            );
+            return;
+        }
+
+        const mergedPlayers = mergePlayers(
+            this.players,
+            mergePlayers(incomingPlayers, [data.player]),
+        );
+        const mergedPeerList = uniqueNumbers([
+            ...this.peerList,
+            ...incomingPeerList,
+            peerId,
+            this.localPeerId(),
+        ]);
+
+        if (mergedPlayers.length > this.maxPlayers()) {
+            this.sendPairMessage(
+                peerId,
+                PACKET_TYPES.RefusePair,
+                { reason: "Room is full for this mode." },
+                true,
+            );
+            return;
+        }
+
+        this.peerList = mergedPeerList;
+        this.leaderPeerId = this.peerList[0];
+        this.players = this.applyTeamPolicy(mergedPlayers);
+        this.sendPairMessage(peerId, PACKET_TYPES.AcceptPair, this.roomSnapshot(), true);
+        this.broadcastRoomUpdate();
+        this.showTeamScreen();
+    }
+
+    acceptRoom(snapshot) {
+        this.syncRoom(snapshot);
+        this.showTeamScreen();
+    }
+
+    handleRedirect(data) {
+        const leaderPeerId = Number(data?.leaderPeerId);
+        this.syncRoom(data?.room);
+        if (leaderPeerId && leaderPeerId !== this.localPeerId()) {
+            this.sendRequestPair(leaderPeerId);
+        }
+    }
+
+    syncRoom(snapshot) {
+        if (!snapshot) return;
+        if (Number(snapshot.mode) !== this.mode) return;
+        if (
+            this.isPrivate &&
+            this.isLeader() &&
+            Array.isArray(snapshot.peerList) &&
+            !snapshot.peerList.includes(this.localPeerId())
+        ) {
+            return;
+        }
+
+        this.RoomID = snapshot.roomId || this.RoomID;
+        this.battlefield = snapshot.battlefield || this.battlefield;
+        this.teamMode = snapshot.teamMode || this.teamMode;
+        this.peerList = uniqueNumbers(snapshot.peerList || this.peerList);
+        if (!this.peerList.includes(this.localPeerId())) {
+            this.peerList.push(this.localPeerId());
+        }
+        this.leaderPeerId = this.peerList[0] || this.leaderPeerId;
+        this.players = this.applyTeamPolicy(
+            mergePlayers(this.players, snapshot.players || []),
+        ).slice(0, this.maxPlayers());
+        this.CurStat = this.Stats.InRoom;
+        this.renderPlayers();
+        this.showTeamScreen();
+    }
+
+    applyTeamPolicy(players) {
+        if (this.teamMode === "random") {
+            return assignRandomTeams(players, this.teamSize());
+        }
+        return fillTeams(players, this.teamSize());
+    }
+
+    roomSnapshot() {
+        return {
+            roomId: this.RoomID,
+            mode: this.mode,
+            teamMode: this.teamMode,
+            battlefield: this.battlefield,
+            leaderPeerId: this.leaderPeerId,
+            peerList: this.peerList,
+            players: this.players,
+        };
+    }
+
+    broadcastRoomUpdate() {
+        const snapshot = this.roomSnapshot();
+        this.peerList.forEach((peerId) => {
+            this.sendPairMessage(peerId, PACKET_TYPES.UpdatePair, snapshot);
+        });
+    }
+
+    async showTeamScreen() {
+        const pairEls = await this.getPairEls();
+        pairEls.screen2.self.style.display = "none";
+        pairEls.screen3.self.style.display = "flex";
+        this.renderTeams(pairEls);
+    }
+
+    async renderPlayers() {
+        const pairEls = await this.getPairEls();
+        pairEls.screen2.PlayerList.innerHTML = "";
+        this.players.forEach((player) => {
+            const row = document.createElement("div");
+            row.className = "player-row";
+
+            const status = document.createElement("span");
+            status.className = "player-status";
+
+            const name = document.createElement("span");
+            name.className = "player-name";
+            name.textContent = player.name;
+
+            row.append(status, name);
+            pairEls.screen2.PlayerList.appendChild(row);
+        });
+    }
+
+    renderTeams(pairEls) {
+        const localPeerId = this.localPeerId();
+        const self = this.players.find((player) => player.ETid === localPeerId);
+        const selfTeam = self?.team || "A";
+        const ourTeam = this.players.filter((player) => player.team === selfTeam);
+        const opponentTeam = this.players.filter(
+            (player) => player.team !== selfTeam,
+        );
+
+        this.renderTeam(pairEls.screen3.ourTeam, ourTeam, selfTeam);
+        this.renderTeam(
+            pairEls.screen3.opponentTeam,
+            opponentTeam,
+            selfTeam === "A" ? "B" : "A",
+        );
+
+        const startVotes = this.requiredStartVotes();
+        pairEls.screen3.statusText.innerText =
+            `Players ${this.players.length}/${this.maxPlayers()} ` +
+            `Start requires ${startVotes}`;
+        pairEls.screen3.startBattle.disabled = this.players.length < startVotes;
+        pairEls.screen3.createRoom.disabled = true;
+    }
+
+    renderTeam(container, players, team) {
+        container.innerHTML = "";
+        container.classList.remove("layout-1", "layout-2", "layout-3", "layout-4");
+        container.classList.add(`layout-${Math.max(1, Math.min(4, players.length))}`);
+        container.onclick = () => this.requestTeamChange(team);
+
+        players.forEach((player) => {
+            const slot = document.createElement("div");
+            slot.className = "player-slot";
+            slot.title = player.name;
+            slot.textContent = player.name.slice(0, 2).toUpperCase();
+            container.appendChild(slot);
+        });
+    }
+
+    requestTeamChange(team) {
+        if (this.teamMode !== "manual") return;
+        const targetCount = this.players.filter((player) => player.team === team).length;
+        if (targetCount >= this.teamSize()) return;
+
+        const localPeerId = this.localPeerId();
+        if (this.isLeader()) {
+            this.handleTeamChange({ peerId: localPeerId, team });
+            return;
+        }
+        this.sendPairMessage(this.peerList[0], PACKET_TYPES.TeamChange, {
+            peerId: localPeerId,
+            team,
+        });
+    }
+
+    handleTeamChange(data) {
+        if (!this.isLeader() || this.teamMode !== "manual") return;
+        const peerId = Number(data?.peerId);
+        const team = data?.team === "B" ? "B" : "A";
+        const targetCount = this.players.filter((player) => player.team === team).length;
+        if (targetCount >= this.teamSize()) return;
+
+        this.players = this.players.map((player) =>
+            player.ETid === peerId ? { ...player, team } : player,
+        );
+        this.broadcastRoomUpdate();
+        this.showTeamScreen();
+    }
+
+    startBattle(data) {
+        const snapshot = data || this.roomSnapshot();
+        sessionStorage.setItem("sessionId", snapshot.roomId);
+        sessionStorage.setItem("matchId", snapshot.roomId);
+        sessionStorage.setItem("battlefield", snapshot.battlefield || "air.map");
+        sessionStorage.setItem("groupId", snapshot.roomId);
+        sessionStorage.setItem("battlePeers", JSON.stringify(snapshot.peerList || []));
+        sessionStorage.setItem("battlePlayers", JSON.stringify(snapshot.players || []));
+        window.location.href =
+            `battle.html?matchId=${encodeURIComponent(snapshot.roomId)}` +
+            `&battlefield=${encodeURIComponent(snapshot.battlefield || "air.map")}`;
+    }
+
+    hostStartBattle() {
+        if (this.players.length < this.requiredStartVotes()) return;
+        const snapshot = this.roomSnapshot();
+        this.peerList.forEach((peerId) => {
+            this.sendPairMessage(peerId, PACKET_TYPES.StartBattle, snapshot);
+        });
+        this.startBattle(snapshot);
+    }
+
+    async setStatus(text) {
+        const pairEls = await this.getPairEls();
+        pairEls.screen2.statusText.innerText = text;
+    }
 }
 
 const pairingHandler = new PairingHandlerClass();
 
-// Attach event listener to start fight button
 document.addEventListener("DOMContentLoaded", function () {
     const startFightBtn = document.getElementById("start-fight");
     const newRoomBtn = document.getElementById("new-room");
-    if (startFightBtn) {
-        startFightBtn.addEventListener("click", () => pairingHandler.publicPair());
-    }
-    if (newRoomBtn) {
-        newRoomBtn.addEventListener("click", () => pairingHandler.privatePair());
-    }
+    const joinRoomBtn = document.getElementById("join-room");
+    const roomCodeInput = document.getElementById("room-code");
+    const startBattleBtn = document.getElementById("start-battle");
+
+    startFightBtn?.addEventListener("click", () => pairingHandler.publicPair());
+    newRoomBtn?.addEventListener("click", () => pairingHandler.privatePair());
+    joinRoomBtn?.addEventListener("click", () =>
+        pairingHandler.joinPrivateRoom(roomCodeInput.value),
+    );
+    roomCodeInput?.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+            pairingHandler.joinPrivateRoom(roomCodeInput.value);
+        }
+    });
+    startBattleBtn?.addEventListener("click", () =>
+        pairingHandler.hostStartBattle(),
+    );
 });
 
-// Cache image files for offline support
 (async () => {
     const cache = await caches.open("cache");
     const cachedFiles = [
         "images/block.webp",
-        "images/bush.webp",
         "images/bushes.webp",
-        "images/fire.webp",
         "images/ground.webp",
         "images/water.webp",
-        "images/skins.webp",
-        "images/skills.webp",
+        "images/skins.png",
+        "images/skills.png",
     ];
 
     for (const file of cachedFiles) {
-        if (!(await cache.match(file))) {
-            await cache.add(file);
-        }
+        if (!(await cache.match(file))) await cache.add(file);
     }
 })();
 
-connectET();
+pairingHandler.connectET().catch((error) => {
+    console.error("Failed to connect EasyTier:", error);
+});
 
-// Track music playback time
 setInterval(function () {
-    sessionStorage.setItem(
-        "bgmtime",
-        document.getElementById("background-music").currentTime,
-    );
+    sessionStorage.setItem("bgmtime", music.currentTime);
 }, 50);

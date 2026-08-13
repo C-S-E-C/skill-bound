@@ -80,7 +80,7 @@ select:hover {
     box-shadow: 0 0 15px rgba(0, 242, 255, 0.1);
 }
 
-#start-fight, #new-room {
+#start-fight, #new-room, #join-room {
     margin-top: 40px;
     padding: 15px 60px;
     font-size: 1.4rem;
@@ -93,11 +93,45 @@ select:hover {
     transition: all 0.3s;
 }
 
-#start-fight:hover, #new-room:hover {
+#start-fight:hover, #new-room:hover, #join-room:hover {
     background: var(--secondary-neon);
     color: white;
     box-shadow: 0 0 30px var(--secondary-neon);
     transform: scale(1.05);
+}
+
+.join-room {
+    width: min(90vw, 520px);
+    display: flex;
+    gap: 12px;
+    margin-top: 26px;
+}
+
+#room-code {
+    min-width: 0;
+    flex: 1;
+    padding: 0 18px;
+    border: 2px solid #30363d;
+    border-radius: 8px;
+    background: var(--card-bg);
+    color: white;
+    font: 700 1rem/1 'Segoe UI', system-ui, -apple-system, sans-serif;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    outline: none;
+}
+
+#room-code:focus {
+    border-color: var(--primary-neon);
+    box-shadow: 0 0 15px rgba(0, 242, 255, 0.1);
+}
+
+#join-room {
+    flex: 0 0 auto;
+    margin-top: 0;
+    padding: 13px 28px;
+    font-size: 1rem;
+    border-radius: 8px;
 }
 
 /* Screen 2: Connected Players */
