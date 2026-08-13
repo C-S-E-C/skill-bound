@@ -39,7 +39,7 @@ jobs:
           echo "score=$SCORE" >> $GITHUB_OUTPUT
           echo "提取的分数: $SCORE"
           
-          # 创建 package.yaml 文件（在当前 frontend 分支）
+          # 创建 package.yaml 文件
           echo "score: $SCORE" > package.yaml
           echo "timestamp: $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> package.yaml
           echo "branch: frontend" >> package.yaml
@@ -47,11 +47,8 @@ jobs:
           echo "---" >> package.yaml
           cat score.txt >> package.yaml
           
-          # 显示文件内容
           echo "=== package.yaml ==="
           cat package.yaml
-          echo "=== score.txt ==="
-          cat score.txt
 
       - name: Upload result as artifact
         uses: actions/upload-artifact@v4
@@ -61,60 +58,16 @@ jobs:
             score.txt
             package.yaml
 
-      - name: Configure git and checkout main
-        run: |
-          git config user.name "shit-code-score"
-          git config user.email "score-bot@example.com"
-          
-          # 获取 main 分支
-          if git ls-remote --exit-code origin main >/dev/null 2>&1; then
-            git fetch origin main
-            git checkout main || git checkout -b main origin/main
-          else
-            git checkout -b main
-          fi
-
-      - name: Copy score files from frontend to main
-        run: |
-          # 从 frontend 分支检出文件
-          git checkout frontend -- package.yaml score.txt 2>/dev/null || echo "文件在 frontend 分支不存在，但应该已创建"
-          
-          # 如果文件不存在，创建它们（防止意外）
-          if [ ! -f package.yaml ]; then
-            echo "package.yaml 不存在，创建默认文件"
-            echo "score: ${{ steps.getscore.outputs.score }}" > package.yaml
-            echo "timestamp: $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> package.yaml
-            echo "branch: frontend" >> package.yaml
-            echo "commit: ${{ github.sha }}" >> package.yaml
-          fi
-          
-          if [ ! -f score.txt ]; then
-            echo "score.txt 不存在，创建空文件"
-            touch score.txt
-          fi
-          
-          # 添加文件到 main 分支
-          git add package.yaml score.txt
-          
-          # 检查是否有变更
-          if git diff --staged --quiet; then
-            echo "没有新的变更需要提交"
-            echo "has_changes=false" >> $GITHUB_ENV
-          else
-            echo "有新的变更需要提交"
-            echo "has_changes=true" >> $GITHUB_ENV
-            git commit -m "Update code quality score: ${{ steps.getscore.outputs.score }}/100
-
-              从 frontend 分支自动更新
-              提交: ${{ github.sha }}
-              分数: ${{ steps.getscore.outputs.score }}/100"
-          fi
-
-      - name: Push to main branch
-        if: env.has_changes == 'true'
-        run: |
-          git push origin main
-          echo "✅ 成功推送到 main 分支"
+      - name: Commit to main
+        uses: stefanzweifel/git-auto-commit-action@v6
+        with:
+          commit_message: "Update score: ${{ steps.getscore.outputs.score }}/100 [skip ci]"
+          branch: main
+          create_branch: true
+          commit_user_name: shit-code-score
+          commit_user_email: score-bot@example.com
+          file_pattern: package.yaml score.txt
+          push_options: '--force-with-lease'
 
       - name: Output summary
         run: |
@@ -127,9 +80,4 @@ jobs:
           echo "| 🎯 目标分支 | main |" >> $GITHUB_STEP_SUMMARY
           echo "| 📝 提交 | ${{ github.sha }} |" >> $GITHUB_STEP_SUMMARY
           echo "| ⏰ 时间 | $(date -u '+%Y-%m-%d %H:%M:%S UTC') |" >> $GITHUB_STEP_SUMMARY
-          
-          if [ "${{ env.has_changes }}" == "true" ]; then
-            echo "| ✅ 状态 | 已成功更新 main 分支 |" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "| ℹ️ 状态 | 分数无变化，未提交 |" >> $GITHUB_STEP_SUMMARY
-          fi
+          echo "| ✅ 状态 | 已成功更新 main 分支 |" >> $GITHUB_STEP_SUMMARY
