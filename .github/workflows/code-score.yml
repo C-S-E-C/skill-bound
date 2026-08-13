@@ -1,0 +1,64 @@
+name: Update Main with Score
+on:
+  # 当 frontend 分支有新的 artifact 时触发
+  workflow_run:
+    workflows: ["scorecode"]
+    types:
+      - completed
+    branches:
+      - frontend
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  update-main:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main branch
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 1
+
+      - name: Download artifact from frontend workflow
+        uses: actions/download-artifact@v4
+        with:
+          name: score-results
+          path: ./
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ github.event.workflow_run.id }}
+
+      - name: Commit and push to main
+        run: |
+          git config user.name "shit-code-score"
+          git config user.email "score-bot@example.com"
+          
+          # 检查文件是否存在
+          if [ ! -f package.yaml ] || [ ! -f score.txt ]; then
+            echo "❌ 文件不存在！"
+            exit 1
+          fi
+          
+          # 显示将要提交的内容
+          echo "📄 将要提交的文件："
+          ls -la package.yaml score.txt
+          
+          # 提交
+          git add package.yaml score.txt
+          git commit -m "Update score from frontend [skip ci]" || echo "没有变化需要提交"
+          
+          # 推送到 main
+          for i in 1 2 3; do
+            echo "推送尝试 $i..."
+            if git push origin main; then
+              echo "✅ 推送成功！"
+              exit 0
+            fi
+            echo "❌ 尝试 $i 失败，10秒后重试..."
+            sleep 10
+          done
+          echo "❌ 所有推送尝试失败"
+          exit 1
