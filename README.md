@@ -2,7 +2,7 @@
 
 # Skill Bound
 
-[English](README.md) | [简体中文](README-zh_hans.md)
+English | [简体中文](README-zh_hans.md)
 
 <div align="center">
 
