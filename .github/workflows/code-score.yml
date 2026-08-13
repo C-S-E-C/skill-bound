@@ -59,29 +59,7 @@ jobs:
           path: |
             score.txt
             package.yaml
-
-      - name: Commit to main with retry
-        uses: stefanzweifel/git-auto-commit-action@v6
-        with:
-          commit_message: "Update score: ${{ steps.getscore.outputs.score }}/100 [skip ci]"
-          branch: main
-          commit_user_name: shit-code-score
-          commit_user_email: score-bot@example.com
-          file_pattern: package.yaml score.txt
-          push_options: '--force-with-lease'
-        continue-on-error: true
-        id: git_commit
-
-      - name: Retry commit if failed
-        if: steps.git_commit.outcome == 'failure'
-        uses: stefanzweifel/git-auto-commit-action@v6
-        with:
-          commit_message: "Update score: ${{ steps.getscore.outputs.score }}/100 [skip ci]"
-          branch: main
-          commit_user_name: shit-code-score
-          commit_user_email: score-bot@example.com
-          file_pattern: package.yaml score.txt
-          push_options: '--force-with-lease'
+          retention-days: 1
 
       - name: Output summary
         run: |
