@@ -11,7 +11,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # 获取所有历史记录，确保能访问所有分支
+          fetch-depth: 0
 
       - name: JET2HOLIDAY
         run: echo "DARLING HOLD MY HAND🥵‼️🗣️🗣️NOTHING BEATS A JET 2 HOLIDAY 🔥😭🙏🔛🔝🔝🗣️🗣️🗣️🗣️AND RIGHT NOW YOU SAVE 50 POUNDS 💷💷💷 PER PERSON🗣🔊🔊🔥‼️‼️‼️‼️THAT'S 200 💷 💷 💷 OFF FOR A FAMILY OF 4 🗣️🗣️🗣️🔥🔥🔥💯 💯 💯💃🏻💃🏻💃🏻💃🏻💃🏻"
@@ -24,29 +24,22 @@ jobs:
       - name: Install fuck-u-code
         run: go install github.com/Done-0/fuck-u-code/cmd/fuck-u-code@latest
 
-      - name: Scan package(s)
-        run: |
-          export PATH="$PATH:$(go env GOPATH)/bin"
-          fuck-u-code analyze --verbose . > score.txt
-          cat score.txt
-
-      - name: Upload result as artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: score
-          path: score.txt
-
-      - name: Extract score
+      - name: Scan and generate score files
         id: getscore
         run: |
           export PATH="$PATH:$(go env GOPATH)/bin"
+          
+          # 生成评分报告
+          fuck-u-code analyze --verbose . > score.txt
+          
+          # 提取分数
           OUTPUT=$(fuck-u-code analyze -s .)
           SCORE_LINE=$(echo "$OUTPUT" | grep "总体评分:")
           SCORE=$(echo "$SCORE_LINE" | awk -F':' '{print $2}' | awk '{print $1}' | tr -d '/100')
           echo "score=$SCORE" >> $GITHUB_OUTPUT
           echo "提取的分数: $SCORE"
           
-          # 创建 package.yaml 文件
+          # 创建 package.yaml 文件（在当前 frontend 分支）
           echo "score: $SCORE" > package.yaml
           echo "timestamp: $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> package.yaml
           echo "branch: frontend" >> package.yaml
@@ -54,26 +47,51 @@ jobs:
           echo "---" >> package.yaml
           cat score.txt >> package.yaml
           
+          # 显示文件内容
+          echo "=== package.yaml ==="
           cat package.yaml
+          echo "=== score.txt ==="
+          cat score.txt
 
-      - name: Checkout main branch
+      - name: Upload result as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: score
+          path: |
+            score.txt
+            package.yaml
+
+      - name: Configure git and checkout main
         run: |
           git config user.name "shit-code-score"
           git config user.email "score-bot@example.com"
           
-          # 获取 main 分支（如果存在）
+          # 获取 main 分支
           if git ls-remote --exit-code origin main >/dev/null 2>&1; then
             git fetch origin main
             git checkout main || git checkout -b main origin/main
           else
-            # 如果 main 不存在，从当前分支创建
             git checkout -b main
           fi
 
-      - name: Copy score files to main
+      - name: Copy score files from frontend to main
         run: |
-          # 从 frontend 分支获取文件
-          git checkout frontend -- package.yaml score.txt
+          # 从 frontend 分支检出文件
+          git checkout frontend -- package.yaml score.txt 2>/dev/null || echo "文件在 frontend 分支不存在，但应该已创建"
+          
+          # 如果文件不存在，创建它们（防止意外）
+          if [ ! -f package.yaml ]; then
+            echo "package.yaml 不存在，创建默认文件"
+            echo "score: ${{ steps.getscore.outputs.score }}" > package.yaml
+            echo "timestamp: $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> package.yaml
+            echo "branch: frontend" >> package.yaml
+            echo "commit: ${{ github.sha }}" >> package.yaml
+          fi
+          
+          if [ ! -f score.txt ]; then
+            echo "score.txt 不存在，创建空文件"
+            touch score.txt
+          fi
           
           # 添加文件到 main 分支
           git add package.yaml score.txt
