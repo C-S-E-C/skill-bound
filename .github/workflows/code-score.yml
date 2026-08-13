@@ -10,44 +10,108 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-        
+        with:
+          fetch-depth: 0  # 获取所有历史记录，确保能访问所有分支
+
       - name: JET2HOLIDAY
         run: echo "DARLING HOLD MY HAND🥵‼️🗣️🗣️NOTHING BEATS A JET 2 HOLIDAY 🔥😭🙏🔛🔝🔝🗣️🗣️🗣️🗣️AND RIGHT NOW YOU SAVE 50 POUNDS 💷💷💷 PER PERSON🗣🔊🔊🔥‼️‼️‼️‼️THAT'S 200 💷 💷 💷 OFF FOR A FAMILY OF 4 🗣️🗣️🗣️🔥🔥🔥💯 💯 💯💃🏻💃🏻💃🏻💃🏻💃🏻"
-        
+
       - name: Install Go
         uses: actions/setup-go@v4
         with:
           go-version: '1.21'
-          
+
       - name: Install fuck-u-code
         run: go install github.com/Done-0/fuck-u-code/cmd/fuck-u-code@latest
-        
+
       - name: Scan package(s)
         run: |
           export PATH="$PATH:$(go env GOPATH)/bin"
           fuck-u-code analyze --verbose . > score.txt
           cat score.txt
-          
-      - name: Upload result
+
+      - name: Upload result as artifact
         uses: actions/upload-artifact@v4
         with:
           name: score
           path: score.txt
-          
-      - name: getscore
+
+      - name: Extract score
+        id: getscore
         run: |
+          export PATH="$PATH:$(go env GOPATH)/bin"
           OUTPUT=$(fuck-u-code analyze -s .)
           SCORE_LINE=$(echo "$OUTPUT" | grep "总体评分:")
           SCORE=$(echo "$SCORE_LINE" | awk -F':' '{print $2}' | awk '{print $1}' | tr -d '/100')
-          echo "score: $SCORE" > package.yaml
+          echo "score=$SCORE" >> $GITHUB_OUTPUT
           echo "提取的分数: $SCORE"
-          cat package.yaml
           
-      - name: commit score to main
+          # 创建 package.yaml 文件
+          echo "score: $SCORE" > package.yaml
+          echo "timestamp: $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> package.yaml
+          echo "branch: frontend" >> package.yaml
+          echo "commit: ${{ github.sha }}" >> package.yaml
+          echo "---" >> package.yaml
+          cat score.txt >> package.yaml
+          
+          cat package.yaml
+
+      - name: Checkout main branch
         run: |
           git config user.name "shit-code-score"
           git config user.email "score-bot@example.com"
-          git checkout main
+          
+          # 获取 main 分支（如果存在）
+          if git ls-remote --exit-code origin main >/dev/null 2>&1; then
+            git fetch origin main
+            git checkout main || git checkout -b main origin/main
+          else
+            # 如果 main 不存在，从当前分支创建
+            git checkout -b main
+          fi
+
+      - name: Copy score files to main
+        run: |
+          # 从 frontend 分支获取文件
+          git checkout frontend -- package.yaml score.txt
+          
+          # 添加文件到 main 分支
           git add package.yaml score.txt
-          git commit -m "Update code quality score: $SCORE" || echo "No changes to commit"
+          
+          # 检查是否有变更
+          if git diff --staged --quiet; then
+            echo "没有新的变更需要提交"
+            echo "has_changes=false" >> $GITHUB_ENV
+          else
+            echo "有新的变更需要提交"
+            echo "has_changes=true" >> $GITHUB_ENV
+            git commit -m `Update code quality score: ${{ steps.getscore.outputs.score }}/100
+
+              从 frontend 分支自动更新
+              提交: ${{ github.sha }}
+              分数: ${{ steps.getscore.outputs.score }}/100`
+          fi
+
+      - name: Push to main branch
+        if: env.has_changes == 'true'
+        run: |
           git push origin main
+          echo "✅ 成功推送到 main 分支"
+
+      - name: Output summary
+        run: |
+          echo "## 📊 代码质量评分结果" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| 项目 | 值 |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|----|" >> $GITHUB_STEP_SUMMARY
+          echo "| 📈 评分 | **${{ steps.getscore.outputs.score }}/100** |" >> $GITHUB_STEP_SUMMARY
+          echo "| 🌿 源分支 | frontend |" >> $GITHUB_STEP_SUMMARY
+          echo "| 🎯 目标分支 | main |" >> $GITHUB_STEP_SUMMARY
+          echo "| 📝 提交 | ${{ github.sha }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| ⏰ 时间 | $(date -u '+%Y-%m-%d %H:%M:%S UTC') |" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ env.has_changes }}" == "true" ]; then
+            echo "| ✅ 状态 | 已成功更新 main 分支 |" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "| ℹ️ 状态 | 分数无变化，未提交 |" >> $GITHUB_STEP_SUMMARY
+          fi
