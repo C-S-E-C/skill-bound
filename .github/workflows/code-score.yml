@@ -69,7 +69,7 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| 项目 | 值 |" >> $GITHUB_STEP_SUMMARY
           echo "|------|----|" >> $GITHUB_STEP_SUMMARY
-          echo '| 📈 评分 | **${score}/100** |' >> $GITHUB_STEP_SUMMARY
+          echo '| 📈 评分 | **${{score}}/100** |' >> $GITHUB_STEP_SUMMARY
           echo "| 🌿 源分支 | frontend |" >> $GITHUB_STEP_SUMMARY
           echo "| 🎯 目标分支 | main |" >> $GITHUB_STEP_SUMMARY
           echo "| 📝 提交 | ${{ github.sha }} |" >> $GITHUB_STEP_SUMMARY
