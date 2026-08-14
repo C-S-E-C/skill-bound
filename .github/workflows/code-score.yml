@@ -64,7 +64,7 @@ jobs:
 
       - name: Output summary
         run: |
-          score=$((100 - ${{ steps.getscore.outputs.score }}))
+          score=$(echo "100 - (${{ steps.getscore.outputs.score }} * 10)" | bc)
           echo "## 📊 代码质量评分结果" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| 项目 | 值 |" >> $GITHUB_STEP_SUMMARY
