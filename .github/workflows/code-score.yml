@@ -17,7 +17,7 @@ jobs:
             js/
 
       - name: JET2HOLIDAY
-        run: echo "DARLING HOLD MY HAND🥵‼️🗣️🗣️NOTHING BEATS A JET 2 HOLIDAY 🔥😭🙏🔛🔝🔝🗣️🗣️🗣️🗣️AND RIGHT NOW YOU SAVE 50 POUNDS 💷💷💷 PER PERSON🗣🔊🔊🔥‼️‼️‼️‼️THAT'S 200 💷 💷 💷 OFF FOR A FAMILY OF 4 🗣️🗣️🗣️🔥🔥🔥💯 💯 💯💃🏻💃🏻💃🏻💃🏻💃🏻"
+        run: echo "DARLING HOLD MY HANDрҹҘөвҖјпёҸрҹ—ЈпёҸрҹ—ЈпёҸNOTHING BEATS A JET 2 HOLIDAY рҹ”ҘрҹҳӯрҹҷҸрҹ”ӣрҹ”қрҹ”қрҹ—ЈпёҸрҹ—ЈпёҸрҹ—ЈпёҸрҹ—ЈпёҸAND RIGHT NOW YOU SAVE 50 POUNDS рҹ’·рҹ’·рҹ’· PER PERSONрҹ—Јрҹ”Ҡрҹ”Ҡрҹ”ҘвҖјпёҸвҖјпёҸвҖјпёҸвҖјпёҸTHAT'S 200 рҹ’· рҹ’· рҹ’· OFF FOR A FAMILY OF 4 рҹ—ЈпёҸрҹ—ЈпёҸрҹ—ЈпёҸрҹ”Ҙрҹ”Ҙрҹ”Ҙрҹ’Ҝ рҹ’Ҝ рҹ’Ҝрҹ’ғрҹҸ»рҹ’ғрҹҸ»рҹ’ғрҹҸ»рҹ’ғрҹҸ»рҹ’ғрҹҸ»"
 
       - name: Install Go
         uses: actions/setup-go@v4
@@ -35,14 +35,20 @@ jobs:
           # 生成评分报告
           fuck-u-code analyze --verbose . > score.txt
           
-          # 提取分数
-          OUTPUT=$(fuck-u-code analyze -s .)
-          SCORE_LINE=$(echo "$OUTPUT" | grep "总体评分:")
-          SCORE=$(echo "$SCORE_LINE" | awk -F':' '{print $2}' | awk '{print $1}' | tr -d '/100')
-          echo "score=$SCORE" >> $GITHUB_OUTPUT
-          echo "提取的分数: $SCORE"
+          # 修复：使用 grep 和 sed 精确提取分数
+          # 从 "总体评分: 31.60 / 100" 中提取 31.60
+          SCORE=$(grep "总体评分:" score.txt | head -1 | sed -n 's/.*总体评分:[[:space:]]*\([0-9.]*\).*/\1/p')
           
-          # 创建 package.yaml 文件
+          # 如果提取失败，设置默认值
+          if [ -z "$SCORE" ]; then
+            SCORE="0"
+            echo "⚠️ 警告：无法提取分数，使用默认值 0"
+          fi
+          
+          echo "提取的分数: $SCORE"
+          echo "score=$SCORE" >> $GITHUB_OUTPUT
+          
+          # 创建 package.yaml 文件（使用原始分数）
           echo "score: $SCORE" > package.yaml
           echo "timestamp: $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> package.yaml
           echo "branch: frontend" >> package.yaml
@@ -64,16 +70,30 @@ jobs:
 
       - name: Output summary
         run: |
-          score=$(echo "100 - (${{ steps.getscore.outputs.score }} * 10)" | bc)
+          # 获取提取的分数（已经是 0-100 的原始分数）
+          SCORE_RAW="${{ steps.getscore.outputs.score }}"
+          
+          # 如果分数是空或0，显示为N/A
+          if [ -z "$SCORE_RAW" ] || [ "$SCORE_RAW" = "0" ]; then
+            DISPLAY_SCORE="N/A"
+          else
+            # 分数已经是 0-100 范围，直接使用
+            DISPLAY_SCORE="${SCORE_RAW}/100"
+          fi
+          
+          # 生成步骤摘要
           echo "## 📊 代码质量评分结果" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| 项目 | 值 |" >> $GITHUB_STEP_SUMMARY
           echo "|------|----|" >> $GITHUB_STEP_SUMMARY
-          echo "| 📈 评分 | **${score}/100** |" >> $GITHUB_STEP_SUMMARY
+          echo "| 📈 评分 | **${DISPLAY_SCORE}** |" >> $GITHUB_STEP_SUMMARY
           echo "| 🌿 源分支 | frontend |" >> $GITHUB_STEP_SUMMARY
           echo "| 🎯 目标分支 | main |" >> $GITHUB_STEP_SUMMARY
           echo "| 📝 提交 | ${{ github.sha }} |" >> $GITHUB_STEP_SUMMARY
           echo "| ⏰ 时间 | $(date -u '+%Y-%m-%d %H:%M:%S UTC') |" >> $GITHUB_STEP_SUMMARY
           echo "| ✅ 状态 | 已成功更新 main 分支 |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
           echo "## 🗒️ 详细信息" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
           cat score.txt >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
