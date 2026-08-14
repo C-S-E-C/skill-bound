@@ -68,9 +68,11 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| 项目 | 值 |" >> $GITHUB_STEP_SUMMARY
           echo "|------|----|" >> $GITHUB_STEP_SUMMARY
-          echo "| 📈 评分 | **${{ steps.getscore.outputs.score }}/100** |" >> $GITHUB_STEP_SUMMARY
+          echo '| 📈 评分 | **${$((100 - steps.getscore.outputs.score))}/100** |' >> $GITHUB_STEP_SUMMARY
           echo "| 🌿 源分支 | frontend |" >> $GITHUB_STEP_SUMMARY
           echo "| 🎯 目标分支 | main |" >> $GITHUB_STEP_SUMMARY
           echo "| 📝 提交 | ${{ github.sha }} |" >> $GITHUB_STEP_SUMMARY
           echo "| ⏰ 时间 | $(date -u '+%Y-%m-%d %H:%M:%S UTC') |" >> $GITHUB_STEP_SUMMARY
           echo "| ✅ 状态 | 已成功更新 main 分支 |" >> $GITHUB_STEP_SUMMARY
+          echo "## 🗒️ 详细信息" >> $GITHUB_STEP_SUMMARY
+          cat score.txt >> $GITHUB_STEP_SUMMARY
