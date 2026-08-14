@@ -11,6 +11,7 @@ English | [简体中文](README-zh_hans.md)
 [![Pull requests](https://img.shields.io/github/issues-pr/C-S-E-C/skill-bound?label=pull%20requests&color=1F883D&logo=github)](https://github.com/C-S-E-C/skill-bound/pulls)
 [![Branch count](https://img.shields.io/github/branches/C-S-E-C/skill-bound)](https://github.com/C-S-E-C/skill-bound/branches)
 ![GitHub last commit](https://img.shields.io/github/last-commit/C-S-E-C/skill-bound/frontend)
+[![Update Main with Score](https://github.com/C-S-E-C/skill-bound/actions/workflows/code-score.yml/badge.svg?branch=frontend)](https://github.com/C-S-E-C/skill-bound/actions/workflows/code-score.yml)
 
 [![Coin Exchange Rate](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fskill-bound.syntropica.top%2Fdynamic.json&query=ExchangeRate&label=Coin%20Exchange%20Rate%20(1RMB%3A%3FCOIN)&color=gold)](http://skill-bound.syntropica.top/redeem)
 
