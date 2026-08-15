@@ -106,19 +106,27 @@ function assignRandomTeams(players, teamSize) {
 }
 
 function fillTeams(players, teamSize) {
-    let teamACount = players.filter((player) => player.team === "A").length;
-    let teamBCount = players.filter((player) => player.team === "B").length;
+    let teamACount = 0;
+    let teamBCount = 0;
     return players.map((player) => {
-        if (player.team === "A" && teamACount <= teamSize) return player;
-        if (player.team === "B" && teamBCount <= teamSize) return player;
-
+        const preferredTeam = player.team === "B" ? "B" : "A";
         const next = { ...player };
-        if (teamACount <= teamBCount && teamACount < teamSize) {
-            next.team = "A";
+        if (preferredTeam === "A" && teamACount < teamSize) {
             teamACount++;
-        } else {
-            next.team = "B";
+            next.team = "A";
+            return next;
+        }
+        if (preferredTeam === "B" && teamBCount < teamSize) {
             teamBCount++;
+            next.team = "B";
+            return next;
+        }
+        if (teamACount <= teamBCount && teamACount < teamSize) {
+            teamACount++;
+            next.team = "A";
+        } else {
+            teamBCount++;
+            next.team = "B";
         }
         return next;
     });
@@ -137,6 +145,7 @@ class PairingHandlerClass {
         this.etconnected = false;
         this.players = [];
         this.peerList = [];
+        this.startVotes = [];
         this.mode = 1;
         this.teamMode = "random";
         this.battlefield = "air.map";
@@ -218,7 +227,7 @@ class PairingHandlerClass {
     }
 
     requiredStartVotes() {
-        return Math.ceil((this.players.length * 2) / 3);
+        return Math.ceil((Math.max(this.players.length, this.peerList.length) * 2) / 3);
     }
 
     isLeader() {
@@ -260,6 +269,7 @@ class PairingHandlerClass {
         this.CurStat = isPrivate ? this.Stats.PrivateRoom : this.Stats.OpenToPublic;
         this.resetLeaderList();
         this.players = [this.selfPlayer()];
+        this.startVotes = [];
         this.startPeerSync();
 
         pairEls.screen1.self.style.display = "none";
@@ -407,7 +417,7 @@ class PairingHandlerClass {
                 this.handleTeamChange(message.data);
                 break;
             case PACKET_TYPES.StartBattle:
-                this.startBattle(message.data);
+                this.handleStartBattle(packet.fromPeerId, message.data);
                 break;
         }
     }
@@ -464,6 +474,9 @@ class PairingHandlerClass {
         this.peerList = mergedPeerList;
         this.leaderPeerId = this.peerList[0];
         this.players = this.applyTeamPolicy(mergedPlayers);
+        this.startVotes = this.startVotes.filter((peerId) =>
+            this.players.some((player) => player.ETid === peerId),
+        );
         this.sendPairMessage(peerId, PACKET_TYPES.AcceptPair, this.roomSnapshot(), true);
         this.broadcastRoomUpdate();
         this.showTeamScreen();
@@ -505,6 +518,9 @@ class PairingHandlerClass {
         this.players = this.applyTeamPolicy(
             mergePlayers(this.players, snapshot.players || []),
         ).slice(0, this.maxPlayers());
+        this.startVotes = uniqueNumbers(snapshot.startVotes || this.startVotes).filter(
+            (peerId) => this.players.some((player) => player.ETid === peerId),
+        );
         this.CurStat = this.Stats.InRoom;
         this.renderPlayers();
         this.showTeamScreen();
@@ -525,6 +541,7 @@ class PairingHandlerClass {
             battlefield: this.battlefield,
             leaderPeerId: this.leaderPeerId,
             peerList: this.peerList,
+            startVotes: this.startVotes,
             players: this.players,
         };
     }
@@ -564,25 +581,20 @@ class PairingHandlerClass {
 
     renderTeams(pairEls) {
         const localPeerId = this.localPeerId();
-        const self = this.players.find((player) => player.ETid === localPeerId);
-        const selfTeam = self?.team || "A";
-        const ourTeam = this.players.filter((player) => player.team === selfTeam);
-        const opponentTeam = this.players.filter(
-            (player) => player.team !== selfTeam,
-        );
+        const teamA = this.players.filter((player) => player.team === "A");
+        const teamB = this.players.filter((player) => player.team === "B");
 
-        this.renderTeam(pairEls.screen3.ourTeam, ourTeam, selfTeam);
-        this.renderTeam(
-            pairEls.screen3.opponentTeam,
-            opponentTeam,
-            selfTeam === "A" ? "B" : "A",
-        );
+        this.renderTeam(pairEls.screen3.ourTeam, teamA, "A");
+        this.renderTeam(pairEls.screen3.opponentTeam, teamB, "B");
 
-        const startVotes = this.requiredStartVotes();
+        const startVotesRequired = this.requiredStartVotes();
+        const localVoted = this.startVotes.includes(localPeerId);
+        const roomPlayerCount = Math.max(this.players.length, this.peerList.length);
         pairEls.screen3.statusText.innerText =
-            `Players ${this.players.length}/${this.maxPlayers()} ` +
-            `Start requires ${startVotes}`;
-        pairEls.screen3.startBattle.disabled = this.players.length < startVotes;
+            `Players ${roomPlayerCount}/${this.maxPlayers()} ` +
+            `Start ${this.startVotes.length}/${startVotesRequired}`;
+        pairEls.screen3.startBattle.disabled = localVoted || roomPlayerCount < 2;
+        pairEls.screen3.startBattle.innerText = localVoted ? "READY" : "START";
         pairEls.screen3.createRoom.disabled = true;
     }
 
@@ -599,12 +611,17 @@ class PairingHandlerClass {
             slot.textContent = player.name.slice(0, 2).toUpperCase();
             container.appendChild(slot);
         });
+        for (let index = players.length; index < this.teamSize(); index++) {
+            const slot = document.createElement("div");
+            slot.className = "player-slot empty-slot";
+            slot.title = "Empty slot";
+            slot.textContent = "+";
+            container.appendChild(slot);
+        }
     }
 
     requestTeamChange(team) {
         if (this.teamMode !== "manual") return;
-        const targetCount = this.players.filter((player) => player.team === team).length;
-        if (targetCount >= this.teamSize()) return;
 
         const localPeerId = this.localPeerId();
         if (this.isLeader()) {
@@ -621,12 +638,28 @@ class PairingHandlerClass {
         if (!this.isLeader() || this.teamMode !== "manual") return;
         const peerId = Number(data?.peerId);
         const team = data?.team === "B" ? "B" : "A";
-        const targetCount = this.players.filter((player) => player.team === team).length;
-        if (targetCount >= this.teamSize()) return;
+        const player = this.players.find((item) => item.ETid === peerId);
+        if (!player || player.team === team) return;
 
-        this.players = this.players.map((player) =>
-            player.ETid === peerId ? { ...player, team } : player,
+        const targetCount = this.players.filter((player) => player.team === team).length;
+        const currentTeam = player.team === "B" ? "B" : "A";
+        let swapPeerId = null;
+        if (targetCount >= this.teamSize()) {
+            const swapPlayer = this.players.find(
+                (item) => item.team === team && item.ETid !== peerId,
+            );
+            if (!swapPlayer) return;
+            swapPeerId = swapPlayer.ETid;
+        }
+
+        this.players = this.players.map((item) =>
+            item.ETid === peerId
+                ? { ...item, team }
+                : item.ETid === swapPeerId
+                  ? { ...item, team: currentTeam }
+                  : item,
         );
+        this.startVotes = [];
         this.broadcastRoomUpdate();
         this.showTeamScreen();
     }
@@ -644,13 +677,40 @@ class PairingHandlerClass {
             `&battlefield=${encodeURIComponent(snapshot.battlefield || "air.map")}`;
     }
 
+    handleStartBattle(fromPeerId, data) {
+        if (data?.startNow) {
+            if (Number(fromPeerId) !== Number(this.peerList[0])) return;
+            this.startBattle(data);
+            return;
+        }
+        const voterPeerId = Number(data?.peerId || fromPeerId || this.localPeerId());
+        if (!this.peerList.includes(voterPeerId)) return;
+        if (Math.max(this.players.length, this.peerList.length) < 2) return;
+        if (!this.startVotes.includes(voterPeerId)) {
+            this.startVotes.push(voterPeerId);
+        }
+        if (!this.isLeader()) {
+            this.sendPairMessage(this.peerList[0], PACKET_TYPES.StartBattle, {
+                peerId: voterPeerId,
+            });
+            this.showTeamScreen();
+            return;
+        }
+        if (this.startVotes.length >= this.requiredStartVotes()) {
+            const snapshot = { ...this.roomSnapshot(), startNow: true };
+            this.peerList.forEach((peerId) => {
+                this.sendPairMessage(peerId, PACKET_TYPES.StartBattle, snapshot);
+            });
+            this.startBattle(snapshot);
+            return;
+        }
+        this.broadcastRoomUpdate();
+        this.showTeamScreen();
+    }
+
     hostStartBattle() {
-        if (this.players.length < this.requiredStartVotes()) return;
-        const snapshot = this.roomSnapshot();
-        this.peerList.forEach((peerId) => {
-            this.sendPairMessage(peerId, PACKET_TYPES.StartBattle, snapshot);
-        });
-        this.startBattle(snapshot);
+        const localPeerId = this.localPeerId();
+        this.handleStartBattle(localPeerId, { peerId: localPeerId });
     }
 
     async setStatus(text) {

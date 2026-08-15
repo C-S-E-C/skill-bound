@@ -240,6 +240,16 @@ select:hover {
     position: relative;
 }
 
+.team-container {
+    cursor: pointer;
+}
+
+.empty-slot {
+    color: var(--text-gray);
+    border-style: dashed;
+    font-size: 1.5rem;
+}
+
 .ours .player-slot {
     border-color: var(--primary-neon);
     box-shadow: 0 0 15px rgba(0, 242, 255, 0.2);
