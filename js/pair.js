@@ -404,14 +404,14 @@ class PairingHandlerClass {
                 this.setStatus(message.data?.reason || "Pair request refused.");
                 break;
             case PACKET_TYPES.AcceptPair:
-                this.acceptRoom(message.data);
+                this.acceptRoom(message.data, packet.fromPeerId);
                 break;
             case PACKET_TYPES.RedirectPair:
                 this.handleRedirect(message.data);
                 break;
             case PACKET_TYPES.UpdatePair:
             case PACKET_TYPES.SyncPair:
-                this.syncRoom(message.data);
+                this.syncRoom(message.data, packet.fromPeerId);
                 break;
             case PACKET_TYPES.TeamChange:
                 this.handleTeamChange(message.data);
@@ -473,7 +473,9 @@ class PairingHandlerClass {
 
         this.peerList = mergedPeerList;
         this.leaderPeerId = this.peerList[0];
-        this.players = this.applyTeamPolicy(mergedPlayers);
+        this.players = this.teamMode === "manual"
+            ? fillTeams(mergedPlayers, this.teamSize())
+            : this.applyTeamPolicy(mergedPlayers);
         this.startVotes = this.startVotes.filter((peerId) =>
             this.players.some((player) => player.ETid === peerId),
         );
@@ -482,22 +484,33 @@ class PairingHandlerClass {
         this.showTeamScreen();
     }
 
-    acceptRoom(snapshot) {
-        this.syncRoom(snapshot);
+    acceptRoom(snapshot, fromPeerId) {
+        this.syncRoom(snapshot, fromPeerId);
         this.showTeamScreen();
     }
 
     handleRedirect(data) {
         const leaderPeerId = Number(data?.leaderPeerId);
-        this.syncRoom(data?.room);
+        this.syncRoom(data?.room, leaderPeerId);
         if (leaderPeerId && leaderPeerId !== this.localPeerId()) {
             this.sendRequestPair(leaderPeerId);
         }
     }
 
-    syncRoom(snapshot) {
+    syncRoom(snapshot, fromPeerId = null) {
         if (!snapshot) return;
         if (Number(snapshot.mode) !== this.mode) return;
+
+        const snapshotLeaderId = Number(snapshot.leaderPeerId || snapshot.peerList?.[0]);
+        const senderPeerId = Number(fromPeerId || snapshotLeaderId);
+        if (this.isLeader() && senderPeerId !== this.localPeerId()) return;
+        if (
+            !this.isLeader() &&
+            this.leaderPeerId &&
+            senderPeerId !== Number(this.leaderPeerId)
+        ) {
+            return;
+        }
         if (
             this.isPrivate &&
             this.isLeader() &&
@@ -515,8 +528,13 @@ class PairingHandlerClass {
             this.peerList.push(this.localPeerId());
         }
         this.leaderPeerId = this.peerList[0] || this.leaderPeerId;
-        this.players = this.applyTeamPolicy(
-            mergePlayers(this.players, snapshot.players || []),
+        const snapshotPlayers = Array.isArray(snapshot.players)
+            ? snapshot.players.map(normalizePlayer)
+            : [];
+        const mergedPlayers = mergePlayers(this.players, snapshotPlayers);
+        this.players = (this.teamMode === "manual"
+            ? mergePlayers(mergedPlayers, snapshotPlayers)
+            : this.applyTeamPolicy(mergedPlayers)
         ).slice(0, this.maxPlayers());
         this.startVotes = uniqueNumbers(snapshot.startVotes || this.startVotes).filter(
             (peerId) => this.players.some((player) => player.ETid === peerId),
