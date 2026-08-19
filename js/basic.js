@@ -94,3 +94,5 @@ window.using = using;
 document.addEventListener("DOMContentLoaded", function () {
     showLoadingAnimation();
 });
+
+navigator.serviceWorker.register('/js/sw.js');
