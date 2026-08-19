@@ -75,6 +75,10 @@ function makeRoomId() {
     return Math.random().toString(36).slice(2, 14).toUpperCase();
 }
 
+function formatRoomCode(peerId, verifyCode) {
+    return `0x${Number(peerId).toString(16).padStart(8, "0")}${Number(verifyCode).toString(16).padStart(2, "0")}`.toUpperCase();
+}
+
 function normalizePlayer(player) {
     return {
         name: String(player?.name || "Player").slice(0, 24),
@@ -89,6 +93,21 @@ function mergePlayers(left, right) {
     [...left, ...right].forEach((player) => {
         const normalized = normalizePlayer(player);
         if (normalized.ETid) merged.set(normalized.ETid, normalized);
+    });
+    return Array.from(merged.values());
+}
+
+function mergeNewPlayers(existingPlayers, incomingPlayers) {
+    const merged = new Map();
+    existingPlayers.forEach((player) => {
+        const normalized = normalizePlayer(player);
+        if (normalized.ETid) merged.set(normalized.ETid, normalized);
+    });
+    incomingPlayers.forEach((player) => {
+        const normalized = normalizePlayer(player);
+        if (normalized.ETid && !merged.has(normalized.ETid)) {
+            merged.set(normalized.ETid, normalized);
+        }
     });
     return Array.from(merged.values());
 }
@@ -286,8 +305,7 @@ class PairingHandlerClass {
     async privatePair() {
         await this.startPairing(true);
         this.verifyCode = Math.floor(Math.random() * 255) + 1;
-        const code = `0x${this.localPeerId().toString(16).padStart(8, "0")}${this.verifyCode.toString(16).padStart(2, "0")}`.toUpperCase();
-        this.setStatus(`Room code: ${code}`);
+        this.setStatus(`Join code: ${formatRoomCode(this.localPeerId(), this.verifyCode)}`);
     }
 
     async joinPrivateRoom(rawCode) {
@@ -473,9 +491,7 @@ class PairingHandlerClass {
 
         this.peerList = mergedPeerList;
         this.leaderPeerId = this.peerList[0];
-        this.players = this.teamMode === "manual"
-            ? fillTeams(mergedPlayers, this.teamSize())
-            : this.applyTeamPolicy(mergedPlayers);
+        this.players = fillTeams(mergedPlayers, this.teamSize());
         this.startVotes = this.startVotes.filter((peerId) =>
             this.players.some((player) => player.ETid === peerId),
         );
@@ -531,11 +547,10 @@ class PairingHandlerClass {
         const snapshotPlayers = Array.isArray(snapshot.players)
             ? snapshot.players.map(normalizePlayer)
             : [];
-        const mergedPlayers = mergePlayers(this.players, snapshotPlayers);
-        this.players = (this.teamMode === "manual"
-            ? mergePlayers(mergedPlayers, snapshotPlayers)
-            : this.applyTeamPolicy(mergedPlayers)
-        ).slice(0, this.maxPlayers());
+        const mergedPlayers = this.isLeader()
+            ? mergeNewPlayers(this.players, snapshotPlayers)
+            : mergePlayers(this.players, snapshotPlayers);
+        this.players = fillTeams(mergedPlayers, this.teamSize()).slice(0, this.maxPlayers());
         this.startVotes = uniqueNumbers(snapshot.startVotes || this.startVotes).filter(
             (peerId) => this.players.some((player) => player.ETid === peerId),
         );
@@ -639,8 +654,6 @@ class PairingHandlerClass {
     }
 
     requestTeamChange(team) {
-        if (this.teamMode !== "manual") return;
-
         const localPeerId = this.localPeerId();
         if (this.isLeader()) {
             this.handleTeamChange({ peerId: localPeerId, team });
@@ -653,7 +666,7 @@ class PairingHandlerClass {
     }
 
     handleTeamChange(data) {
-        if (!this.isLeader() || this.teamMode !== "manual") return;
+        if (!this.isLeader()) return;
         const peerId = Number(data?.peerId);
         const team = data?.team === "B" ? "B" : "A";
         const player = this.players.find((item) => item.ETid === peerId);
@@ -740,15 +753,13 @@ class PairingHandlerClass {
     async updateRoomStatus() {
         const pairEls = await this.getPairEls();
         const observedCount = easytier.listPeers().length;
-        const prefix = this.isPrivate
-            ? `Room ${this.RoomID}`
-            : `Public pairing, observed ${observedCount}`;
-        const text =
-            `${prefix}. Players ${this.players.length}/${this.maxPlayers()}. ` +
-            `Leader ${this.peerList[0] || "-"}.`;
-        // pairEls.screen2.statusText.innerText = text;
-        if (pairEls.screen3.self.style.display !== "none") {
-            pairEls.screen3.statusText.innerText = text;
+        const text = this.isPrivate && this.isLeader()
+            ? `Join code: ${formatRoomCode(this.localPeerId(), this.verifyCode)}. ` +
+              `Players ${this.players.length}/${this.maxPlayers()}.`
+            : `Public pairing, observed ${observedCount}. ` +
+              `Players ${this.players.length}/${this.maxPlayers()}.`;
+        if (pairEls.screen2.self.style.display !== "none") {
+            pairEls.screen2.statusText.innerText = text;
         }
     }
 }

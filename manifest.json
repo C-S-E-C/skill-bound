@@ -1,0 +1,8 @@
+{
+  "name": "Skill bound",
+  "short_name": "Skill bound",
+  "start_url": "https://skill-bound.syntropica.top/",
+  "scope": "https://skill-bound.syntropica.top/",
+  "display": "standalone",
+  "icons": []
+}

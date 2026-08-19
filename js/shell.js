@@ -17,6 +17,8 @@
         debug: "debug",
     };
     const SHELL_TITLE = "SHELL";
+    const MAX_TAB_LOG_ENTRIES = 50;
+    const MAX_LOG_MESSAGE_LENGTH = 4000;
 
     let pipWindow = null;
     let activeTabId = null;
@@ -44,7 +46,9 @@
     }
 
     function formatLine(values) {
-        return values.map(formatValue).join(" ");
+        const line = values.map(formatValue).join(" ");
+        if (line.length <= MAX_LOG_MESSAGE_LENGTH) return line;
+        return `${line.slice(0, MAX_LOG_MESSAGE_LENGTH)}... <truncated ${line.length - MAX_LOG_MESSAGE_LENGTH} chars>`;
     }
 
     function getDoc() {
@@ -325,7 +329,13 @@
         setActiveTab(activeTabId || tabs.keys().next().value);
     }
 
+    function visibleTabEntries(tab) {
+        trimTabEntries(tab);
+        return tab.entries.slice(-MAX_TAB_LOG_ENTRIES);
+    }
+
     function renderTab(tab) {
+        trimTabEntries(tab);
         const doc = getDoc();
         if (!doc) return;
 
@@ -361,13 +371,13 @@
             panel.innerHTML = tab.html;
         } else if (tab.id === "easytier") {
             renderEasyTierFilterBar(tab, panel);
-            tab.entries.forEach((entry) => appendEntry(tab, entry));
+            visibleTabEntries(tab).forEach((entry) => appendEntry(tab, entry));
         } else {
             const feed = doc.createElement("div");
             feed.className = "shell-log-feed";
             feed.dataset.shellFeed = tab.id;
             panel.appendChild(feed);
-            tab.entries.forEach((entry) => appendEntry(tab, entry));
+            visibleTabEntries(tab).forEach((entry) => appendEntry(tab, entry));
         }
     }
 
@@ -432,6 +442,18 @@
         if (scroller) scroller.scrollTop = previousScroll;
     }
 
+    function trimTabEntries(tab) {
+        if (tab.entries.length > MAX_TAB_LOG_ENTRIES) {
+            tab.entries.splice(0, tab.entries.length - MAX_TAB_LOG_ENTRIES);
+        }
+    }
+
+    function trimFeedEntries(scroller) {
+        while (scroller.children.length > MAX_TAB_LOG_ENTRIES) {
+            scroller.removeChild(scroller.firstElementChild);
+        }
+    }
+
     function appendEntry(tab, entry) {
         const doc = getDoc();
         if (!doc) return;
@@ -472,6 +494,7 @@
             tab.autoScroll !== false &&
             scroller.scrollHeight - scroller.scrollTop - scroller.clientHeight < 24;
         scroller.appendChild(line);
+        trimFeedEntries(scroller);
         if (shouldStickToBottom) scroller.scrollTop = scroller.scrollHeight;
     }
 
@@ -613,6 +636,7 @@
             meta: null,
         };
         tab.entries.push(entry);
+        trimTabEntries(tab);
         appendEntry(tab, entry);
         return entry;
     }
@@ -625,6 +649,7 @@
             meta: meta || null,
         };
         tab.entries.push(entry);
+        trimTabEntries(tab);
         appendEntry(tab, entry);
         return entry;
     }
