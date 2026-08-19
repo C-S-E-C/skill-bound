@@ -1,4 +1,4 @@
-if(location.host=="skill-bound.syntropica.top") location.pathname = "/return";
+if(location.host=="skill-bound.syntropica.top" && localStorage.getItem("dev") != "true") location.pathname = "/return";
 
 // wait in async functions: await wait(1000) // wait for 1 second
 function wait(ms) {

@@ -50,7 +50,9 @@
                 console.warn("No translation found for:", original);
             }
         });
-        localStorage.setItem("translation_cache", JSON.stringify(json));
+        if (localStorage.getItem("dev") == "true") {
+            localStorage.setItem("translation_cache", JSON.stringify(json));
+        }
     } catch (error) {
         console.error("Translation failed:", error);
     }
