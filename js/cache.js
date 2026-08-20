@@ -21,7 +21,7 @@ window.addEventListener("DOMContentLoaded", async function () {
             // Use the cached version
             const blob = await cachedResponse.blob();
             el.src = URL.createObjectURL(blob);
-            console.log("Loaded from cache:", el.src);
+            console.log("Loaded from cache: ", "blob:"+el.src);
         } else {
             // Not in cache? Fetch and add it for next time
             // Note: This may fail if CORS is not configured on the server
