@@ -10,10 +10,20 @@ const languages = [
 ];
 
 // Change language function
-function changeLanguage(lang) {
+async function changeLanguage(lang) {
     console.log("Language changed to:", lang);
     localStorage.setItem("lang", lang);
     document.getElementById("continue").style.display = "block";
+
+    if (lang !== "en_us") {
+        try {
+            const cache = await caches.open("app_files");
+            const url = "/lang/" + lang + ".json";
+            if (!(await cache.match(url))) await cache.add(url);
+        } catch (error) {
+            console.error("Failed to cache selected language:", error);
+        }
+    }
 }
 
 // Render language options

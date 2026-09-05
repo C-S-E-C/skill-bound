@@ -1,0 +1,195 @@
+{
+    "requiredBytes": 7516031,
+    "files": [
+        {
+            "url": "/app_files/battle.html",
+            "source": "/app_files/battle.html",
+            "md5": "0b1560ecbc6ff5d75b83d630e24ccad7"
+        },
+        {
+            "url": "/app_files/css/battle.css",
+            "source": "/app_files/css/battle.css",
+            "md5": "95c725e053b9933e2067bc2b513470b4"
+        },
+        {
+            "url": "/app_files/css/dashboard.css",
+            "source": "/app_files/css/dashboard.css",
+            "md5": "aabbd563c4a0157a6a7d3b5292a2338b"
+        },
+        {
+            "url": "/app_files/css/energy.css",
+            "source": "/app_files/css/energy.css",
+            "md5": "197368f457e9942b3686b3fbfc2d288f"
+        },
+        {
+            "url": "/app_files/css/global.css",
+            "source": "/app_files/css/global.css",
+            "md5": "bb42816d6c7901d23163e76321ed8d8a"
+        },
+        {
+            "url": "/app_files/css/index.css",
+            "source": "/app_files/css/index.css",
+            "md5": "52866e031f6990bc254c3730bc43d658"
+        },
+        {
+            "url": "/app_files/css/lang.css",
+            "source": "/app_files/css/lang.css",
+            "md5": "185ba015906790968075a0ae9270400f"
+        },
+        {
+            "url": "/app_files/css/pair.css",
+            "source": "/app_files/css/pair.css",
+            "md5": "6f77d3001d5f13e426b88cde8d0d342f"
+        },
+        {
+            "url": "/app_files/css/signup.css",
+            "source": "/app_files/css/signup.css",
+            "md5": "3a9c002d885580b852befabe28ae33f9"
+        },
+        {
+            "url": "/app_files/dashboard.html",
+            "source": "/app_files/dashboard.html",
+            "md5": "ac51476d9e6f69970dc7d1eb5ba158de"
+        },
+        {
+            "url": "/app_files/index.html",
+            "source": "/app_files/index.html",
+            "md5": "94c9bac8f2dda5eb29e9227adf1e3833"
+        },
+        {
+            "url": "/app_files/js/basic.js",
+            "source": "/app_files/js/basic.js",
+            "md5": "30941016f035a06cc08c0ec386c4b577"
+        },
+        {
+            "url": "/app_files/js/battle.js",
+            "source": "/app_files/js/battle.js",
+            "md5": "3d46beb25a18ff07dc19a88fa0dcd3c8"
+        },
+        {
+            "url": "/app_files/js/crypto.js",
+            "source": "/app_files/js/crypto.js",
+            "md5": "09d7ed4e01d71f6dabd2f8b50cf1072a"
+        },
+        {
+            "url": "/app_files/js/dashboard.js",
+            "source": "/app_files/js/dashboard.js",
+            "md5": "89dcd1f642b574d45f2adda897be7cc7"
+        },
+        {
+            "url": "/app_files/js/energy.js",
+            "source": "/app_files/js/energy.js",
+            "md5": "75d4e8a4f3175eeecff706467dc51850"
+        },
+        {
+            "url": "/app_files/js/index.js",
+            "source": "/app_files/js/index.js",
+            "md5": "248c0fadb99a73150f249baa7983fdcb"
+        },
+        {
+            "url": "/app_files/js/lang.js",
+            "source": "/app_files/js/lang.js",
+            "md5": "6545fee0a5bf7ccb623628408931412b"
+        },
+        {
+            "url": "/app_files/js/login.js",
+            "source": "/app_files/js/login.js",
+            "md5": "758a5fa269b9e73604a2f2f4875b502a"
+        },
+        {
+            "url": "/app_files/js/pair.js",
+            "source": "/app_files/js/pair.js",
+            "md5": "6b9b6ef3a8d3179384d4a04c6addaa2f"
+        },
+        {
+            "url": "/app_files/js/runtime.js",
+            "source": "/app_files/js/runtime.js",
+            "md5": "802814cd6aa69fd36574a1c311d3f340"
+        },
+        {
+            "url": "/app_files/js/signup.js",
+            "source": "/app_files/js/signup.js",
+            "md5": "1c09cca0d343d876d094fee240a84fe9"
+        },
+        {
+            "url": "/app_files/js/translate.js",
+            "source": "/app_files/js/translate.js",
+            "md5": "3ef2fbcca5313045d14f02e3a00eefa8"
+        },
+        {
+            "url": "/app_files/lang.html",
+            "source": "/app_files/lang.html",
+            "md5": "33babfc622ff2351836f6fdc5cc89b28"
+        },
+        {
+            "url": "/app_files/login.html",
+            "source": "/app_files/login.html",
+            "md5": "4b7acc87038c7b4049fdbf6f7da754cb"
+        },
+        {
+            "url": "/app_files/logout.html",
+            "source": "/app_files/logout.html",
+            "md5": "e0f2fb1d06dfb6ec650b18d5125555c1"
+        },
+        {
+            "url": "/app_files/music/waiting.mp3",
+            "source": "/app_files/music/waiting.mp3",
+            "md5": "ff0f3e4e93ae059e70b5567d96202c1d"
+        },
+        {
+            "url": "/app_files/pair.html",
+            "source": "/app_files/pair.html",
+            "md5": "b62c77b895fba789b957b11d3bc6e64f"
+        },
+        {
+            "url": "/app_files/return.html",
+            "source": "/app_files/return.html",
+            "md5": "ee9b901225491c471a76555420cd988f"
+        },
+        {
+            "url": "/app_files/signup.html",
+            "source": "/app_files/signup.html",
+            "md5": "6b3d93503464dad4112d0f39663e8d16"
+        },
+        {
+            "url": "/js/crypto.min.js",
+            "source": "/js/crypto.min.js",
+            "md5": "030b75f7bb089c6b313c700278c90f18"
+        },
+        {
+            "url": "/js/easytier.js",
+            "source": "/js/easytier.js",
+            "md5": "66cace77eff4f7c096f821c1f2109503"
+        },
+        {
+            "url": "/js/shell.js",
+            "source": "/js/shell.js",
+            "md5": "53f135daa59281a67dcda935c1fae7b4"
+        },
+        {
+            "url": "/maps/1.map",
+            "source": "/maps/1.map",
+            "md5": "2f9a65e201a420acc85ebe68115daf88"
+        },
+        {
+            "url": "/maps/2.map",
+            "source": "/maps/2.map",
+            "md5": "42933444f87244bfdc60b6b8d906bdea"
+        },
+        {
+            "url": "/maps/air.map",
+            "source": "/maps/air.map",
+            "md5": "5fba4714e728049fcbc18916f7396689"
+        },
+        {
+            "url": "/maps/index.json",
+            "source": "/maps/index.json",
+            "md5": "e2383b06903d3ef8c8e67f718c37dc77"
+        },
+        {
+            "url": "/sw.js",
+            "source": "/sw.js",
+            "md5": "d16a36e29cb420b126d288da881ea9fe"
+        }
+    ]
+}

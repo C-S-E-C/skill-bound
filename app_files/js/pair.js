@@ -2,9 +2,6 @@
    Pair/Battle Page Script
    ============================================ */
 
-using("/js/easytier.js");
-using("/js/crypto.js");
-
 const music = document.getElementById("background-music");
 music.currentTime = sessionStorage.getItem("bgmtime") || 0;
 music.play().catch(() => {});
@@ -787,22 +784,6 @@ document.addEventListener("DOMContentLoaded", function () {
         pairingHandler.hostStartBattle(),
     );
 });
-
-(async () => {
-    const cache = await caches.open("cache");
-    const cachedFiles = [
-        "images/block.webp",
-        "images/bushes.webp",
-        "images/ground.webp",
-        "images/water.webp",
-        "images/skins.png",
-        "images/skills.png",
-    ];
-
-    for (const file of cachedFiles) {
-        if (!(await cache.match(file))) await cache.add(file);
-    }
-})();
 
 pairingHandler.connectET().catch((error) => {
     console.error("Failed to connect EasyTier:", error);

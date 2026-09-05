@@ -1,3 +1,4 @@
 *.zip
 images/effects.backup/
 server.bat
+flist.py
