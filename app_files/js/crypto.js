@@ -1,4 +1,4 @@
-    /**
+/**
  * TOTP (Time-based One-Time Password) 纯前端实现
  * 遵循 RFC 6238 标准
  */
