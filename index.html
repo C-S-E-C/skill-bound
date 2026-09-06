@@ -168,7 +168,7 @@
             await navigator.serviceWorker.register("/sw.js", { scope: "/" });
             await navigator.serviceWorker.ready;
             progress.value = 0;
-            frame.src = new URL("/app_files/index.html", location.href).href;
+            frame.src = "/app_files/index.html";//new URL("/app_files/index.html", location.href).href;
             frame.hidden = false;
             status.hidden = true;
         })().catch((error) => {
