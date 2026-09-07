@@ -1,5 +1,7 @@
 *.zip
 images/effects.backup/
-server.bat
+*.bat
+*.py
 flist.py
-md5.py
+lfify.py
+md5check.py
