@@ -17,12 +17,12 @@
     </audio>
 
     <main id="screen1">
-        <h1>Select Battlefield</h1>
+        <h1 id="select-battlefield">Select Battlefield</h1>
         <div class="selection-group">
             <select id="map-choice"></select>
         </div>
 
-        <h1>Battle Mode</h1>
+        <h1 id="battle-mode">Battle Mode</h1>
         <div class="selection-group">
             <select id="mode-choice">
                 <option value="1">1 VS 1</option>
@@ -32,7 +32,7 @@
             </select>
         </div>
 
-        <h1>Team Mode</h1>
+        <h1 id="team-mode">Team Mode</h1>
         <div class="selection-group">
             <select id="team-mode-choice">
                 <option value="random">RANDOM</option>
@@ -49,7 +49,7 @@
     </main>
 
     <main id="screen2">
-        <h1 id="status-text-screen2"><span id="loading-animation"></span>Waiting for players...</h1>
+        <h1 id="status-text-screen2"><span id="loading-animation"></span><span id="waiting-for-players">Waiting for players...</span></h1>
         <section id="connected-players">
             <div class="player-row">
                 <span class="player-status"></span>
@@ -71,7 +71,7 @@
     </main>
 
     <main id="screen3">
-        <h1 id="status-text-screen3">Please choose your team</h1>
+        <h1 id="status-text-screen3"><span id="choose-team">Please choose your team</span></h1>
         <br/>
         <div id="people">
             <div id="our-team" class="team-container ours"></div>

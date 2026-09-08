@@ -16,13 +16,11 @@ async function changeLanguage(lang) {
     document.getElementById("continue").style.display = "block";
 
     if (lang !== "en_us") {
-        try {
-            const cache = await caches.open("app_files");
-            const url = "/lang/" + lang + ".json";
-            if (!(await cache.match(url))) await cache.add(url);
-        } catch (error) {
-            console.error("Failed to cache selected language:", error);
-        }
+        const url = "/lang/" + lang + ".css";
+        const stylesheet = document.createElement("link");
+        stylesheet.rel = "stylesheet";
+        stylesheet.href = url;
+        document.head.appendChild(stylesheet);
     }
 }
 

@@ -1,10 +1,10 @@
 {
-    "requiredBytes": 7515611,
+    "requiredBytes": 7515268,
     "files": [
         {
             "url": "/app_files/battle.html",
             "source": "/app_files/battle.html",
-            "md5": "0b1560ecbc6ff5d75b83d630e24ccad7"
+            "md5": "7041c82f6843dac07122df1a6e7dc298"
         },
         {
             "url": "/app_files/css/battle.css",
@@ -49,12 +49,12 @@
         {
             "url": "/app_files/dashboard.html",
             "source": "/app_files/dashboard.html",
-            "md5": "ac51476d9e6f69970dc7d1eb5ba158de"
+            "md5": "3dbff893c1650f2901f430f603fa3fc5"
         },
         {
             "url": "/app_files/index.html",
             "source": "/app_files/index.html",
-            "md5": "94c9bac8f2dda5eb29e9227adf1e3833"
+            "md5": "cae39d96516ae0b31cb9e976edeab50f"
         },
         {
             "url": "/app_files/js/basic.js",
@@ -89,7 +89,7 @@
         {
             "url": "/app_files/js/lang.js",
             "source": "/app_files/js/lang.js",
-            "md5": "6545fee0a5bf7ccb623628408931412b"
+            "md5": "9a84e009a2466fd21625216016ff4b2f"
         },
         {
             "url": "/app_files/js/login.js",
@@ -114,7 +114,7 @@
         {
             "url": "/app_files/js/translate.js",
             "source": "/app_files/js/translate.js",
-            "md5": "3ef2fbcca5313045d14f02e3a00eefa8"
+            "md5": "8d40e574aa4c32d8d84dcee2015a2ab4"
         },
         {
             "url": "/app_files/lang.html",
@@ -124,7 +124,7 @@
         {
             "url": "/app_files/login.html",
             "source": "/app_files/login.html",
-            "md5": "4b7acc87038c7b4049fdbf6f7da754cb"
+            "md5": "576fa3d52070236f6c582ef86dad24ce"
         },
         {
             "url": "/app_files/logout.html",
@@ -139,7 +139,7 @@
         {
             "url": "/app_files/pair.html",
             "source": "/app_files/pair.html",
-            "md5": "b62c77b895fba789b957b11d3bc6e64f"
+            "md5": "a516703237f2615c2ae5259087f737fd"
         },
         {
             "url": "/app_files/return.html",
@@ -149,7 +149,7 @@
         {
             "url": "/app_files/signup.html",
             "source": "/app_files/signup.html",
-            "md5": "6b3d93503464dad4112d0f39663e8d16"
+            "md5": "ae7bec9ab21a91da843128a5fc76332d"
         },
         {
             "url": "/js/crypto.min.js",
