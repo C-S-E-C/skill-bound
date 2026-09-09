@@ -1,5 +1,5 @@
 {
-    "requiredBytes": 7515591,
+    "requiredBytes": 7516570,
     "files": [
         {
             "url": "/app_files/battle.html",
@@ -139,7 +139,7 @@
         {
             "url": "/app_files/pair.html",
             "source": "/app_files/pair.html",
-            "md5": "289edfddc16ba55d3ac5b6f8df150b31"
+            "md5": "40845812f14892d8b8b18b9bb66bfb08"
         },
         {
             "url": "/app_files/return.html",
@@ -164,7 +164,7 @@
         {
             "url": "/js/shell.js",
             "source": "/js/shell.js",
-            "md5": "53f135daa59281a67dcda935c1fae7b4"
+            "md5": "68b8561d279ae2ed4314b3e3413c03fd"
         },
         {
             "url": "/maps/1.map",

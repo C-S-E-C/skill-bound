@@ -871,14 +871,39 @@
         }
     }
 
-    document.addEventListener("keydown", (event) => {
-        if (event.defaultPrevented || event.repeat) return;
-        if (event.key !== "`" && event.code !== "Backquote") return;
+    function handleShellShortcut(event) {
+        if (event.repeat) return;
+        if (event.key !== "`" && event.key !== "~" && event.code !== "Backquote") return;
         event.preventDefault();
+        event.stopPropagation();
         open().catch((error) => {
             console.error("Failed to open shell:", error);
         });
-    });
+    }
+
+    function bindShellShortcut(doc) {
+        if (!doc || doc.__shellShortcutBound) return;
+        doc.__shellShortcutBound = true;
+        doc.addEventListener("keydown", handleShellShortcut, true);
+        if (doc.defaultView) {
+            doc.defaultView.addEventListener("keydown", handleShellShortcut, true);
+        }
+    }
+
+    function bindAppFrameShortcut() {
+        const appFrame = document.getElementById("app-frame");
+        if (!appFrame || appFrame.__shellShortcutLoadBound) return;
+        appFrame.__shellShortcutLoadBound = true;
+        appFrame.addEventListener("load", () => bindShellShortcut(appFrame.contentDocument));
+        bindShellShortcut(appFrame.contentDocument);
+    }
+
+    bindShellShortcut(document);
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", bindAppFrameShortcut, { once: true });
+    } else {
+        bindAppFrameShortcut();
+    }
 
     startRuntimeHooks();
 
