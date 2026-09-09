@@ -1,5 +1,5 @@
 {
-    "requiredBytes": 7516570,
+    "requiredBytes": 7516571,
     "files": [
         {
             "url": "/app_files/battle.html",
@@ -99,7 +99,7 @@
         {
             "url": "/app_files/js/pair.js",
             "source": "/app_files/js/pair.js",
-            "md5": "6b9b6ef3a8d3179384d4a04c6addaa2f"
+            "md5": "805a932b23c8b7860826a28f9213fc42"
         },
         {
             "url": "/app_files/js/runtime.js",

@@ -21,7 +21,7 @@ const PACKET_TYPES = {
     TeamChange: 7,
 };
 
-fetch("maps/index.json")
+fetch("/maps/index.json")
     .then((response) => response.json())
     .then((maps) => {
         const mapSelect = document.getElementById("map-choice");
