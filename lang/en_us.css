@@ -1,0 +1,46 @@
+/* This part is for you to wrrite down your name,you can add some styles for your name */
+.translate\.translator-name::before { content: "VFD9654"; }
+/* the part below is translation */
+.translate\.syntropica-presents::before { content: "Syntropica Presents"; }
+.translate\.warning-title::before { content: "WARNING"; }
+.translate\.photosensitive-warning::before { content: "This game may cause photosensitive reactions. Please ensure you are in a well-lit environment while playing."; }
+.translate\.start-game::before { content: "Start Game"; }
+.translate\.skill-bound-title::before { content: "SKILL BOUND"; }
+.translate\.continue-prompt::before { content: ">   Press anywhere to continue   <"; }
+.translate\.map::before { content: "Map"; }
+.translate\.fight::before { content: "Fight!"; }
+.translate\.sign-up::before { content: "Sign Up"; }
+.translate\.select-battlefield::before { content: "Select Battlefield"; }
+.translate\.battle-mode::before { content: "Battle Mode";}
+.translate\.team-mode::before { content: "Team Mode";}
+.translate\.random::before { content: "RANDOM";}
+.translate\.manual::before { content: "MANUAL"; }
+.translate\.1vs1::before { content: "1 VS 1";}
+.translate\.2vs2::before { content: "2 VS 2";}
+.translate\.3vs3::before { content: "3 VS 3";}
+.translate\.4vs4::before { content: "4 VS 4";}
+.translate\.session-label::before { content: "Session: "; }
+.translate\.connection-state::before { content: "Connecting..."; }
+.translate\.move-help::before { content: "Move: WASD / Arrow Keys"; }
+.translate\.start-fight::before { content: "START FIGHT"; }
+.translate\.new-room::before { content: "NEW ROOM"; }
+.translate\.join-room::before { content: "JOIN ROOM"; }
+.translate\.room-code::placeholder { content: "ROOM CODE"; }
+.translate\.waiting-for-players::before { content: "Waiting for players..."; }
+.translate\.choose-team::before { content: "Please choose your team"; }
+.translate\.start-battle::before { content: "START"; }
+.translate\.create-room::before { content: "CREATE ROOM"; }
+.translate\.username::placeholder { content: "Username"; }
+.translate\.choose-language::before { content: "Choose your language!"; }
+.translate\.language-search::placeholder { content: "Search for a language"; }
+.translate\.continue::before { content: "Continue"; }
+.translate\.javascript-required::before { content: "JavaScript is required to run this application."; }
+.translate\.loading-text::before { content: "Loading..."; }
+.translate\.you::before { content: "YOU"; }
+.translate\.vs::before { content: "VS"; }
+.translate\.player-1::before { content: "PLAYER 1"; }
+.translate\.player-2::before { content: "PLAYER 2"; }
+.translate\.player-3::before { content: "PLAYER 3"; }
+.translate\.player-4::before { content: "PLAYER 4"; }
+.translate\.return-title::before { content: "SKILLBOUND WILL RETURN"; }
+.translate\.return-message::before { content: "After careful consideration, we have decided to refactor the data transfer and caching code. SKILLBOUND will be unavailable during this time."; }

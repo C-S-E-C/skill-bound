@@ -17,69 +17,69 @@
     </audio>
 
     <main id="screen1">
-        <h1 id="select-battlefield">Select Battlefield</h1>
+        <h1 id="select-battlefield" class="translate.select-battlefield"></h1>
         <div class="selection-group">
             <select id="map-choice"></select>
         </div>
 
-        <h1 id="battle-mode">Battle Mode</h1>
+        <h1 id="battle-mode" class="translate.battle-mode"></h1>
         <div class="selection-group">
             <select id="mode-choice">
-                <option value="1">1 VS 1</option>
-                <option value="2">2 VS 2</option>
-                <option value="3">3 VS 3</option>
-                <option value="4">4 VS 4</option>
+                <option value="1" class="translate.1vs1"></option>
+                <option value="2" class="translate.2vs2"></option>
+                <option value="3" class="translate.3vs3"></option>
+                <option value="4" class="translate.4vs4"></option>
             </select>
         </div>
 
-        <h1 id="team-mode">Team Mode</h1>
+        <h1 id="team-mode" class="translate.team-mode"></h1>
         <div class="selection-group">
             <select id="team-mode-choice">
-                <option value="random">RANDOM</option>
-                <option value="manual">MANUAL</option>
+                <option value="random" class="translate.random"></option>
+                <option value="manual" class="translate.manual"></option>
             </select>
         </div>
 
-        <button id="start-fight">START FIGHT</button>
-        <button id="new-room">NEW ROOM</button>
+        <button id="start-fight" class="translate.start-fight"></button>
+        <button id="new-room" class="translate.new-room"></button>
         <div class="join-room">
-            <input id="room-code" type="text" inputmode="text" autocomplete="off" placeholder="ROOM CODE">
-            <button id="join-room">JOIN ROOM</button>
+            <input id="room-code" type="text" inputmode="text" autocomplete="off" class="translate.room-code" placeholder="">
+            <button id="join-room" class="translate.join-room"></button>
         </div>
     </main>
 
     <main id="screen2">
-        <h1 id="status-text-screen2"><span id="loading-animation"></span><span id="waiting-for-players">Waiting for players...</span></h1>
+        <h1 id="status-text-screen2"><span id="loading-animation"></span><span id="waiting-for-players" class="translate.waiting-for-players"></span></h1>
         <section id="connected-players">
             <div class="player-row">
                 <span class="player-status"></span>
-                <span class="player-name">PLAYER 1</span>
+                <span class="player-name translate.player-1"></span>
             </div>
             <div class="player-row">
                 <span class="player-status"></span>
-                <span class="player-name">PLAYER 2</span>
+                <span class="player-name translate.player-2"></span>
             </div>
             <div class="player-row">
                 <span class="player-status"></span>
-                <span class="player-name">PLAYER 3</span>
+                <span class="player-name translate.player-3"></span>
             </div>
             <div class="player-row">
                 <span class="player-status"></span>
-                <span class="player-name">PLAYER 4</span>
+                <span class="player-name translate.player-4"></span>
             </div>
         </section>
     </main>
 
     <main id="screen3">
-        <h1 id="status-text-screen3"><span id="choose-team">Please choose your team</span></h1>
+        <h1 id="status-text-screen3"><span id="choose-team" class="translate.choose-team"></span></h1>
         <br/>
         <div id="people">
             <div id="our-team" class="team-container ours"></div>
-            <div class="vs-text">VS</div>
+            <div class="vs-text translate.vs"></div>
             <div id="opponent-team" class="team-container opponent"></div>
         </div>
-        <button id="start-battle" style="margin-top:30px; font-size: 1rem; padding: 10px 30px;" disabled>START</button>
-        <button id="create-room" style="margin-top:30px; font-size: 1rem; padding: 10px 30px;" disabled>CREATE ROOM</button>
+        <button id="start-battle" class="translate.start-battle" style="margin-top:30px; font-size: 1rem; padding: 10px 30px;" disabled></button>
+        <button id="create-room" class="translate.create-room" style="margin-top:30px; font-size: 1rem; padding: 10px 30px;" disabled></button>
     </main>
 
     <!-- Page-specific script -->

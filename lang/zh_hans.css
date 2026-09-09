@@ -1,0 +1,46 @@
+/* 这部分是让你写下你的名字，你可以为你的名字添加一些样式 */
+.translate\.translator-name::before { content: "VFD9654"; }
+/* 下面是翻译内容 */
+.translate\.syntropica-presents::before { content: "负熵工作室出品"; }
+.translate\.warning-title::before { content: "警告"; }
+.translate\.photosensitive-warning::before { content: "本游戏可能引发光敏性反应，请确保在光线充足的环境下游玩。"; }
+.translate\.start-game::before { content: "开始游戏"; }
+.translate\.skill-bound-title::before { content: "绝技夺魁"; }
+.translate\.continue-prompt::before { content: ">   点击任意位置继续   <"; }
+.translate\.map::before { content: "地图"; }
+.translate\.fight::before { content: "战斗！"; }
+.translate\.sign-up::before { content: "注册"; }
+.translate\.select-battlefield::before { content: "选择战场"; }
+.translate\.battle-mode::before { content: "对战模式";}
+.translate\.team-mode::before { content: "团队模式";}
+.translate\.random::before { content: "随机";}
+.translate\.manual::before { content: "手动"; }
+.translate\.1vs1::before { content: "1 VS 1";}
+.translate\.2vs2::before { content: "2 VS 2";}
+.translate\.3vs3::before { content: "3 VS 3";}
+.translate\.4vs4::before { content: "4 VS 4";}
+.translate\.session-label::before { content: "会话："; }
+.translate\.connection-state::before { content: "连接中..."; }
+.translate\.move-help::before { content: "移动：WASD / 方向键"; }
+.translate\.start-fight::before { content: "开始战斗"; }
+.translate\.new-room::before { content: "新建房间"; }
+.translate\.join-room::before { content: "加入房间"; }
+.translate\.room-code::placeholder { content: "房间码"; }
+.translate\.waiting-for-players::before { content: "等待玩家加入..."; }
+.translate\.choose-team::before { content: "请选择你的队伍"; }
+.translate\.start-battle::before { content: "开始"; }
+.translate\.create-room::before { content: "创建房间"; }
+.translate\.username::placeholder { content: "用户名"; }
+.translate\.choose-language::before { content: "选择你的语言！"; }
+.translate\.language-search::placeholder { content: "搜索语言"; }
+.translate\.continue::before { content: "继续"; }
+.translate\.javascript-required::before { content: "运行此应用程序需要 JavaScript。"; }
+.translate\.loading-text::before { content: "加载中..."; }
+.translate\.you::before { content: "你"; }
+.translate\.vs::before { content: "VS"; }
+.translate\.player-1::before { content: "玩家 1"; }
+.translate\.player-2::before { content: "玩家 2"; }
+.translate\.player-3::before { content: "玩家 3"; }
+.translate\.player-4::before { content: "玩家 4"; }
+.translate\.return-title::before { content: "绝技夺魁 将回归"; }
+.translate\.return-message::before { content: "经过慎重考虑，我们决定重构数据传输和缓存代码。绝技夺魁在此期间将暂时不可用。"; }

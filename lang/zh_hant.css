@@ -1,0 +1,46 @@
+/* 這部分是讓你寫下你的名字，你可以為你的名字添加一些樣式 */
+.translate\.translator-name::before { content: "VFD9654"; }
+/* 下面是翻譯內容 */
+.translate\.syntropica-presents::before { content: "負熵工作室出品"; }
+.translate\.warning-title::before { content: "警告"; }
+.translate\.photosensitive-warning::before { content: "本遊戲可能引發光敏性反應，請確保在光線充足的環境下遊玩。"; }
+.translate\.start-game::before { content: "開始遊戲"; }
+.translate\.skill-bound-title::before { content: "絕技奪魁"; }
+.translate\.continue-prompt::before { content: ">   點擊任意位置繼續   <"; }
+.translate\.map::before { content: "地圖"; }
+.translate\.fight::before { content: "戰鬥！"; }
+.translate\.sign-up::before { content: "註冊"; }
+.translate\.select-battlefield::before { content: "選擇戰場"; }
+.translate\.battle-mode::before { content: "對戰模式";}
+.translate\.team-mode::before { content: "團隊模式";}
+.translate\.random::before { content: "隨機";}
+.translate\.manual::before { content: "手動"; }
+.translate\.1vs1::before { content: "1 VS 1";}
+.translate\.2vs2::before { content: "2 VS 2";}
+.translate\.3vs3::before { content: "3 VS 3";}
+.translate\.4vs4::before { content: "4 VS 4";}
+.translate\.session-label::before { content: "會話："; }
+.translate\.connection-state::before { content: "連線中..."; }
+.translate\.move-help::before { content: "移動：WASD / 方向鍵"; }
+.translate\.start-fight::before { content: "開始戰鬥"; }
+.translate\.new-room::before { content: "新建房間"; }
+.translate\.join-room::before { content: "加入房間"; }
+.translate\.room-code::placeholder { content: "房間碼"; }
+.translate\.waiting-for-players::before { content: "等待玩家加入..."; }
+.translate\.choose-team::before { content: "請選擇你的隊伍"; }
+.translate\.start-battle::before { content: "開始"; }
+.translate\.create-room::before { content: "創建房間"; }
+.translate\.username::placeholder { content: "使用者名稱"; }
+.translate\.choose-language::before { content: "選擇你的語言！"; }
+.translate\.language-search::placeholder { content: "搜尋語言"; }
+.translate\.continue::before { content: "繼續"; }
+.translate\.javascript-required::before { content: "執行此應用程式需要 JavaScript。"; }
+.translate\.loading-text::before { content: "載入中..."; }
+.translate\.you::before { content: "你"; }
+.translate\.vs::before { content: "VS"; }
+.translate\.player-1::before { content: "玩家 1"; }
+.translate\.player-2::before { content: "玩家 2"; }
+.translate\.player-3::before { content: "玩家 3"; }
+.translate\.player-4::before { content: "玩家 4"; }
+.translate\.return-title::before { content: "絕技奪魁 將回歸"; }
+.translate\.return-message::before { content: "經過審慎考慮，我們決定重構資料傳輸和快取程式碼。絕技奪魁在此期間將暫時無法使用。"; }

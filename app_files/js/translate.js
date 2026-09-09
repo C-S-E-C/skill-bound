@@ -6,7 +6,6 @@
         return;
     }
 
-    if (language === "en_us") return;
 
     const stylesheet = document.createElement("link");
     stylesheet.rel = "stylesheet";

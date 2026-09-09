@@ -66,7 +66,7 @@ setInterval(function () {
 }, 50);
 
 // Load WebSocket server configuration
-fetch("dynamic.json")
+fetch("/dynamic.json")
     .then((response) => response.json())
     .then((data) => {
         sessionStorage.setItem("ETServer", data.ETSever);

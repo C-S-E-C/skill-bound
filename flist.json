@@ -1,5 +1,5 @@
 {
-    "requiredBytes": 7515268,
+    "requiredBytes": 7515136,
     "files": [
         {
             "url": "/app_files/battle.html",
@@ -49,12 +49,12 @@
         {
             "url": "/app_files/dashboard.html",
             "source": "/app_files/dashboard.html",
-            "md5": "3dbff893c1650f2901f430f603fa3fc5"
+            "md5": "52997ebd2eb4fa3a300b23eca377dfa1"
         },
         {
             "url": "/app_files/index.html",
             "source": "/app_files/index.html",
-            "md5": "cae39d96516ae0b31cb9e976edeab50f"
+            "md5": "3660820e5698d754fb862ebdd95ffb07"
         },
         {
             "url": "/app_files/js/basic.js",
@@ -84,7 +84,7 @@
         {
             "url": "/app_files/js/index.js",
             "source": "/app_files/js/index.js",
-            "md5": "248c0fadb99a73150f249baa7983fdcb"
+            "md5": "fb70d4009128bbd7a3fb91393bbebfe7"
         },
         {
             "url": "/app_files/js/lang.js",
@@ -114,7 +114,7 @@
         {
             "url": "/app_files/js/translate.js",
             "source": "/app_files/js/translate.js",
-            "md5": "8d40e574aa4c32d8d84dcee2015a2ab4"
+            "md5": "3410b1dc51622473655bc19cfd61b05f"
         },
         {
             "url": "/app_files/lang.html",
@@ -124,7 +124,7 @@
         {
             "url": "/app_files/login.html",
             "source": "/app_files/login.html",
-            "md5": "576fa3d52070236f6c582ef86dad24ce"
+            "md5": "cf0b817f1c2a9daaff6317497478d2c2"
         },
         {
             "url": "/app_files/logout.html",
@@ -139,7 +139,7 @@
         {
             "url": "/app_files/pair.html",
             "source": "/app_files/pair.html",
-            "md5": "a516703237f2615c2ae5259087f737fd"
+            "md5": "97f3e7534a58f3ea21471732770aac85"
         },
         {
             "url": "/app_files/return.html",
@@ -149,7 +149,7 @@
         {
             "url": "/app_files/signup.html",
             "source": "/app_files/signup.html",
-            "md5": "ae7bec9ab21a91da843128a5fc76332d"
+            "md5": "5d09a364953654bbecaddf27d2539ea4"
         },
         {
             "url": "/js/crypto.min.js",
