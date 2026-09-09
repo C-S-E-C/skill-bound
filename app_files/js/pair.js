@@ -172,29 +172,50 @@ class PairingHandlerClass {
         this.packetUnsubscribe = null;
         this.peerSyncTimer = null;
         this.publicScanBusy = false;
+        this.connectingPromise = null;
+        this.pairingPromise = null;
     }
 
     async connectET() {
         while (typeof easytier === "undefined") await sleep(50);
-        if (this.etconnected && easytier.status().connected) return;
 
-        await easytier.connect(
-            location.protocol === "https:" ? "wss" : "ws",
-            localStorage.getItem("etserver") || "cn-sh-0.s.syntropica.top",
-            location.protocol === "https:" ? 11012 : 11011,
-            "skillbound",
-            "",
-        );
+        const finishConnection = () => {
+            this.etconnected = true;
+            if (!this.packetUnsubscribe) {
+                this.packetUnsubscribe = easytier.on("packet", (packet) =>
+                    this.handlePacket(packet),
+                );
+                easytier.on("peer-observed", () => this.syncObservedPeers());
+            }
+        };
 
-        while (!easytier.status().connected) await sleep(100);
-        this.etconnected = true;
-
-        if (!this.packetUnsubscribe) {
-            this.packetUnsubscribe = easytier.on("packet", (packet) =>
-                this.handlePacket(packet),
-            );
-            easytier.on("peer-observed", () => this.syncObservedPeers());
+        if (easytier.status().connected) {
+            finishConnection();
+            return;
         }
+
+        if (!this.connectingPromise) {
+            this.connectingPromise = (async () => {
+                try {
+                    await easytier.connect(
+                        location.protocol === "https:" ? "wss" : "ws",
+                        localStorage.getItem("etserver") || "cn-sh-0.s.syntropica.top",
+                        location.protocol === "https:" ? 11012 : 11011,
+                        "skillbound",
+                        "",
+                    );
+                } catch (error) {
+                    if (!easytier.status().connected) throw error;
+                }
+
+                while (!easytier.status().connected) await sleep(100);
+            })().finally(() => {
+                this.connectingPromise = null;
+            });
+        }
+
+        await this.connectingPromise;
+        finishConnection();
     }
 
     async getPairEls() {
@@ -272,6 +293,14 @@ class PairingHandlerClass {
     }
 
     async startPairing(isPrivate) {
+        if (this.pairingPromise) return this.pairingPromise;
+        this.pairingPromise = this.startPairingInternal(isPrivate).finally(() => {
+            this.pairingPromise = null;
+        });
+        return this.pairingPromise;
+    }
+
+    async startPairingInternal(isPrivate) {
         const pairEls = await this.getPairEls();
         await this.connectET();
 
@@ -770,14 +799,23 @@ document.addEventListener("DOMContentLoaded", function () {
     const roomCodeInput = document.getElementById("room-code");
     const startBattleBtn = document.getElementById("start-battle");
 
-    startFightBtn?.addEventListener("click", () => pairingHandler.publicPair());
-    newRoomBtn?.addEventListener("click", () => pairingHandler.privatePair());
+    function reportPairingError(error) {
+        console.error("Pairing failed:", error);
+        pairingHandler.setStatus(error?.message || "Pairing failed.");
+    }
+
+    startFightBtn?.addEventListener("click", () =>
+        pairingHandler.publicPair().catch(reportPairingError),
+    );
+    newRoomBtn?.addEventListener("click", () =>
+        pairingHandler.privatePair().catch(reportPairingError),
+    );
     joinRoomBtn?.addEventListener("click", () =>
-        pairingHandler.joinPrivateRoom(roomCodeInput.value),
+        pairingHandler.joinPrivateRoom(roomCodeInput.value).catch(reportPairingError),
     );
     roomCodeInput?.addEventListener("keydown", (event) => {
         if (event.key === "Enter") {
-            pairingHandler.joinPrivateRoom(roomCodeInput.value);
+            pairingHandler.joinPrivateRoom(roomCodeInput.value).catch(reportPairingError);
         }
     });
     startBattleBtn?.addEventListener("click", () =>
