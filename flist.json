@@ -1,10 +1,10 @@
 {
-    "requiredBytes": 7515136,
+    "requiredBytes": 7515591,
     "files": [
         {
             "url": "/app_files/battle.html",
             "source": "/app_files/battle.html",
-            "md5": "7041c82f6843dac07122df1a6e7dc298"
+            "md5": "f3393a6a569b7afd004ba28967f6131e"
         },
         {
             "url": "/app_files/css/battle.css",
@@ -54,7 +54,7 @@
         {
             "url": "/app_files/index.html",
             "source": "/app_files/index.html",
-            "md5": "3660820e5698d754fb862ebdd95ffb07"
+            "md5": "430e08c2f49bef1675cac2b602133b3c"
         },
         {
             "url": "/app_files/js/basic.js",
@@ -119,12 +119,12 @@
         {
             "url": "/app_files/lang.html",
             "source": "/app_files/lang.html",
-            "md5": "33babfc622ff2351836f6fdc5cc89b28"
+            "md5": "cf693b6380573acd1157355c31c27cec"
         },
         {
             "url": "/app_files/login.html",
             "source": "/app_files/login.html",
-            "md5": "cf0b817f1c2a9daaff6317497478d2c2"
+            "md5": "b01e8b392d304d11495c10ac15682aca"
         },
         {
             "url": "/app_files/logout.html",
@@ -139,17 +139,17 @@
         {
             "url": "/app_files/pair.html",
             "source": "/app_files/pair.html",
-            "md5": "97f3e7534a58f3ea21471732770aac85"
+            "md5": "289edfddc16ba55d3ac5b6f8df150b31"
         },
         {
             "url": "/app_files/return.html",
             "source": "/app_files/return.html",
-            "md5": "ee9b901225491c471a76555420cd988f"
+            "md5": "2079933758ca272e76c0712df9791436"
         },
         {
             "url": "/app_files/signup.html",
             "source": "/app_files/signup.html",
-            "md5": "5d09a364953654bbecaddf27d2539ea4"
+            "md5": "a73f1c8d50f29d60f5e490c0ff475dd7"
         },
         {
             "url": "/js/crypto.min.js",
