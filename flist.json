@@ -1,10 +1,10 @@
 {
-    "requiredBytes": 7517843,
+    "requiredBytes": 7519139,
     "files": [
         {
             "url": "/app_files/battle.html",
             "source": "/app_files/battle.html",
-            "md5": "f3393a6a569b7afd004ba28967f6131e"
+            "md5": "4e1ecbbac96110147377beb4027ccfaf"
         },
         {
             "url": "/app_files/css/battle.css",
@@ -64,7 +64,12 @@
         {
             "url": "/app_files/js/battle.js",
             "source": "/app_files/js/battle.js",
-            "md5": "3d46beb25a18ff07dc19a88fa0dcd3c8"
+            "md5": "a719be5751c81c2118b616ec0b43cff8"
+        },
+        {
+            "url": "/app_files/js/battle-render.js",
+            "source": "/app_files/js/battle-render.js",
+            "md5": "3b991de8752bfcf33379be93b3255394"
         },
         {
             "url": "/app_files/js/crypto.js",
