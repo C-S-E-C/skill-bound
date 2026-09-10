@@ -1,5 +1,5 @@
 {
-    "requiredBytes": 7519139,
+    "requiredBytes": 7519986,
     "files": [
         {
             "url": "/app_files/battle.html",
@@ -64,12 +64,12 @@
         {
             "url": "/app_files/js/battle.js",
             "source": "/app_files/js/battle.js",
-            "md5": "a719be5751c81c2118b616ec0b43cff8"
+            "md5": "4fdc7ea818c27f87a8dcad17e3711607"
         },
         {
             "url": "/app_files/js/battle-render.js",
             "source": "/app_files/js/battle-render.js",
-            "md5": "3b991de8752bfcf33379be93b3255394"
+            "md5": "c0aa462083c868f7e5aa89d3ec8ac1f2"
         },
         {
             "url": "/app_files/js/crypto.js",
@@ -104,7 +104,7 @@
         {
             "url": "/app_files/js/pair.js",
             "source": "/app_files/js/pair.js",
-            "md5": "c160f64a36386b5563a9a9d71873acb8"
+            "md5": "94649c1f14f538e9ab7ce7e0fdd55cf7"
         },
         {
             "url": "/app_files/js/runtime.js",
@@ -190,6 +190,26 @@
             "url": "/maps/index.json",
             "source": "/maps/index.json",
             "md5": "e2383b06903d3ef8c8e67f718c37dc77"
+        },
+        {
+            "url": "/images/ground.webp",
+            "source": "/images/ground.webp",
+            "md5": "a029fcff2e2fdb8febede99263103e5a"
+        },
+        {
+            "url": "/images/bushes.webp",
+            "source": "/images/bushes.webp",
+            "md5": "0cdafe59c46800e5231ee88a1ffd4e58"
+        },
+        {
+            "url": "/images/water.webp",
+            "source": "/images/water.webp",
+            "md5": "6c0b6c19f11b6ac9379b014ea50a80fc"
+        },
+        {
+            "url": "/images/block.webp",
+            "source": "/images/block.webp",
+            "md5": "3443dcbb159d95fce4a750bce85e3127"
         },
         {
             "url": "/sw.js",

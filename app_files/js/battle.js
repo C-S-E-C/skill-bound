@@ -18,16 +18,17 @@ const PLAYER_HITBOX_RADIUS_SQUARED =
 const BLOCK_TILE = "B";
 const BATTLE_PROTOCOL = "skillbound.battle.v1";
 const TILE_IMAGES = {
-    A: "images/ground.webp",
-    G: "images/bushes.webp",
-    W: "images/water.webp",
-    B: "images/block.webp",
+    A: "/images/ground.webp",
+    G: "/images/bushes.webp",
+    W: "/images/water.webp",
+    B: "/images/block.webp",
 };
 const tileSpriteCache = new Map();
 
 let rtcReady = false;
 let rtcExpectedPeerIds = [];
 let easyTierHandoffComplete = false;
+const webrtcReadyPeers = new Set();
 let battlePeerIds = [];
 let battlePlayers = [];
 let myId = null;
@@ -183,6 +184,7 @@ async function connectBattleWebRTC() {
         rtcReady = true;
         setStatus("WebRTC connected");
         log("WebRTC open: " + peer.peerId);
+        battleSend({ type: "webrtc_ready", peerId: localPeerId }, peer.peerId);
         battleSend({ type: "match_joined", state: buildGameState() }, peer.peerId);
         finishEasyTierHandoff();
     });
@@ -230,11 +232,17 @@ async function connectBattleWebRTC() {
 function finishEasyTierHandoff() {
     if (easyTierHandoffComplete || !rtcExpectedPeerIds.length) return;
     const openPeerIds = easytierWebRTC.status().openPeerIds.map(Number);
-    const allPeersReady = rtcExpectedPeerIds.every((peerId) =>
+    const allChannelsOpen = rtcExpectedPeerIds.every((peerId) =>
         openPeerIds.includes(Number(peerId)),
     );
-    if (!allPeersReady) {
-        setStatus(`WebRTC ${openPeerIds.length}/${rtcExpectedPeerIds.length} connected`);
+    const allPeersConfirmed = rtcExpectedPeerIds.every((peerId) =>
+        webrtcReadyPeers.has(Number(peerId)),
+    );
+    if (!allChannelsOpen || !allPeersConfirmed) {
+        setStatus(
+            `WebRTC ${openPeerIds.length}/${rtcExpectedPeerIds.length} open, ` +
+            `${webrtcReadyPeers.size}/${rtcExpectedPeerIds.length} confirmed`,
+        );
         return;
     }
 
@@ -242,7 +250,7 @@ function finishEasyTierHandoff() {
     rtcReady = true;
     dom.startGame.disabled = false;
     setStatus("WebRTC ready");
-    log("WebRTC ready; disconnecting EasyTier signaling.");
+    log("WebRTC ready on both sides; disconnecting EasyTier signaling.");
     easytier.disconnect(1000, "WebRTC handoff complete");
 }
 
@@ -369,6 +377,16 @@ function handleMessage(msg) {
             dom.selfName.textContent = msg.private.name;
         }
         log("Match joined.");
+        return;
+    }
+
+    if (msg.type === "webrtc_ready") {
+        const peerId = Number(msg.peerId);
+        if (peerId) {
+            webrtcReadyPeers.add(peerId);
+            log("WebRTC confirmed by " + peerId + ".");
+            finishEasyTierHandoff();
+        }
         return;
     }
 

@@ -6,7 +6,7 @@
 async function loadMap(mapName) {
     const safeMapName = sanitizeMapName(mapName);
     try {
-        const resp = await fetch(`maps/${safeMapName}`);
+        const resp = await fetch(`/maps/${safeMapName}`);
         if (!resp.ok) throw new Error("map not found");
 
         const raw = await resp.text();
@@ -101,7 +101,7 @@ function renderMap() {
 
 function tileImage(cell) {
     if (cell in TILE_IMAGES) return TILE_IMAGES[cell];
-    return "images/ground.webp";
+    return "/images/ground.webp";
 }
 
 async function preloadTileSprites() {

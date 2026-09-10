@@ -729,9 +729,11 @@ class PairingHandlerClass {
         sessionStorage.setItem("groupId", snapshot.roomId);
         sessionStorage.setItem("battlePeers", JSON.stringify(snapshot.peerList || []));
         sessionStorage.setItem("battlePlayers", JSON.stringify(snapshot.players || []));
-        window.location.href =
-            `battle.html?matchId=${encodeURIComponent(snapshot.roomId)}` +
-            `&battlefield=${encodeURIComponent(snapshot.battlefield || "air.map")}`;
+        open(
+            `/app_files/battle.html?matchId=${encodeURIComponent(snapshot.roomId)}` +
+            `&battlefield=${encodeURIComponent(snapshot.battlefield || "air.map")}`,
+            "_self"
+        );
     }
 
     handleStartBattle(fromPeerId, data) {
