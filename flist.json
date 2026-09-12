@@ -1,5 +1,5 @@
 {
-    "requiredBytes": 7519986,
+    "requiredBytes": 7525493,
     "files": [
         {
             "url": "/app_files/battle.html",
@@ -14,7 +14,7 @@
         {
             "url": "/app_files/css/dashboard.css",
             "source": "/app_files/css/dashboard.css",
-            "md5": "aabbd563c4a0157a6a7d3b5292a2338b"
+            "md5": "2a437bde5fa20ac401868ea823205184"
         },
         {
             "url": "/app_files/css/energy.css",
@@ -24,7 +24,7 @@
         {
             "url": "/app_files/css/global.css",
             "source": "/app_files/css/global.css",
-            "md5": "bb42816d6c7901d23163e76321ed8d8a"
+            "md5": "1e248c23eb57bdbfd6b435dd02e05b37"
         },
         {
             "url": "/app_files/css/index.css",
@@ -34,17 +34,17 @@
         {
             "url": "/app_files/css/lang.css",
             "source": "/app_files/css/lang.css",
-            "md5": "185ba015906790968075a0ae9270400f"
+            "md5": "81b5d4878d5eb9903b5b7b47f17871d0"
         },
         {
             "url": "/app_files/css/pair.css",
             "source": "/app_files/css/pair.css",
-            "md5": "6f77d3001d5f13e426b88cde8d0d342f"
+            "md5": "2759bce240aef50f32a3cfa8170353f7"
         },
         {
             "url": "/app_files/css/signup.css",
             "source": "/app_files/css/signup.css",
-            "md5": "3a9c002d885580b852befabe28ae33f9"
+            "md5": "f942f4d0146e5d730c7f4acd87ae328b"
         },
         {
             "url": "/app_files/dashboard.html",
@@ -129,7 +129,7 @@
         {
             "url": "/app_files/login.html",
             "source": "/app_files/login.html",
-            "md5": "b01e8b392d304d11495c10ac15682aca"
+            "md5": "c95f646c3b23a3471ec6774348400b19"
         },
         {
             "url": "/app_files/logout.html",
@@ -149,7 +149,7 @@
         {
             "url": "/app_files/return.html",
             "source": "/app_files/return.html",
-            "md5": "2079933758ca272e76c0712df9791436"
+            "md5": "6f8312356213c1d661cf0854a78d83f4"
         },
         {
             "url": "/app_files/signup.html",

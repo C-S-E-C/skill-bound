@@ -3,68 +3,81 @@
    ============================================ */
 
 body {
-    background-color: rgb(22, 22, 22);
+    background:
+        radial-gradient(circle at 15% 10%, rgba(96, 165, 250, 0.16), transparent 34%),
+        radial-gradient(circle at 90% 85%, rgba(167, 139, 250, 0.12), transparent 32%),
+        var(--ui-bg);
 }
 
 #controls {
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    margin: 0;
-    width: 100%;
-    height: 10%;
-    display: inline-flex;
+    position: fixed;
+    left: 50%;
+    bottom: 24px;
+    transform: translateX(-50%);
+    width: min(720px, calc(100% - 32px));
+    height: 72px;
+    display: grid;
+    grid-template-columns: 1fr 1.4fr 1fr;
+    gap: 10px;
+    padding: 10px;
+    background: var(--ui-surface);
+    border: 1px solid var(--ui-border);
+    border-radius: 16px;
+    box-shadow: var(--ui-shadow);
+    backdrop-filter: blur(14px);
 }
 
 #controls button {
     margin: 0;
-    color: white;
-    font-size: 30px;
-    padding: 20px;
+    color: var(--ui-text);
+    font-size: 1rem;
+    font-weight: 700;
+    padding: 12px 18px;
     height: 100%;
-    width: 25%;
-    border: none;
-    background-color: rgb(29, 53, 173);
+    width: 100%;
+    border: 1px solid var(--ui-border);
+    background: rgba(255, 255, 255, 0.05);
 }
 
 #controls button:hover {
-    background-color: rgb(46, 72, 205);
+    background: rgba(96, 165, 250, 0.16);
+    border-color: var(--ui-border-strong);
     cursor: pointer;
+    transform: translateY(-1px);
 }
 
 #controls #fight {
-    width: 50%;
-    background-color: rgb(255, 195, 0);
+    width: 100%;
+    background: var(--ui-primary-strong);
+    border-color: rgba(147, 197, 253, 0.4);
 }
 
 #controls #fight:hover {
-    background-color: rgb(255, 211, 67);
+    background: var(--ui-primary);
 }
 
-#coins {
-    position: relative;
-    color: gold;
-    font-size: 20px;
-    left: 70%;
-    width: 10%;
-    overflow-y: hidden;
-}
-
+#coins,
 #energy {
-    position: relative;
-    color: rgb(44, 209, 132);
-    font-size: 20px;
-    left: 65%;
-    width: 10%;
-    overflow-y: hidden;
+    position: static;
+    width: auto;
+    overflow: hidden;
+    font-size: 0.9rem;
+    font-weight: 700;
+    white-space: nowrap;
 }
+
+#coins { color: #fbbf24; }
+#energy { color: #4ade80; }
 
 #settings {
-    position: relative;
-    font-size: 30px;
-    left: 75%;
-    background: none;
-    border: none;
+    position: static;
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    color: var(--ui-text);
+    font-size: 1.1rem;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--ui-border);
 }
 
 #settings:hover {
@@ -72,12 +85,21 @@ body {
 }
 
 #top-bar {
-    position: absolute;
-    top: 0;
-    right: 0;
-    margin: 0;
-    width: 100%;
-    display: inline-flex;
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(720px, calc(100% - 32px));
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 12px 16px;
+    background: var(--ui-surface);
+    border: 1px solid var(--ui-border);
+    border-radius: 14px;
+    box-shadow: var(--ui-shadow);
+    backdrop-filter: blur(14px);
 }
 
 #top-bar * {
@@ -86,4 +108,23 @@ body {
 
 .translateSelectLanguage {
     display: none;
+}
+
+@media (max-width: 520px) {
+    #top-bar {
+        top: 12px;
+        width: calc(100% - 20px);
+        padding: 10px 12px;
+    }
+    #controls {
+        bottom: 12px;
+        width: calc(100% - 20px);
+        height: 64px;
+        gap: 8px;
+        padding: 8px;
+    }
+    #controls button {
+        padding: 10px 8px;
+        font-size: 0.9rem;
+    }
 }

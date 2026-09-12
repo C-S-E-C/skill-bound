@@ -10,7 +10,7 @@
 
 body {
     min-height: 100vh;
-    background-color: black;
+    background: var(--ui-bg);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -22,7 +22,9 @@ body {
     position: relative;
     width: 100%;
     height: 100vh;
-    background-color: #2a2a2a;
+    background:
+        radial-gradient(circle at 18% 20%, rgba(96, 165, 250, 0.14), transparent 30%),
+        var(--ui-bg);
     display: flex;
     overflow: hidden;
 }
@@ -38,8 +40,8 @@ body {
     min-width: 280px;
     min-height: 280px;
     border-radius: 50%;
-    background-color: transparent;
-    border: 1px solid rgba(255, 255, 255, 0.25);
+    background-color: rgba(17, 24, 39, 0.24);
+    border: 1px solid var(--ui-border);
     box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.2), 0 0 0 4px rgba(255, 255, 255, 0.05);
     overflow: hidden;
     backdrop-filter: blur(0px);
@@ -85,9 +87,15 @@ body {
 }
 
 .lang-list {
-    color: white;
+    color: var(--ui-text);
     position: absolute;
     top: 5%;
+    padding: 32px;
+    background: var(--ui-surface);
+    border: 1px solid var(--ui-border);
+    border-radius: 18px;
+    box-shadow: var(--ui-shadow);
+    backdrop-filter: blur(16px);
     bottom: 5%;
     left: 50%;
     width: 45%;
@@ -124,7 +132,8 @@ body {
     transition: background-color 0.3s ease;
     cursor: pointer;
     border-radius: 10px;
-    background-color: #4f4f4f;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--ui-border);
     width: 90%;
 }
 
@@ -163,11 +172,29 @@ body {
     transition: 0.75s;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 800px) {
     .circle {
-        width: 85vw;
-        height: 85vw;
+        position: absolute;
+        left: -16%;
+        top: 8%;
+        width: 58vw;
+        height: 58vw;
     }
+    .lang-list {
+        left: 8%;
+        width: 84%;
+        padding: 24px;
+    }
+}
+
+@media (max-width: 600px) {
+    .circle { display: none; }
+    .lang-list {
+        left: 5%;
+        width: 90%;
+        padding: 20px;
+    }
+    #lang-select, #lang-search, #continue { width: 100%; }
 }
 
 @keyframes scrollLeft {

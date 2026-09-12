@@ -1,28 +1,35 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="css/global.css">
         <link rel="stylesheet" href="/lang/en_us.css">
         <style>
-            body{
-                width: 100%;
-                height: 100vh;
-                overflow: hidden;
-                background-color: black;
-                color: white;
-                display: flex;
-                font-family: sans-serif;
-                font-weight: bold;
-                align-items: center;
-                justify-items: center;
+            body {
+                display: grid;
+                place-items: center;
+                padding: 24px;
+                background:
+                    radial-gradient(circle at 20% 15%, rgba(96, 165, 250, 0.18), transparent 34%),
+                    radial-gradient(circle at 85% 85%, rgba(167, 139, 250, 0.12), transparent 32%),
+                    var(--ui-bg);
             }
             main {
-                display: block;
-                width: 100%;
+                width: min(100%, 560px);
+                padding: 44px 36px;
                 text-align: center;
+                background: var(--ui-surface);
+                border: 1px solid var(--ui-border);
+                border-radius: 18px;
+                box-shadow: var(--ui-shadow);
             }
             h1 {
-                font-size: 60px;
+                margin-bottom: 14px;
+                font-size: clamp(2rem, 8vw, 4rem);
+                letter-spacing: -0.04em;
             }
+            p { color: var(--ui-muted); }
         </style>
     </head>
     <body>

@@ -3,11 +3,11 @@
    ============================================ */
 
 :root {
-    --primary-neon: #00f2ff;
-    --secondary-neon: #ff007b;
-    --bg-dark: #0a0b10;
-    --card-bg: #161b22;
-    --text-gray: #8b949e;
+    --primary-neon: var(--ui-primary);
+    --secondary-neon: var(--ui-accent);
+    --bg-dark: var(--ui-bg);
+    --card-bg: var(--ui-surface-solid);
+    --text-gray: var(--ui-muted);
 }
 
 * {
@@ -24,9 +24,12 @@ body {
     justify-content: center;
     min-height: 100vh;
     margin: 0;
-    text-transform: uppercase;
-    letter-spacing: 2px;
+    text-transform: none;
+    letter-spacing: normal;
     overflow: hidden;
+    background:
+        radial-gradient(circle at 50% 0%, rgba(96, 165, 250, 0.14), transparent 42%),
+        var(--bg-dark);
 }
 
 body::before {
@@ -85,19 +88,19 @@ select:hover {
     padding: 15px 60px;
     font-size: 1.4rem;
     font-weight: bold;
-    background: transparent;
-    color: var(--secondary-neon);
-    border: 3px solid var(--secondary-neon);
-    border-radius: 50px;
+    background: var(--ui-primary-strong);
+    color: #fff;
+    border: 1px solid rgba(147, 197, 253, 0.35);
+    border-radius: var(--ui-radius);
     cursor: pointer;
     transition: all 0.3s;
 }
 
 #start-fight:hover, #new-room:hover, #join-room:hover {
-    background: var(--secondary-neon);
-    color: white;
-    box-shadow: 0 0 30px var(--secondary-neon);
-    transform: scale(1.05);
+    background: var(--ui-primary);
+    color: #fff;
+    box-shadow: 0 8px 24px rgba(59, 130, 246, 0.25);
+    transform: translateY(-1px);
 }
 
 .join-room {
