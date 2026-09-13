@@ -145,7 +145,7 @@ The current application has these main layers:
 2. Keep page-specific changes under `app_files` unless the root shell or shared transport is intentionally affected.
 3. Preserve existing `<title>` values unless a title change is part of the request.
 4. Keep ordinary script load order intact. Rendering code loaded by `battle.html` must be loaded before `battle.js`.
-5. Do not disconnect EasyTier before all required battle peers have completed the WebRTC handoff.
+5. Keep EasyTier available during and after the WebRTC handoff; it is required for signaling and reconnecting failed or reloaded peers.
 6. Update `flist.json` when a cached asset changes. Verify each listed MD5 and `requiredBytes`.
 7. Run syntax and whitespace checks before committing:
 
@@ -194,11 +194,18 @@ WebRTC is exposed through `easytierWebRTC` in `js/easytier.js`. Its signaling me
 
 Each WebRTC session has a generated `sessionId` and a numeric remote `peerId`. `connect(peerId, options)` creates an offer on the initiating side. The receiving side creates an answer. ICE candidates are exchanged through EasyTier until the RTCPeerConnection and its DataChannel are established.
 
-`connectMany(peerIds, options)` performs sequential outgoing connections. Battle code explicitly uses:
+Battle networking uses a full peer-to-peer mesh rather than a host relay. To avoid duplicate negotiations, peers compare their numeric EasyTier IDs: the peer with the lower ID initiates the pair connection and the other peer accepts the offer. This creates one direct WebRTC link for every player pair, so battle traffic does not depend on the leader remaining in the room.
+
+`connect(peerId, options)` creates one outgoing connection. `connectMany(peerIds, options)` remains available for sequential outgoing connections, but the battle page selects only the peer IDs that it should initiate. Battle code explicitly uses:
 
 ```js
-{ autoDisconnectEasyTier: false, sessionId }
+{
+    autoDisconnectEasyTier: false,
+    sessionId: "ROOM_ID:LOWER_PEER_ID:HIGHER_PEER_ID"
+}
 ```
+
+EasyTier stays connected after the mesh is ready. It remains available for signaling and reconnection.
 
 The WebRTC status object contains information such as:
 
@@ -227,6 +234,26 @@ Battle messages are sent as JSON DataChannel envelopes:
 
 The receiver validates the battle protocol and session ID, handles the payload, and may relay a new envelope to other open peers. Message IDs are used to avoid duplicate relay processing.
 
+#### Movement validation and cross-peer voting
+
+Normal movement updates are not voted on. A peer locally checks an incoming movement against the previous position, movement speed, hitbox collision, and a grid-based shortest route around blocked tiles. A valid update is applied without sending a vote.
+
+If a peer detects an abnormal update, it sends one `move_vote` for that movement ID:
+
+```json
+{
+    "type": "move_vote",
+    "moveId": "PLAYER_ID-UNIQUE_ID",
+    "playerId": "PLAYER_ID",
+    "voterId": "VOTER_ID",
+    "valid": false
+}
+```
+
+Votes are deduplicated per movement and voter. Peers do not repeatedly recalculate or resend a vote they have already processed. An abnormal movement is accepted as invalid only after invalid votes reach a strict majority of the room. The resulting `move_result` is applied once and reduces the target player's credit score by one point. A single peer cannot unilaterally reduce another player's score.
+
+This is a cooperative client-side anti-cheat mechanism, not a cryptographic authority. A malicious majority can still collude; a trusted server or signed authoritative simulation would be required for stronger guarantees.
+
 ### EasyTier-to-WebRTC Handoff
 
 The intended handoff is:
@@ -234,21 +261,29 @@ The intended handoff is:
 1. Pairing completes over EasyTier.
 2. The leader sends `StartBattle` to all participants.
 3. All participants navigate to `battle.html` while EasyTier stays connected.
-4. The leader connects to every other battle peer with `connectMany()`.
-5. Non-leaders wait for the leader's WebRTC offer.
+4. Each participant loads the complete `battlePeers` list from session storage.
+5. For every player pair, the lower numeric peer ID initiates one WebRTC connection; the higher ID waits for the offer.
 6. Every opened DataChannel sends a battle-level `webrtc_ready` payload to its directly connected peer.
-7. The local page waits for both:
-   - all required DataChannels to appear in `openPeerIds`; and
-   - a `webrtc_ready` confirmation from every required peer.
-8. Only after both conditions are true may the page call:
+7. The application may mark the mesh ready after the expected direct channels and confirmations are present.
+8. EasyTier is intentionally kept connected. It must not be disconnected automatically because it is still needed for signaling and reconnecting a failed or reloaded page.
 
-```js
-easytier.disconnect(1000, "WebRTC handoff complete");
-```
+Do not enable `autoDisconnectEasyTier` for the battle mesh. The first `open` event is not sufficient when a room contains multiple players. A failure, page reload, or timeout should leave signaling available so the affected peer can recreate its direct connection.
 
-Do not enable `autoDisconnectEasyTier` for the multi-peer battle handoff. The first `open` event is not sufficient when a room contains multiple players. A failure or timeout should leave signaling available for diagnosis rather than disconnecting prematurely.
+### Debug Mode and Route Visualization
 
-For a solo battle there are no required remote WebRTC peers. The page may keep EasyTier available because there is no peer-to-peer handoff to complete.
+Pressing `F3` on the battle page toggles debug mode. The debug overlay displays the local coordinates and known player credit scores. For received movement updates, the page can render three paths:
+
+- **White**: the direct line from the previous position to the received position;
+- **Green**: a shortest grid route that avoids blocked wall/water tiles;
+- **Blue**: a smoothed route with eased turns for visualizing human-like movement.
+
+Debug rendering is diagnostic only and must not be used as an authority for game state.
+
+### Reconnection and Page Reload
+
+EasyTier remains available after WebRTC mesh setup. When a DataChannel closes, the battle page schedules a reconnect attempt, re-establishes EasyTier if necessary, and recreates the direct WebRTC pair using the deterministic room-and-peer session ID. On a page reload, the battle page restores the room ID, battlefield, peer list, and player snapshot from `sessionStorage`, then repeats the mesh setup. Reconnect logic must be idempotent and must not create duplicate pair sessions.
+
+For a solo battle there are no required remote WebRTC peers; EasyTier may remain connected for future pairing or recovery.
 
 ### Debugging and Validation
 

@@ -150,7 +150,7 @@ v3.1p1
 2. 除非明确涉及根 Shell 或共享传输层，页面修改应放在 `app_files` 内。
 3. 除非需求明确要求，否则保留现有 `<title>`。
 4. 保持普通脚本的加载顺序。`battle.html` 必须在 `battle.js` 前加载 `battle-render.js`。
-5. 在所有需要的战斗 peer 完成 WebRTC 交接前，不要断开 EasyTier。
+5. 在 WebRTC 交接期间和完成后都保持 EasyTier 可用，因为它用于信令以及失败或刷新 peer 的重新连接。
 6. 缓存资源发生变化时更新 `flist.json`，并验证所有 MD5 与 `requiredBytes`。
 7. 提交前执行语法和空白检查：
 
@@ -199,11 +199,18 @@ WebRTC 通过 `js/easytier.js` 中的 `easytierWebRTC` 暴露。它的信令通�
 
 每个 WebRTC 会话都有生成的 `sessionId` 和数字远端 `peerId`。发起方调用 `connect(peerId, options)` 创建 offer；接收方创建 answer。ICE candidate 通过 EasyTier 交换，直到 RTCPeerConnection 和 DataChannel 建立。
 
-`connectMany(peerIds, options)` 会顺序建立多个出站连接。战斗代码明确使用：
+战斗网络使用完整的 P2P Mesh，而不是由房主转发。为了避免重复协商，所有 peer 会比较数字 EasyTier ID：ID 较小的一方主动发起连接，ID 较大的一方等待并接受 offer。这样每一对玩家之间都有一条直接 WebRTC 链路，战斗数据不依赖房主是否继续留在房间内。
+
+`connect(peerId, options)` 建立单条出站连接，`connectMany(peerIds, options)` 仍可用于顺序建立多条出站连接，但战斗页只会让当前 peer 主动连接它负责发起的目标。战斗代码使用类似以下配置：
 
 ```js
-{ autoDisconnectEasyTier: false, sessionId }
+{
+    autoDisconnectEasyTier: false,
+    sessionId: "ROOM_ID:LOWER_PEER_ID:HIGHER_PEER_ID"
+}
 ```
+
+Mesh 建立后 EasyTier 不会断开，仍然用于信令和重新连接。
 
 WebRTC 状态对象包含：
 
@@ -232,6 +239,26 @@ WebRTC 状态对象包含：
 
 接收方会校验 battle 协议和 session ID，处理 payload，并可以把新 envelope 转发给其他已打开的 peer。消息 ID 用于避免重复转发。
 
+#### 移动验证与多 peer 交叉投票
+
+正常移动包不会发起投票。每个 peer 会根据上一次位置、移动速度、碰撞箱和绕过阻挡 tile 的网格最短路径，在本地检查收到的移动包。正常移动直接应用，不发送 `move_vote`。
+
+如果某个 peer 检测到异常移动，才会针对该移动 ID 发送一票：
+
+```json
+{
+    "type": "move_vote",
+    "moveId": "PLAYER_ID-UNIQUE_ID",
+    "playerId": "PLAYER_ID",
+    "voterId": "VOTER_ID",
+    "valid": false
+}
+```
+
+同一移动和同一 voter 只记录一次。已经计算过的移动不会重复计算，也不会重复发送投票。只有当异常票达到房间严格多数时，才会生成并应用 `move_result`；同一个结果只处理一次，并将目标玩家信用分减少 1 分。单个 peer 无法独立扣除其他玩家的信用分。
+
+这是协作式的客户端反作弊机制，不是密码学意义上的权威裁决。恶意多数仍可能串通；如果需要更强的保证，应增加可信服务端或签名的权威模拟。
+
 ### EasyTier 到 WebRTC 的交接
 
 预期交接流程如下：
@@ -239,21 +266,29 @@ WebRTC 状态对象包含：
 1. 配对阶段通过 EasyTier 完成。
 2. 房主向所有参与者发送 `StartBattle`。
 3. 所有参与者在 EasyTier 保持连接的情况下跳转到 `battle.html`。
-4. 房主使用 `connectMany()` 连接所有其他战斗 peer。
-5. 非房主等待房主的 WebRTC offer。
+4. 每个参与者从 session storage 读取完整的 `battlePeers` 列表。
+5. 每一对玩家只建立一条 WebRTC 连接：数字 peer ID 较小的一方发起，较大的一方等待 offer。
 6. 每个 DataChannel 打开后，向直接连接的 peer 发送战斗层 `webrtc_ready` payload。
-7. 页面必须同时等待：
-   - 所有必要 DataChannel 出现在 `openPeerIds` 中；
-   - 从每个必要 peer 收到 `webrtc_ready` 确认。
-8. 只有两个条件都满足后，才允许调用：
+7. 所有预期直连通道和确认到达后，页面可以将 Mesh 标记为 ready。
+8. EasyTier 会继续保持连接，因为它仍用于信令和断线重连。
 
-```js
-easytier.disconnect(1000, "WebRTC handoff complete");
-```
+多人战斗时不要启用 `autoDisconnectEasyTier`。第一个 `open` 事件不代表多人 Mesh 全部完成。连接失败、页面刷新或超时时应保留信令，以便相关 peer 重新建立自己的直连。
 
-多人战斗交接时不要启用 `autoDisconnectEasyTier`。多人房间中，第一个 `open` 事件不代表全部连接完成。连接失败或超时时应保留信令连接以便诊断，不要提前断开。
+### 调试模式与路线可视化
 
-单人战斗没有必要的远端 WebRTC peer，因此可以继续保留 EasyTier；此时不存在需要完成的点对点交接。
+在战斗页按 `F3` 可切换调试模式。调试面板显示本地坐标和已知玩家信用分。收到移动包后，可以绘制三条路线：
+
+- **白色**：上一次位置到收到位置的直线；
+- **绿色**：避开墙体/水体阻挡 tile 的网格最短路线；
+- **蓝色**：在最短路线基础上平滑转弯，用于显示类似人类移动的转弯效果。
+
+调试渲染只用于诊断，不能作为游戏状态的权威来源。
+
+### 断线重连与页面刷新恢复
+
+WebRTC Mesh 建立后 EasyTier 仍然可用。DataChannel 关闭时，战斗页会安排重连；必要时重新建立 EasyTier，然后使用确定性的房间和 peer session ID 重建对应的 WebRTC 直连。页面刷新后，战斗页从 `sessionStorage` 恢复房间 ID、地图、peer 列表和玩家快照，再次执行 Mesh 建立流程。重连逻辑必须幂等，不能创建重复的 peer session。
+
+单人战斗没有远端 WebRTC peer，可以继续保留 EasyTier 用于后续配对或恢复。
 
 ### 调试与验证
 
