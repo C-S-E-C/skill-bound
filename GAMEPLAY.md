@@ -1,6 +1,6 @@
 # Skill Bound Gameplay
 
-English | [简体中文](玩法-zh_hans.md)
+English | [简体中文](GAMEPLAY-zh_hans.md)
 
 ## 1. Core Rules
 
