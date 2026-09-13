@@ -4,17 +4,17 @@
         "id": 1
     },
     "lastRequiredUpdate": 1,
-    "requiredBytes": 7537199,
+    "requiredBytes": 7547081,
     "files": [
         {
             "url": "/app_files/battle.html",
             "source": "/app_files/battle.html",
-            "md5": "4e1ecbbac96110147377beb4027ccfaf"
+            "md5": "c5c438ad97dfe7e17cd217e0fc671698"
         },
         {
             "url": "/app_files/css/battle.css",
             "source": "/app_files/css/battle.css",
-            "md5": "95c725e053b9933e2067bc2b513470b4"
+            "md5": "f664540a6c2bacf594c28d7a1cfdee0e"
         },
         {
             "url": "/app_files/css/dashboard.css",
@@ -69,7 +69,7 @@
         {
             "url": "/app_files/js/battle.js",
             "source": "/app_files/js/battle.js",
-            "md5": "4fdc7ea818c27f87a8dcad17e3711607"
+            "md5": "0abb9e0ea1e6848764e2a4be5b0325ad"
         },
         {
             "url": "/app_files/js/battle-render.js",

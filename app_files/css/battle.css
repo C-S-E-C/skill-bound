@@ -57,11 +57,34 @@ body {
     will-change: transform;
 }
 
-#map-canvas {
+#map-canvas,
+#debug-canvas {
     position: absolute;
     left: 0;
     top: 0;
     image-rendering: pixelated;
+}
+
+#debug-canvas {
+    pointer-events: none;
+    display: none;
+}
+
+#battle-root.debug-mode #debug-canvas {
+    display: block;
+}
+
+#debug-status {
+    max-width: min(52vw, 520px);
+    overflow: hidden;
+    color: #fff;
+    font: 12px/1.4 ui-monospace, SFMono-Regular, Consolas, monospace;
+    white-space: pre;
+    text-align: right;
+}
+
+#battle-root.debug-mode #debug-status {
+    display: block;
 }
 
 #players-layer {

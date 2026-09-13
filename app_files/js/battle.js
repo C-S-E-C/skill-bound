@@ -29,6 +29,14 @@ let rtcReady = false;
 let rtcExpectedPeerIds = [];
 let easyTierHandoffComplete = false;
 const webrtcReadyPeers = new Set();
+const playerCredits = new Map();
+const validatedMoveMessages = new Set();
+const movementVotes = new Map();
+const movementResults = new Set();
+const debugState = {
+    enabled: false,
+    routes: new Map(),
+};
 let battlePeerIds = [];
 let battlePlayers = [];
 let myId = null;
@@ -54,6 +62,8 @@ const dom = {
     worldLayer: null,
     mapCanvas: null,
     playersLayer: null,
+    debugCanvas: null,
+    debugStatus: null,
     scene: null,
     startGame: null,
     eventLog: null,
@@ -112,6 +122,8 @@ function cacheDom() {
     dom.worldLayer = document.getElementById("world-layer");
     dom.mapCanvas = document.getElementById("map-canvas");
     dom.playersLayer = document.getElementById("players-layer");
+    dom.debugCanvas = document.getElementById("debug-canvas");
+    dom.debugStatus = document.getElementById("debug-status");
     dom.scene = document.getElementById("scene");
     dom.startGame = document.getElementById("start-game");
     dom.eventLog = document.getElementById("event-log");
@@ -120,6 +132,15 @@ function cacheDom() {
 
 function bindEvents() {
     window.addEventListener("keydown", (e) => {
+        if (e.key === "F3") {
+            e.preventDefault();
+            debugState.enabled = !debugState.enabled;
+            document.getElementById("battle-root").classList.toggle("debug-mode", debugState.enabled);
+            updateDebugOverlay();
+            renderDebugRoutes();
+            log(debugState.enabled ? "Debug mode enabled." : "Debug mode disabled.");
+            return;
+        }
         if (
             [
                 "ArrowUp",
@@ -168,6 +189,8 @@ async function connectBattleWebRTC() {
         await wait(50);
     }
 
+    const localPeerId = Number(easytier.status().localPeerId);
+
     if (!easytier.status().connected) {
         await easytier.connect(
             location.protocol === "https:" ? "wss" : "ws",
@@ -196,19 +219,22 @@ async function connectBattleWebRTC() {
             return;
         }
         if (data.protocol !== BATTLE_PROTOCOL || data.sessionId !== sessionId) return;
-        handleMessage(data.payload);
+        handleMessage(data.payload, data);
         relayBattleEnvelope(data, event.peerId);
+    });
+    easytierWebRTC.on("close", (peer) => {
+        rtcReady = false;
+        log("WebRTC closed: " + peer.peerId + ". Reconnecting...");
+        schedulePeerReconnect(Number(peer.peerId));
     });
     easytierWebRTC.on("error", (error) => {
         setStatus("WebRTC error");
         log("WebRTC error: " + error.message);
     });
 
-    const localPeerId = easytier.status().localPeerId;
-    const isLeader = Number(battlePeerIds[0]) === Number(localPeerId);
-    rtcExpectedPeerIds = isLeader
-        ? battlePeerIds.filter((peerId) => peerId !== localPeerId)
-        : [Number(battlePeerIds[0])];
+    const allPeerIds = uniquePeerIds([...battlePeerIds, localPeerId]);
+    rtcExpectedPeerIds = allPeerIds.filter((peerId) => peerId !== localPeerId);
+    const outgoingPeerIds = rtcExpectedPeerIds.filter((peerId) => localPeerId < peerId);
     if (!rtcExpectedPeerIds.length) {
         rtcReady = true;
         dom.startGame.disabled = false;
@@ -217,16 +243,26 @@ async function connectBattleWebRTC() {
         return;
     }
 
-    if (isLeader) {
-        await easytierWebRTC.connectMany(rtcExpectedPeerIds, {
+    for (const peerId of outgoingPeerIds) {
+        await easytierWebRTC.connect(peerId, {
             autoDisconnectEasyTier: false,
-            sessionId,
+            sessionId: `${sessionId}:${Math.min(localPeerId, peerId)}:${Math.max(localPeerId, peerId)}`,
         });
-        finishEasyTierHandoff();
-    } else {
-        setStatus("Waiting for WebRTC signaling");
     }
+    const openPeerIds = easytierWebRTC.status().openPeerIds.map(Number);
+    openPeerIds.forEach((peerId) => {
+        battleSend({ type: "webrtc_ready", peerId: localPeerId }, peerId);
+        battleSend({ type: "match_joined", state: buildGameState() }, peerId);
+    });
+    setStatus(`WebRTC mesh ${outgoingPeerIds.length} outgoing / ${rtcExpectedPeerIds.length} peers`);
+    finishEasyTierHandoff();
     applyInitialPlayers();
+}
+
+function uniquePeerIds(values) {
+    return Array.from(new Set(values.map(Number))).filter(
+        (peerId) => Number.isInteger(peerId) && peerId > 0,
+    );
 }
 
 function finishEasyTierHandoff() {
@@ -249,9 +285,42 @@ function finishEasyTierHandoff() {
     easyTierHandoffComplete = true;
     rtcReady = true;
     dom.startGame.disabled = false;
-    setStatus("WebRTC ready");
-    log("WebRTC ready on both sides; disconnecting EasyTier signaling.");
-    easytier.disconnect(1000, "WebRTC handoff complete");
+    setStatus("WebRTC mesh ready");
+    log("WebRTC mesh ready; keeping EasyTier available for reconnects.");
+}
+
+const reconnectTimers = new Map();
+
+function schedulePeerReconnect(peerId) {
+    if (!peerId || reconnectTimers.has(peerId)) return;
+    reconnectTimers.set(peerId, setTimeout(async () => {
+        reconnectTimers.delete(peerId);
+        if (!rtcExpectedPeerIds.includes(peerId)) return;
+        try {
+            await ensureEasyTierConnected();
+            await easytierWebRTC.connect(peerId, {
+                autoDisconnectEasyTier: false,
+                sessionId,
+            });
+            log("WebRTC reconnect requested: " + peerId);
+        } catch (error) {
+            log("WebRTC reconnect failed: " + error.message);
+            schedulePeerReconnect(peerId);
+        }
+    }, 1000));
+}
+
+async function ensureEasyTierConnected() {
+    if (easytier.status().connected) return;
+    await easytier.connect(
+        location.protocol === "https:" ? "wss" : "ws",
+        localStorage.getItem("etserver") || "cn-sh-0.s.syntropica.top",
+        location.protocol === "https:" ? 11012 : 11011,
+        "skillbound",
+        "",
+    ).catch((error) => {
+        if (!/already connected/i.test(error.message)) throw error;
+    });
 }
 
 function readBattleSession() {
@@ -339,7 +408,7 @@ function buildGameState() {
     };
 }
 
-function handleMessage(msg) {
+function handleMessage(msg, envelope = null) {
     if (
         msg.type === "paired" &&
         (msg.matchId || msg.sessionId || msg.groupId)
@@ -404,7 +473,17 @@ function handleMessage(msg) {
     }
 
     if (msg.type === "player_update" && msg.player) {
-        updateSinglePlayer(msg.player);
+        updateSinglePlayer(msg.player, envelope);
+        return;
+    }
+
+    if (msg.type === "move_vote" && msg.moveId) {
+        receiveMovementVote(msg);
+        return;
+    }
+
+    if (msg.type === "move_result" && msg.moveId) {
+        applyMovementResult(msg);
         return;
     }
 
@@ -455,12 +534,94 @@ function applyGameState(state) {
     renderPlayers();
 }
 
-function updateSinglePlayer(p) {
+function validateRemoteMovement(id, previous, next, messageId) {
+    if (!messageId || validatedMoveMessages.has(messageId)) return;
+    validatedMoveMessages.add(messageId);
+    const route = buildMovementRoutes(previous, next);
+    debugState.routes.set(id, route);
+    const directDistance = distance(previous, next);
+    const shortestDistance = route.shortest.length > 1
+        ? routeLength(route.shortest)
+        : directDistance;
+    const allowedDistance = BASIC_MOVE_SPEED * Speed_multifier * (SEND_INTERVAL_MS / 1000) * 1.5;
+    const valid = directDistance <= allowedDistance &&
+        (shortestDistance <= allowedDistance + TILE_SIZE * 1.5 || directDistance <= TILE_SIZE);
+    updateDebugOverlay();
+    renderDebugRoutes();
+    if (valid) return;
+
+    const vote = {
+        type: "move_vote",
+        moveId: messageId,
+        playerId: id,
+        voterId: myId,
+        valid: false,
+    };
+    recordMovementVote(vote);
+    battleSend(vote);
+}
+
+function recordMovementVote(vote) {
+    if (!vote?.moveId || movementResults.has(vote.moveId)) return;
+    let record = movementVotes.get(vote.moveId);
+    if (!record) {
+        record = { playerId: vote.playerId, votes: new Map(), announced: false };
+        movementVotes.set(vote.moveId, record);
+    }
+    if (!record.votes.has(vote.voterId)) record.votes.set(vote.voterId, !!vote.valid);
+    finalizeMovementVote(vote.moveId, record);
+}
+
+function receiveMovementVote(vote) {
+    if (!vote.voterId || vote.voterId === myId || vote.valid !== false) return;
+    recordMovementVote(vote);
+}
+
+function finalizeMovementVote(moveId, record) {
+    if (record.announced || record.votes.size < movementVoteThreshold()) return;
+    const invalidVotes = Array.from(record.votes.values()).filter((valid) => !valid).length;
+    if (invalidVotes < movementVoteThreshold()) return;
+    record.announced = true;
+    const result = {
+        type: "move_result",
+        moveId,
+        playerId: record.playerId,
+        valid: false,
+        decidedBy: myId,
+    };
+    applyMovementResult(result);
+    battleSend(result);
+}
+
+function movementVoteThreshold() {
+    const totalPeers = uniquePeerIds([
+        ...battlePeerIds,
+        Number(easytier.status().localPeerId),
+    ]).length;
+    return Math.max(1, Math.floor(totalPeers / 2) + 1);
+}
+
+function applyMovementResult(result) {
+    if (movementResults.has(result.moveId)) return;
+    movementResults.add(result.moveId);
+    if (!result.valid) applyCredit(result.playerId, -1);
+    updateDebugOverlay();
+}
+
+function applyCredit(id, delta) {
+    const current = playerCredits.get(id) ?? 100;
+    playerCredits.set(id, clamp(current + delta, 0, 100));
+}
+
+function updateSinglePlayer(p, envelope = null) {
     const pos = readPlayerPos(p);
     const id = String(p.id || p.userId || "");
     if (!id) return;
 
     const prev = players.get(id) || {};
+    if (envelope && prev.x != null && prev.y != null) {
+        validateRemoteMovement(id, prev, pos, envelope.messageId);
+    }
     const record = {
         ...prev,
         id,
@@ -553,6 +714,8 @@ function updateSelfMovement(dt, now) {
             y: Math.round(selfState.y),
         };
         battleSend(update);
+        updateDebugOverlay();
+        renderDebugRoutes();
     }
 }
 
@@ -571,6 +734,98 @@ function getInputDirection() {
     }
 
     return { dx, dy };
+}
+
+function buildMovementRoutes(previous, next) {
+    const direct = [{ x: previous.x, y: previous.y }, { x: next.x, y: next.y }];
+    const shortest = findShortestRoute(previous, next);
+    const smooth = smoothRoute(shortest);
+    return { direct, shortest, smooth };
+}
+
+function findShortestRoute(start, end) {
+    const startTile = worldToTile(start);
+    const endTile = worldToTile(end);
+    const queue = [startTile];
+    const cameFrom = new Map([[tileKey(startTile), null]]);
+    const directions = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+    while (queue.length) {
+        const current = queue.shift();
+        if (current.x === endTile.x && current.y === endTile.y) break;
+        directions.forEach(([dx, dy]) => {
+            const candidate = { x: current.x + dx, y: current.y + dy };
+            const key = tileKey(candidate);
+            if (
+                candidate.x < 0 ||
+                candidate.y < 0 ||
+                candidate.x >= mapWidth ||
+                candidate.y >= mapHeight ||
+                cameFrom.has(key) ||
+                isBlockedByTile(
+                    candidate.x * TILE_SIZE + TILE_SIZE / 2,
+                    candidate.y * TILE_SIZE + TILE_SIZE / 2,
+                )
+            ) return;
+            cameFrom.set(key, current);
+            queue.push(candidate);
+        });
+    }
+    const path = [];
+    let cursor = endTile;
+    while (cursor && cameFrom.has(tileKey(cursor))) {
+        path.unshift({ x: cursor.x * TILE_SIZE + TILE_SIZE / 2, y: cursor.y * TILE_SIZE + TILE_SIZE / 2 });
+        cursor = cameFrom.get(tileKey(cursor));
+    }
+    return path.length ? path : [{ x: start.x, y: start.y }, { x: end.x, y: end.y }];
+}
+
+function smoothRoute(route) {
+    return route.map((point, index) => {
+        if (index === 0 || index === route.length - 1) return point;
+        const previous = route[index - 1];
+        const next = route[index + 1];
+        return { x: point.x * 0.65 + (previous.x + next.x) * 0.175, y: point.y * 0.65 + (previous.y + next.y) * 0.175 };
+    });
+}
+
+function worldToTile(point) {
+    return { x: Math.floor(point.x / TILE_SIZE), y: Math.floor(point.y / TILE_SIZE) };
+}
+
+function tileKey(tile) { return `${tile.x},${tile.y}`; }
+function distance(a, b) { return Math.hypot(b.x - a.x, b.y - a.y); }
+function routeLength(route) { return route.slice(1).reduce((sum, point, index) => sum + distance(route[index], point), 0); }
+
+function renderDebugRoutes() {
+    if (!dom.debugCanvas) return;
+    const canvas = dom.debugCanvas;
+    canvas.width = mapWidth * TILE_SIZE;
+    canvas.height = mapHeight * TILE_SIZE;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    if (!debugState.enabled) return;
+    debugState.routes.forEach((route) => {
+        drawRoute(ctx, route.direct, "#fff");
+        drawRoute(ctx, route.shortest, "#39e06f");
+        drawRoute(ctx, route.smooth, "#33aaff");
+    });
+}
+
+function drawRoute(ctx, route, color) {
+    if (route.length < 2) return;
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(route[0].x, route[0].y);
+    route.slice(1).forEach((point) => ctx.lineTo(point.x, point.y));
+    ctx.stroke();
+}
+
+function updateDebugOverlay() {
+    if (!dom.debugStatus) return;
+    const entries = Array.from(playerCredits.entries()).map(([id, credit]) => `${id}: credit ${credit}`);
+    dom.debugStatus.textContent = debugState.enabled ? `F3 DEBUG\nself: (${Math.round(selfState.x)}, ${Math.round(selfState.y)})\n${entries.join("\n")}` : "";
 }
 
 function isTile(worldX, worldY, tileType) {

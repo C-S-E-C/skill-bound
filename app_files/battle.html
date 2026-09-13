@@ -16,11 +16,13 @@
         <header id="hud-top">
             <div id="session-info"><span class="translate.session-label"></span><span id="session-id">-</span></div>
             <div id="connection-state" class="translate.connection-state"></div>
+            <div id="debug-status" hidden></div>
         </header>
 
         <main id="scene" aria-label="2D battle scene">
             <div id="world-layer" aria-label="Map and players layer">
                 <canvas id="map-canvas"></canvas>
+                <canvas id="debug-canvas" aria-hidden="true"></canvas>
                 <div id="players-layer"></div>
             </div>
 
