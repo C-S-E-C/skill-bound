@@ -1,5 +1,10 @@
 {
-    "requiredBytes": 7525493,
+    "this": {
+        "name": "v3.0b1",
+        "id": 1
+    },
+    "lastRequiredUpdate": 1,
+    "requiredBytes": 7537199,
     "files": [
         {
             "url": "/app_files/battle.html",
@@ -215,6 +220,11 @@
             "url": "/sw.js",
             "source": "/sw.js",
             "md5": "0a39c6554a8782ca3cd01d5afc4d90a3"
+        },
+        {
+            "url": "/index.html",
+            "source": "/index.html",
+            "md5": "a1c91fc442f7f5db2433fc1225a54ddc"
         }
     ]
 }

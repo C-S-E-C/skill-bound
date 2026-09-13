@@ -1,4 +1,5 @@
 *.zip
 images/effects.backup/
+__pycache__/
 *.bat
 *.py
