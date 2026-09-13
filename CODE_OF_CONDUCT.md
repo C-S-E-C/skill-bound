@@ -99,7 +99,7 @@ The cache manifest stores the numeric release sequence separately:
 
 ```json
 {
-    "this": { "name": "Release description", "id": 3 },
+    "this": { "name": "v3.0b2p3", "id": 3 },
     "lastRequiredUpdate": 1
 }
 ```
