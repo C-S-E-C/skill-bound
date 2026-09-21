@@ -54,18 +54,30 @@ const keys = new Set();
 let lastFrameTime = 0;
 let lastSendTime = 0;
 let started = false;
+let countdownActive = false;
+let countdownStartedAt = 0;
+let countdownTimer = null;
 let hasLoggedMissingTileSprite = false;
+const frameStats = {
+    fps: 0,
+    frameMs: 0,
+    lastFrameAt: 0,
+    frames: 0,
+    sampleStartedAt: 0,
+};
 
 const dom = {
     sessionId: null,
     connectionState: null,
     worldLayer: null,
     mapCanvas: null,
+    projectileCanvas: null,
     playersLayer: null,
     debugCanvas: null,
     debugStatus: null,
     scene: null,
     startGame: null,
+    countdown: null,
     eventLog: null,
     selfName: null,
 };
@@ -109,7 +121,6 @@ async function init() {
     players.set(myId, selfState);
 
     await loadMap(battlefield);
-    dom.startGame.disabled = true;
     await connectBattleWebRTC();
     bindEvents();
 
@@ -121,11 +132,13 @@ function cacheDom() {
     dom.connectionState = document.getElementById("connection-state");
     dom.worldLayer = document.getElementById("world-layer");
     dom.mapCanvas = document.getElementById("map-canvas");
+    dom.projectileCanvas = document.getElementById("projectile-canvas");
     dom.playersLayer = document.getElementById("players-layer");
     dom.debugCanvas = document.getElementById("debug-canvas");
     dom.debugStatus = document.getElementById("debug-status");
     dom.scene = document.getElementById("scene");
     dom.startGame = document.getElementById("start-game");
+    dom.countdown = document.getElementById("countdown");
     dom.eventLog = document.getElementById("event-log");
     dom.selfName = document.getElementById("self-name");
 }
@@ -174,12 +187,8 @@ function bindEvents() {
         renderMap();
     });
 
-    dom.startGame.addEventListener("click", () => {
-        battleSend({ type: "game_start", state: buildGameState() });
-        started = true;
-        dom.startGame.disabled = true;
-        log("Start requested.");
-    });
+    // Battle starts automatically when every expected WebRTC peer confirms readiness.
+    if (dom.startGame) dom.startGame.remove();
 }
 
 async function connectBattleWebRTC() {
@@ -237,9 +246,9 @@ async function connectBattleWebRTC() {
     const outgoingPeerIds = rtcExpectedPeerIds.filter((peerId) => localPeerId < peerId);
     if (!rtcExpectedPeerIds.length) {
         rtcReady = true;
-        dom.startGame.disabled = false;
-        setStatus("Solo battle");
+        setStatus("Ready. Starting...");
         applyInitialPlayers();
+        beginAutomaticStart();
         return;
     }
 
@@ -257,6 +266,34 @@ async function connectBattleWebRTC() {
     setStatus(`WebRTC mesh ${outgoingPeerIds.length} outgoing / ${rtcExpectedPeerIds.length} peers`);
     finishEasyTierHandoff();
     applyInitialPlayers();
+}
+
+function beginAutomaticStart() {
+    if (started || countdownActive) return;
+    countdownActive = true;
+    countdownStartedAt = performance.now();
+    let step = 3;
+    setStatus("All players connected. Starting in 3...");
+    if (dom.countdown) dom.countdown.textContent = String(step);
+    countdownTimer = setInterval(() => {
+        step -= 1;
+        if (step > 0) {
+            setStatus(`All players connected. Starting in ${step}...`);
+            if (dom.countdown) dom.countdown.textContent = String(step);
+            return;
+        }
+        clearInterval(countdownTimer);
+        countdownTimer = null;
+        countdownActive = false;
+        started = true;
+        if (dom.countdown) dom.countdown.textContent = "GO";
+        battleSend({ type: "game_start", state: buildGameState() });
+        setStatus("Battle started");
+        log("Automatic countdown complete.");
+        setTimeout(() => {
+            if (dom.countdown) dom.countdown.textContent = "";
+        }, 650);
+    }, 1000);
 }
 
 function uniquePeerIds(values) {
@@ -284,9 +321,9 @@ function finishEasyTierHandoff() {
 
     easyTierHandoffComplete = true;
     rtcReady = true;
-    dom.startGame.disabled = false;
-    setStatus("WebRTC mesh ready");
+    setStatus("All players connected. Starting...");
     log("WebRTC mesh ready; keeping EasyTier available for reconnects.");
+    beginAutomaticStart();
 }
 
 const reconnectTimers = new Map();
@@ -431,9 +468,9 @@ function handleMessage(msg, envelope = null) {
             sessionStorage.setItem("battlefield", battlefield);
             loadMap(battlefield);
         }
-        started = true;
-        dom.startGame.disabled = true;
-        log("Pairing complete.");
+        started = false;
+        setStatus("Waiting for all players to connect...");
+        log("Pairing complete; waiting for the full WebRTC mesh.");
         return;
     }
 
@@ -461,9 +498,17 @@ function handleMessage(msg, envelope = null) {
 
     if (msg.type === "game_start") {
         started = true;
-        dom.startGame.disabled = true;
+        countdownActive = false;
+        countdownStartedAt = 0;
+        if (countdownTimer) clearInterval(countdownTimer);
+        countdownTimer = null;
+        if (dom.countdown) dom.countdown.textContent = "GO";
         if (msg.state) applyGameState(msg.state);
+        setStatus("Battle started");
         log("Game started.");
+        setTimeout(() => {
+            if (dom.countdown) dom.countdown.textContent = "";
+        }, 650);
         return;
     }
 
@@ -664,10 +709,23 @@ function readPlayerPos(player) {
 
 function gameLoop(timestamp) {
     if (!lastFrameTime) lastFrameTime = timestamp;
+    const frameStartedAt = performance.now();
     const dt = Math.max(0, (timestamp - lastFrameTime) / 1000);
     lastFrameTime = timestamp;
     updateSelfMovement(dt, timestamp);
     updateCamera();
+    renderProjectiles([]);
+    renderEffects();
+
+    frameStats.frameMs = performance.now() - frameStartedAt;
+    frameStats.frames += 1;
+    if (!frameStats.sampleStartedAt) frameStats.sampleStartedAt = timestamp;
+    if (timestamp - frameStats.sampleStartedAt >= 500) {
+        frameStats.fps = frameStats.frames * 1000 / (timestamp - frameStats.sampleStartedAt);
+        frameStats.frames = 0;
+        frameStats.sampleStartedAt = timestamp;
+    }
+    if (debugState.enabled) updateDebugOverlay();
     requestAnimationFrame(gameLoop);
 }
 
@@ -799,8 +857,7 @@ function routeLength(route) { return route.slice(1).reduce((sum, point, index) =
 function renderDebugRoutes() {
     if (!dom.debugCanvas) return;
     const canvas = dom.debugCanvas;
-    canvas.width = mapWidth * TILE_SIZE;
-    canvas.height = mapHeight * TILE_SIZE;
+    updateRenderCanvasSize();
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -824,8 +881,30 @@ function drawRoute(ctx, route, color) {
 
 function updateDebugOverlay() {
     if (!dom.debugStatus) return;
+    if (!debugState.enabled) {
+        dom.debugStatus.textContent = "";
+        return;
+    }
+    const stats = battleRenderStats || {};
+    const totalRenderMs = Math.max(
+        0.001,
+        Number(stats.terrainMs || 0) + Number(stats.playersMs || 0) +
+        Number(stats.projectilesMs || 0) + Number(stats.effectsMs || 0),
+    );
+    const percent = (value) => `${(Number(value || 0) / totalRenderMs * 100).toFixed(1)}%`;
     const entries = Array.from(playerCredits.entries()).map(([id, credit]) => `${id}: credit ${credit}`);
-    dom.debugStatus.textContent = debugState.enabled ? `F3 DEBUG\nself: (${Math.round(selfState.x)}, ${Math.round(selfState.y)})\n${entries.join("\n")}` : "";
+    dom.debugStatus.textContent = [
+        "F3 DEBUG",
+        `FPS: ${(frameStats.fps || 0).toFixed(1)} | frame: ${frameStats.frameMs.toFixed(2)}ms`,
+        `Canvas: ${stats.canvasWidth || 0}x${stats.canvasHeight || 0}`,
+        `Canvas render: ${totalRenderMs.toFixed(2)}ms`,
+        `Terrain: ${Number(stats.terrainMs || 0).toFixed(2)}ms (${percent(stats.terrainMs)})`,
+        `Players: ${Number(stats.playersMs || 0).toFixed(2)}ms (${percent(stats.playersMs)})`,
+        `Projectiles: ${Number(stats.projectilesMs || 0).toFixed(2)}ms / ${stats.projectileCount || 0} (${percent(stats.projectilesMs)})`,
+        `Effects: ${Number(stats.effectsMs || 0).toFixed(2)}ms / ${stats.effectCount || 0} (${percent(stats.effectsMs)})`,
+        `Self: (${Math.round(selfState.x)}, ${Math.round(selfState.y)})`,
+        ...entries,
+    ].join("\n");
 }
 
 function isTile(worldX, worldY, tileType) {

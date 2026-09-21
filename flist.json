@@ -1,20 +1,20 @@
 {
     "this": {
-        "name": "v3.0b1",
-        "id": 1
+        "name": "v3.0b1p1",
+        "id": 3
     },
     "lastRequiredUpdate": 1,
-    "requiredBytes": 7547081,
+    "requiredBytes": 7554287,
     "files": [
         {
             "url": "/app_files/battle.html",
             "source": "/app_files/battle.html",
-            "md5": "c5c438ad97dfe7e17cd217e0fc671698"
+            "md5": "dc46afa4402741b4169de54b8b1066ee"
         },
         {
             "url": "/app_files/css/battle.css",
             "source": "/app_files/css/battle.css",
-            "md5": "f664540a6c2bacf594c28d7a1cfdee0e"
+            "md5": "e7c7d728ac01a9eb58d8509f5e59ba72"
         },
         {
             "url": "/app_files/css/dashboard.css",
@@ -69,12 +69,12 @@
         {
             "url": "/app_files/js/battle.js",
             "source": "/app_files/js/battle.js",
-            "md5": "0abb9e0ea1e6848764e2a4be5b0325ad"
+            "md5": "49b6d1c8200c2dbd2d1940ed21adb8b6"
         },
         {
             "url": "/app_files/js/battle-render.js",
             "source": "/app_files/js/battle-render.js",
-            "md5": "c0aa462083c868f7e5aa89d3ec8ac1f2"
+            "md5": "27fd9437917def9e47a2499d1b8df8d2"
         },
         {
             "url": "/app_files/js/crypto.js",

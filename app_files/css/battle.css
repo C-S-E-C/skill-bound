@@ -58,11 +58,43 @@ body {
 }
 
 #map-canvas,
+#projectile-canvas,
 #debug-canvas {
     position: absolute;
     left: 0;
     top: 0;
+    width: auto;
+    height: auto;
     image-rendering: pixelated;
+}
+
+#projectile-canvas {
+    pointer-events: none;
+}
+
+#countdown {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: 20;
+    min-width: 2ch;
+    color: #fff;
+    font: 800 clamp(48px, 10vw, 112px)/1 ui-monospace, SFMono-Regular, Consolas, monospace;
+    text-align: center;
+    text-shadow: 0 0 18px rgba(89, 216, 255, 0.9), 0 3px 0 #06101a;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+}
+
+#connection-state {
+    min-width: 13ch;
+    color: #bcecff;
+    font-weight: 700;
+    text-align: center;
+}
+
+#battle-root:not(.debug-mode) #debug-status {
+    display: none;
 }
 
 #debug-canvas {
@@ -72,6 +104,7 @@ body {
 
 #battle-root.debug-mode #debug-canvas {
     display: block;
+    z-index: 30;
 }
 
 #debug-status {
@@ -91,6 +124,7 @@ body {
     position: absolute;
     left: 0;
     top: 0;
+    z-index: 10;
 }
 
 .player {
