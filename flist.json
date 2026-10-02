@@ -1,230 +1,187 @@
 {
+    "alg": "SHA256",
     "this": {
-        "name": "v3.0b1p1",
-        "id": 3
+        "name": "v3.0b1p2",
+        "id": 6
     },
     "lastRequiredUpdate": 1,
-    "requiredBytes": 7554287,
+    "requiredBytes": 7568226,
     "files": [
         {
-            "url": "/app_files/battle.html",
             "source": "/app_files/battle.html",
-            "md5": "dc46afa4402741b4169de54b8b1066ee"
+            "hash": "0306bbe92fa40ccf6706f7b3da4b12eb20ab1f5ccc43fbd631732efc5008afc7"
         },
         {
-            "url": "/app_files/css/battle.css",
             "source": "/app_files/css/battle.css",
-            "md5": "e7c7d728ac01a9eb58d8509f5e59ba72"
+            "hash": "8b4f01d265abecacf2860b6c2aee5eb1d3a5f8337dc50a6da6802f716edb22b6"
         },
         {
-            "url": "/app_files/css/dashboard.css",
             "source": "/app_files/css/dashboard.css",
-            "md5": "2a437bde5fa20ac401868ea823205184"
+            "hash": "cd48bbb3a4fb7dc41ef56290c0f38989a2a16bce7d2cddc2bda682aced73c10c"
         },
         {
-            "url": "/app_files/css/energy.css",
             "source": "/app_files/css/energy.css",
-            "md5": "197368f457e9942b3686b3fbfc2d288f"
+            "hash": "969c5c51f8e9bb287753bc009a15d3579d97c8607d912b7920760e43166097b2"
         },
         {
-            "url": "/app_files/css/global.css",
             "source": "/app_files/css/global.css",
-            "md5": "1e248c23eb57bdbfd6b435dd02e05b37"
+            "hash": "374681b28fcf3ea4fc792c06ef4f0f3a357a77db2e1e59bb82c8e819091cf89b"
         },
         {
-            "url": "/app_files/css/index.css",
             "source": "/app_files/css/index.css",
-            "md5": "52866e031f6990bc254c3730bc43d658"
+            "hash": "ebe4e20a1fcf8c7ec1d1e04cbb783784255cce8ffeb7e08c900e29ec4557b22e"
         },
         {
-            "url": "/app_files/css/lang.css",
             "source": "/app_files/css/lang.css",
-            "md5": "81b5d4878d5eb9903b5b7b47f17871d0"
+            "hash": "28af79eac7148a7431ede2e1461ee9944cf403bd39093132bb841c4466a78bba"
         },
         {
-            "url": "/app_files/css/pair.css",
             "source": "/app_files/css/pair.css",
-            "md5": "2759bce240aef50f32a3cfa8170353f7"
+            "hash": "d18c6a4aa080d6a03d5c5d1b7ab6a273df21b78a83e115ef6d9a8551c0f9e355"
         },
         {
-            "url": "/app_files/css/signup.css",
             "source": "/app_files/css/signup.css",
-            "md5": "f942f4d0146e5d730c7f4acd87ae328b"
+            "hash": "652422f958b5ef46db9447d273bfccae04419ddc9241e8de2d7e562aef31abb8"
         },
         {
-            "url": "/app_files/dashboard.html",
             "source": "/app_files/dashboard.html",
-            "md5": "52997ebd2eb4fa3a300b23eca377dfa1"
+            "hash": "231eced3b596e94ca14bd1cde5d420ac180308e9028159d6c21a0859aa3bd258"
         },
         {
-            "url": "/app_files/index.html",
             "source": "/app_files/index.html",
-            "md5": "430e08c2f49bef1675cac2b602133b3c"
+            "hash": "77544038b3c2bb9e22180aab081f60b2be8d10ff2748dbcb98ee894781628bbb"
         },
         {
-            "url": "/app_files/js/basic.js",
             "source": "/app_files/js/basic.js",
-            "md5": "4483ee744e3d6a32b835a021c0ea53bc"
+            "hash": "7d13265838973f8551e2ed67653f54d14466426250a9a645b340edba3664bd8a"
         },
         {
-            "url": "/app_files/js/battle.js",
             "source": "/app_files/js/battle.js",
-            "md5": "49b6d1c8200c2dbd2d1940ed21adb8b6"
+            "hash": "1b6959e3d279fef4ec80a24bbf1bb44356ab96946f40b071afe8719090be2726"
         },
         {
-            "url": "/app_files/js/battle-render.js",
             "source": "/app_files/js/battle-render.js",
-            "md5": "27fd9437917def9e47a2499d1b8df8d2"
+            "hash": "03707f7c9049224a6bc0936d38914b507cf5aabf5c05b0a9ea33ef08f66ebc71"
         },
         {
-            "url": "/app_files/js/crypto.js",
             "source": "/app_files/js/crypto.js",
-            "md5": "b8da1f9bfae05ebf229689b4ec4531d6"
+            "hash": "e83303d39bd3f5938c7da7daecf95b5987ccaea7f4bff8af2690477df2715517"
         },
         {
-            "url": "/app_files/js/dashboard.js",
             "source": "/app_files/js/dashboard.js",
-            "md5": "89dcd1f642b574d45f2adda897be7cc7"
+            "hash": "a8901f433b056c9b327d17aacc84e000ac00e4cbc021402c823880c4e1a1c5a1"
         },
         {
-            "url": "/app_files/js/energy.js",
             "source": "/app_files/js/energy.js",
-            "md5": "75d4e8a4f3175eeecff706467dc51850"
+            "hash": "e41cf4d93a81e939dddd4f6d53826068d328d63e677479fa8d6a2cebc3a4071e"
         },
         {
-            "url": "/app_files/js/index.js",
             "source": "/app_files/js/index.js",
-            "md5": "fb70d4009128bbd7a3fb91393bbebfe7"
+            "hash": "3ab8b00aeac8f03f0a14e594a10e3afe3bd1e77916063c68f913715b843fd712"
         },
         {
-            "url": "/app_files/js/lang.js",
             "source": "/app_files/js/lang.js",
-            "md5": "9a84e009a2466fd21625216016ff4b2f"
+            "hash": "c0104e72d8fe9b998eb03788062abcc0e0a9a582cd21c66800c460d25ec74369"
         },
         {
-            "url": "/app_files/js/login.js",
             "source": "/app_files/js/login.js",
-            "md5": "758a5fa269b9e73604a2f2f4875b502a"
+            "hash": "2980df15a9f40bb31efb1b4d4a69bf0656fb62e48c0b51b5bbaa2a37cc04eca8"
         },
         {
-            "url": "/app_files/js/pair.js",
             "source": "/app_files/js/pair.js",
-            "md5": "94649c1f14f538e9ab7ce7e0fdd55cf7"
+            "hash": "b2b5675ccc63f0c83923c41d31c11ebb2fb985efb2b1e91f988bcaf3721284ab"
         },
         {
-            "url": "/app_files/js/runtime.js",
             "source": "/app_files/js/runtime.js",
-            "md5": "802814cd6aa69fd36574a1c311d3f340"
+            "hash": "e897c57569fc02b1815058de1df98f8ba8efe859ccd54c2e0f6d89ec7e666bfd"
         },
         {
-            "url": "/app_files/js/signup.js",
             "source": "/app_files/js/signup.js",
-            "md5": "1c09cca0d343d876d094fee240a84fe9"
+            "hash": "e7b7c5dcdf899c7b558afe626290368dde3949307a34004f32b935cb563295fb"
         },
         {
-            "url": "/app_files/js/translate.js",
             "source": "/app_files/js/translate.js",
-            "md5": "3410b1dc51622473655bc19cfd61b05f"
+            "hash": "30c44f77048f1387aa857e073072d6ba266fb9c195b085b4249d75c7c6fa323d"
         },
         {
-            "url": "/app_files/lang.html",
             "source": "/app_files/lang.html",
-            "md5": "cf693b6380573acd1157355c31c27cec"
+            "hash": "48f74e2f471e00c0df09ec704dd85d9e40577a9ac5e056b7263a0aadcdd22f6b"
         },
         {
-            "url": "/app_files/login.html",
             "source": "/app_files/login.html",
-            "md5": "c95f646c3b23a3471ec6774348400b19"
+            "hash": "f67ee337da2e853fd0ec0d90671e8d819b66f253a45d03cec74b67972e101b31"
         },
         {
-            "url": "/app_files/logout.html",
             "source": "/app_files/logout.html",
-            "md5": "e0f2fb1d06dfb6ec650b18d5125555c1"
+            "hash": "caafa4ca25054cb2d1d2ddd427f2f7ac821a3600d5ef72983815653c1a2150c6"
         },
         {
-            "url": "/app_files/music/waiting.mp3",
             "source": "/app_files/music/waiting.mp3",
-            "md5": "ff0f3e4e93ae059e70b5567d96202c1d"
+            "hash": "4988d816003a8659960eab0d750fc7132c60ec743b2fb5b8036e511a753497a4"
         },
         {
-            "url": "/app_files/pair.html",
             "source": "/app_files/pair.html",
-            "md5": "40845812f14892d8b8b18b9bb66bfb08"
+            "hash": "1a835b86a29c3d928afbe2f12b88662ead2788ee78958659144bfcac29c2a042"
         },
         {
-            "url": "/app_files/return.html",
             "source": "/app_files/return.html",
-            "md5": "6f8312356213c1d661cf0854a78d83f4"
+            "hash": "a50640ccc3f7a022d93b3c5c91f4161dba978512b643e59feb17e06d6bcb93ff"
         },
         {
-            "url": "/app_files/signup.html",
             "source": "/app_files/signup.html",
-            "md5": "a73f1c8d50f29d60f5e490c0ff475dd7"
+            "hash": "82804b6851c4ec556653c208869284a7be9f5edd114f10d36484328ce8db2a0a"
         },
         {
-            "url": "/js/crypto.min.js",
             "source": "/js/crypto.min.js",
-            "md5": "d976ec11414491c374d44698a38c3d28"
+            "hash": "682b9407eecf484e4b6b9dbc1953647eb78e5b5d2855d6d09d12b17289b4de63"
         },
         {
-            "url": "/js/easytier.js",
             "source": "/js/easytier.js",
-            "md5": "66cace77eff4f7c096f821c1f2109503"
+            "hash": "fbd330dad9f8d92c810480e314d7dc382ff2aed1bf0aa2b8ec9399f3e8f1dd01"
         },
         {
-            "url": "/js/shell.js",
             "source": "/js/shell.js",
-            "md5": "68b8561d279ae2ed4314b3e3413c03fd"
+            "hash": "4af185dc2d9a529dfca133ba7f22504cbbe077427b00e956511c357c3781e1f5"
         },
         {
-            "url": "/maps/1.map",
             "source": "/maps/1.map",
-            "md5": "2f9a65e201a420acc85ebe68115daf88"
+            "hash": "100c6520dca6fb8c7b3c19f978af5c26da98601fa86770d1c48cb9529109d7d6"
         },
         {
-            "url": "/maps/2.map",
             "source": "/maps/2.map",
-            "md5": "42933444f87244bfdc60b6b8d906bdea"
+            "hash": "e4bb99ddd7de68f79093f400585db78b0cb80c7c8e21a41531240dca45888317"
         },
         {
-            "url": "/maps/air.map",
             "source": "/maps/air.map",
-            "md5": "5fba4714e728049fcbc18916f7396689"
+            "hash": "e00839aade1cb8bae2468b5efc0ce40dc7650e417d973ad64c279534c33dc466"
         },
         {
-            "url": "/maps/index.json",
             "source": "/maps/index.json",
-            "md5": "e2383b06903d3ef8c8e67f718c37dc77"
+            "hash": "6b5a09829efa076c94016232d89ee164f928c2dc516d4bd92ba39d98801e576a"
         },
         {
-            "url": "/images/ground.webp",
             "source": "/images/ground.webp",
-            "md5": "a029fcff2e2fdb8febede99263103e5a"
+            "hash": "45f555de6bacdc5ce2085505f4bf7899576b46ddb9709c9bbb743a5d75b73aa0"
         },
         {
-            "url": "/images/bushes.webp",
             "source": "/images/bushes.webp",
-            "md5": "0cdafe59c46800e5231ee88a1ffd4e58"
+            "hash": "67a87d49fedc263d9fcb6c2e701d5fc24c89187d93c60f7b2949c7644a871b78"
         },
         {
-            "url": "/images/water.webp",
             "source": "/images/water.webp",
-            "md5": "6c0b6c19f11b6ac9379b014ea50a80fc"
+            "hash": "1dd00584dc07939f9be9700e622f54affc110a67ad16d5ad96ff26b73741f1d2"
         },
         {
-            "url": "/images/block.webp",
             "source": "/images/block.webp",
-            "md5": "3443dcbb159d95fce4a750bce85e3127"
+            "hash": "280671bc81417cd5437adca115e46505b636b8ae70d22002c2acc3dfe9158855"
         },
         {
-            "url": "/sw.js",
-            "source": "/sw.js",
-            "md5": "0a39c6554a8782ca3cd01d5afc4d90a3"
-        },
-        {
-            "url": "/index.html",
             "source": "/index.html",
-            "md5": "a1c91fc442f7f5db2433fc1225a54ddc"
+            "hash": "10526fc6b3f3e43d44eb627883b7616e7a28c9e9e1d79fab54f675bd143319b8"
+        },
+        {
+            "source": "/app_files/data/skills.json",
+            "hash": "2ecd84357d8494d396893df3e6eed01998691d257cc5b1061fe10dd0ac41555f"
         }
     ]
 }
