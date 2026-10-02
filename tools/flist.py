@@ -239,6 +239,15 @@ def main() -> None:
                 "hash": file_hash(path, algorithm),
             }
         )
+
+    # The root URL is an alias for the selected root-level index.html.
+    root_index = next(
+        (entry for entry in files if entry["source"] == "/index.html"),
+        None,
+    )
+    if root_index is not None and not any(entry["source"] == "/" for entry in files):
+        files.append({"source": "/", "hash": root_index["hash"]})
+
     try:
         with open(ROOT / "flist.json", "r", encoding="utf-8") as f:
             previous = json.load(f)

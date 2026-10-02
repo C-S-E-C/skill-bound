@@ -113,7 +113,8 @@ def repair_manifest() -> tuple[int, int]:
             removed += 1
             continue
         source = entry.get("source")
-        path = resolve_manifest_path(source)
+        is_root_alias = source == "/"
+        path = ROOT / "index.html" if is_root_alias else resolve_manifest_path(source)
         if path is None or not path.is_file():
             label = source or "<unknown>"
             print(f"REMOVE: {label} (file not found)")
@@ -129,7 +130,8 @@ def repair_manifest() -> tuple[int, int]:
             entry["hash"] = actual
             repaired += 1
             print(f"{algorithm}: {path.relative_to(ROOT).as_posix()} {old} -> {actual}")
-        required_bytes += path.stat().st_size
+        if not is_root_alias:
+            required_bytes += path.stat().st_size
         kept.append(entry)
 
     manifest["files"] = kept
