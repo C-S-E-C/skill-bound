@@ -1,11 +1,11 @@
 {
     "alg": "SHA256",
     "this": {
-        "name": "v3.0b1p3",
-        "id": 7
+        "name": "v3.0b1p4",
+        "id": 9
     },
     "lastRequiredUpdate": 1,
-    "requiredBytes": 7568235,
+    "requiredBytes": 7631141,
     "files": [
         {
             "source": "/app_files/battle.html",
@@ -25,7 +25,7 @@
         },
         {
             "source": "/app_files/css/global.css",
-            "hash": "374681b28fcf3ea4fc792c06ef4f0f3a357a77db2e1e59bb82c8e819091cf89b"
+            "hash": "e34dd4263a80ace1c7a398b71c9a3ef89f84a14ee8e7c846ea997800b77981cc"
         },
         {
             "source": "/app_files/css/index.css",
@@ -182,6 +182,18 @@
         {
             "source": "/app_files/data/skills.json",
             "hash": "2ecd84357d8494d396893df3e6eed01998691d257cc5b1061fe10dd0ac41555f"
+        },
+        {
+            "source": "/pwa/icons/192.png",
+            "hash": "bbd669e1d0f4c12c2a0fe6cccba42eb9b1c70670ba5ab96e2d151de905b73342"
+        },
+        {
+            "source": "/pwa/icons/512.png",
+            "hash": "ba736c56fffd8b55b888a043d399f5fdbf3a0d9131e0a4a63c1a5f3fdbdaa20c"
+        },
+        {
+            "source": "/pwa/manifest.json",
+            "hash": "51c96879cb259c719ba066869f3fd13d545255ef41962cff5d5b1c0a853d8840"
         },
         {
             "source": "/",
