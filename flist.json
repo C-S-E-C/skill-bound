@@ -1,11 +1,11 @@
 {
     "alg": "SHA256",
     "this": {
-        "name": "v3.0b1p2",
-        "id": 6
+        "name": "v3.0b1p3",
+        "id": 7
     },
     "lastRequiredUpdate": 1,
-    "requiredBytes": 7568226,
+    "requiredBytes": 7568235,
     "files": [
         {
             "source": "/app_files/battle.html",
@@ -49,7 +49,7 @@
         },
         {
             "source": "/app_files/index.html",
-            "hash": "77544038b3c2bb9e22180aab081f60b2be8d10ff2748dbcb98ee894781628bbb"
+            "hash": "870b124b7756a53e09b8acd9d0fb2cc88a340d4ca2adb2114b64ad1c4478e11c"
         },
         {
             "source": "/app_files/js/basic.js",
@@ -182,6 +182,10 @@
         {
             "source": "/app_files/data/skills.json",
             "hash": "2ecd84357d8494d396893df3e6eed01998691d257cc5b1061fe10dd0ac41555f"
+        },
+        {
+            "source": "/",
+            "hash": "10526fc6b3f3e43d44eb627883b7616e7a28c9e9e1d79fab54f675bd143319b8"
         }
     ]
 }
