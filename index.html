@@ -47,6 +47,7 @@
                 return response.json();
             });
             const requiredBytes = Number(manifest.requiredBytes || 0);
+            const progressBytes = Math.max(requiredBytes, 1);
             const algorithm = String(manifest.alg || "SHA256").toUpperCase();
             const hashFunctions = {
                 MD5: (value) => CryptoJS.MD5(value),
@@ -61,13 +62,17 @@
 
             async function doupdate(manifest) {
                 const files = Array.isArray(manifest) ? manifest : manifest.files;
-                if (!Array.isArray(files) || !requiredBytes) throw new Error("Invalid flist.json");
+                if (!Array.isArray(files) || !files.length) throw new Error("Invalid flist.json");
                 const wanted = new Set(files.map((file) => new URL(file.source, location.href).href));
                 const oldRequests = await cache.keys();
                 await Promise.all(oldRequests.filter((request) => !wanted.has(request.url)).map((request) => cache.delete(request)));
 
                 function megabytes(bytes) { return (bytes / 1048576).toFixed(2) + " MB"; }
-                function filename(file) { return file.source.split("/").pop(); }
+                function filename(file) {
+                    const value = file.url || file.source;
+                    return value.split("/").pop() || value;
+                }
+                function downloadSource(file) { return file.url || file.source; }
                 async function responseBytes(response) {
                     const length = Number(response.headers.get("content-length"));
                     return Number.isFinite(length) && length >= 0 ? length : (await response.clone().blob()).size;
@@ -79,13 +84,13 @@
                     return hashBytes(await response.arrayBuffer());
                 }
                 async function downloadWithProgress(file, index, cachedBytesRef) {
-                    const source = new URL(file.source, location.href).href;
+                    const source = new URL(downloadSource(file), location.href).href;
                     const response = await fetch(source, { cache: "no-store" });
                     if (!response.ok) throw new Error("Unable to download " + file.source);
                     if (!response.body) {
                         const bytes = new Uint8Array(await response.arrayBuffer());
                         cachedBytesRef.value += bytes.byteLength;
-                        progress.value = Math.min(100, cachedBytesRef.value / requiredBytes * 100);
+                        progress.value = Math.min(100, cachedBytesRef.value / progressBytes * 100);
                         statusText.textContent = megabytes(cachedBytesRef.value) + " / " + megabytes(requiredBytes) + " [" + (index + 1) + "/" + files.length + "] " + filename(file);
                         return bytes;
                     }
@@ -99,7 +104,7 @@
                         chunks.push(step.value);
                         loaded += step.value.byteLength;
                         cachedBytesRef.value += step.value.byteLength;
-                        progress.value = Math.min(100, cachedBytesRef.value / requiredBytes * 100);
+                        progress.value = Math.min(100, cachedBytesRef.value / progressBytes * 100);
                         const part = total > 0 ? megabytes(loaded) + " / " + megabytes(total) : megabytes(loaded);
                         statusText.textContent = part + " [" + (index + 1) + "/" + files.length + "] " + filename(file);
                     }
@@ -144,7 +149,7 @@
                     if (!verified) {
                         throw new Error(`${algorithm} mismatch for ${file.source} after 3 attempts: expected ${expectedHash}, got ${actualHash}`);
                     }
-                    progress.value = Math.min(100, cachedBytes / requiredBytes * 100);
+                    progress.value = Math.min(100, cachedBytes / progressBytes * 100);
                     statusText.textContent = megabytes(cachedBytes) + " / " + megabytes(requiredBytes) + " [" + (index + 1) + "/" + files.length + "] " + filename(file);
                 }
                 stage.textContent = "2/2 Verify";
@@ -162,7 +167,7 @@
                             verified = !expectedHash || actualHash === expectedHash;
                         }
                         if (!verified && attempt < 3) {
-                            const source = new URL(file.source, location.href).href;
+                            const source = new URL(downloadSource(file), location.href).href;
                             const response = await fetch(source, { cache: "no-store" });
                             if (!response.ok) throw new Error("Unable to download " + file.source);
                             const downloadedHash = await hashResponse(response.clone());

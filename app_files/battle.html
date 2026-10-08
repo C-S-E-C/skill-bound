@@ -32,10 +32,42 @@
                 <div id="self-avatar"></div>
                 <div id="self-name" class="translate.you"></div>
             </div>
+
+            <section id="inventory" aria-label="Inventory" aria-hidden="true">
+                <div class="inventory-page is-active" data-page="0">
+                    <button class="inventory-slot slot-1" type="button" data-slot="1" aria-label="Inventory slot 1"><span>1</span></button>
+                    <button class="inventory-slot slot-2" type="button" data-slot="2" aria-label="Inventory slot 2"><span>2</span></button>
+                    <button class="inventory-slot slot-3" type="button" data-slot="3" aria-label="Inventory slot 3"><span>3</span></button>
+                    <button class="inventory-slot slot-4" type="button" data-slot="4" aria-label="Inventory slot 4"><span>4</span></button>
+                    <button class="inventory-slot slot-5" type="button" data-slot="5" aria-label="Inventory slot 5"><span>5</span></button>
+                    <button class="inventory-slot slot-6" type="button" data-slot="6" aria-label="Inventory slot 6"><span>6</span></button>
+                    <button class="inventory-slot slot-7" type="button" data-slot="7" aria-label="Inventory slot 7"><span>7</span></button>
+                    <button class="inventory-slot slot-8" type="button" data-slot="8" aria-label="Inventory slot 8"><span>8</span></button>
+                </div>
+                <div class="inventory-page" data-page="1">
+                    <button class="inventory-slot slot-1" type="button" data-slot="1" aria-label="Inventory slot 1"><span>1</span></button>
+                    <button class="inventory-slot slot-2" type="button" data-slot="2" aria-label="Inventory slot 2"><span>2</span></button>
+                    <button class="inventory-slot slot-3" type="button" data-slot="3" aria-label="Inventory slot 3"><span>3</span></button>
+                    <button class="inventory-slot slot-4" type="button" data-slot="4" aria-label="Inventory slot 4"><span>4</span></button>
+                    <button class="inventory-slot slot-5" type="button" data-slot="5" aria-label="Inventory slot 5"><span>5</span></button>
+                    <button class="inventory-slot slot-6" type="button" data-slot="6" aria-label="Inventory slot 6"><span>6</span></button>
+                    <button class="inventory-slot slot-7" type="button" data-slot="7" aria-label="Inventory slot 7"><span>7</span></button>
+                    <button class="inventory-slot slot-8" type="button" data-slot="8" aria-label="Inventory slot 8"><span>8</span></button>
+                </div>
+                <button id="inventory-page-button" type="button" aria-label="Change inventory page" title="Change inventory page">
+                    <span class="inventory-page-number">1</span>
+                    <span class="inventory-page-label">/ 2</span>
+                </button>
+            </section>
         </main>
 
         <section id="controls-panel">
             <span id="help-text" class="translate.move-help"></span>
+            <label id="gamepad-picker-label" for="gamepad-picker">Controller
+                <select id="gamepad-picker" aria-label="Select controller">
+                    <option value="">No controller detected</option>
+                </select>
+            </label>
         </section>
 
         <section id="event-log" aria-live="polite"></section>

@@ -1,19 +1,19 @@
 {
     "alg": "SHA256",
     "this": {
-        "name": "v3.0b1p4",
-        "id": 9
+        "name": "v3.0b2",
+        "id": 10
     },
-    "lastRequiredUpdate": 1,
-    "requiredBytes": 7631141,
+    "lastRequiredUpdate": 10,
+    "requiredBytes": 7646171,
     "files": [
         {
             "source": "/app_files/battle.html",
-            "hash": "0306bbe92fa40ccf6706f7b3da4b12eb20ab1f5ccc43fbd631732efc5008afc7"
+            "hash": "a3c5a991437bd0a9455c67e11c393107e0afa023c4f6ba7b8f0bd65d18b5c499"
         },
         {
             "source": "/app_files/css/battle.css",
-            "hash": "8b4f01d265abecacf2860b6c2aee5eb1d3a5f8337dc50a6da6802f716edb22b6"
+            "hash": "8826128135c7d023b13e84abf62d7d5f9614314e02f0e867b2787033f9db5da9"
         },
         {
             "source": "/app_files/css/dashboard.css",
@@ -57,7 +57,7 @@
         },
         {
             "source": "/app_files/js/battle.js",
-            "hash": "1b6959e3d279fef4ec80a24bbf1bb44356ab96946f40b071afe8719090be2726"
+            "hash": "5a6debce24899683179d22c5dab4f0437993feef0bb8a9840bd8381ed5f2619f"
         },
         {
             "source": "/app_files/js/battle-render.js",
@@ -177,7 +177,7 @@
         },
         {
             "source": "/index.html",
-            "hash": "10526fc6b3f3e43d44eb627883b7616e7a28c9e9e1d79fab54f675bd143319b8"
+            "hash": "aea638892266c2dfabcfc003682e1a418319c8df75dfb3d7d322ebc303a3d91f"
         },
         {
             "source": "/app_files/data/skills.json",
@@ -196,8 +196,16 @@
             "hash": "51c96879cb259c719ba066869f3fd13d545255ef41962cff5d5b1c0a853d8840"
         },
         {
+            "source": "https://assets.r2.syntropica.top/logo/white.black.svg",
+            "hash": ""
+        },
+        {
+            "source": "https://assets.r2.syntropica.top/globe.webp",
+            "hash": ""
+        },
+        {
             "source": "/",
-            "hash": "10526fc6b3f3e43d44eb627883b7616e7a28c9e9e1d79fab54f675bd143319b8"
+            "hash": "aea638892266c2dfabcfc003682e1a418319c8df75dfb3d7d322ebc303a3d91f"
         }
     ]
 }

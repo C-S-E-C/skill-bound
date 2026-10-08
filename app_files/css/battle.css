@@ -43,6 +43,22 @@ body {
     border-bottom: 0;
 }
 
+#gamepad-picker-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #9db3c7;
+    font-size: 12px;
+}
+
+#gamepad-picker {
+    min-width: min(42vw, 260px);
+    padding: 5px 8px;
+    color: var(--text);
+    background: #0b1624;
+    border: 1px solid var(--line);
+}
+
 #scene {
     position: relative;
     overflow: hidden;
@@ -175,6 +191,111 @@ body {
 #self-name {
     font-size: 12px;
     text-shadow: 0 0 4px #000;
+}
+
+#inventory {
+    --inventory-size: clamp(184px, 24vmin, 250px);
+    --slot-size: clamp(46px, 6.2vmin, 64px);
+    position: absolute;
+    right: clamp(14px, 3vw, 42px);
+    bottom: clamp(14px, 4vh, 42px);
+    z-index: 40;
+    width: var(--inventory-size);
+    height: var(--inventory-size);
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(0.92);
+    transition: opacity 180ms ease, transform 180ms ease, visibility 0s linear 180ms;
+    pointer-events: none;
+    user-select: none;
+}
+
+#inventory.is-visible {
+    opacity: 1;
+    visibility: visible;
+    transform: scale(1);
+    transition-delay: 0s;
+    pointer-events: auto;
+}
+
+.inventory-page {
+    position: absolute;
+    inset: 0;
+    display: none;
+}
+
+.inventory-page.is-active { display: block; }
+
+.inventory-slot,
+#inventory-page-button {
+    position: absolute;
+    display: grid;
+    place-items: center;
+    width: var(--slot-size);
+    height: var(--slot-size);
+    padding: 0;
+    color: #d9e3f0;
+    background: rgba(7, 14, 27, 0.9);
+    border: 1px solid rgba(120, 173, 213, 0.65);
+    border-radius: 50%;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+.inventory-slot:hover,
+.inventory-slot:focus-visible,
+.inventory-slot.is-gamepad-selected,
+#inventory-page-button:hover,
+#inventory-page-button:focus-visible {
+    color: #fff;
+    background: rgba(18, 51, 76, 0.98);
+    border-color: #59d8ff;
+    box-shadow: 0 0 18px rgba(89, 216, 255, 0.4), inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+.inventory-slot:active,
+#inventory-page-button:active { transform: scale(0.94); }
+
+.inventory-slot span {
+    font: 700 13px/1 ui-monospace, SFMono-Regular, Consolas, monospace;
+    opacity: 0.74;
+}
+
+.slot-1 { left: 13%; top: 13%; }
+.slot-2 { left: 50%; top: 0; transform: translateX(-50%); }
+.slot-3 { right: 13%; top: 13%; }
+.slot-4 { right: 0; top: 50%; transform: translateY(-50%); }
+.slot-5 { right: 13%; bottom: 13%; }
+.slot-6 { left: 50%; bottom: 0; transform: translateX(-50%); }
+.slot-7 { left: 13%; bottom: 13%; }
+.slot-8 { left: 0; top: 50%; transform: translateY(-50%); }
+
+#inventory-page-button {
+    left: 50%;
+    top: 50%;
+    z-index: 2;
+    width: calc(var(--slot-size) * 0.92);
+    height: calc(var(--slot-size) * 0.92);
+    transform: translate(-50%, -50%);
+    border-color: rgba(89, 216, 255, 0.9);
+    background: #0b1b2b;
+}
+
+#inventory-page-button:active { transform: translate(-50%, -50%) scale(0.94); }
+
+#inventory-page-button::before {
+    content: "";
+    position: absolute;
+    inset: -7px;
+    border: 1px solid rgba(89, 216, 255, 0.32);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.inventory-page-number { font: 800 15px/1 ui-monospace, SFMono-Regular, Consolas, monospace; }
+.inventory-page-label { margin-top: -10px; font-size: 9px; opacity: 0.6; }
+
+@media (max-width: 700px) {
+    #inventory { --inventory-size: 178px; --slot-size: 44px; right: 12px; bottom: 12px; }
 }
 
 #start-game {

@@ -1,0 +1,419 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Inventory Demo</title>
+    <style>
+        :root {
+            color-scheme: dark;
+            --bg: #07101b;
+            --panel: rgba(13, 27, 43, .9);
+            --line: rgba(120, 173, 213, .65);
+            --accent: #59d8ff;
+            --muted: #8da5b9;
+            --size: min(78vw, 340px);
+            --slot: clamp(52px, 14vw, 72px);
+        }
+
+        * { box-sizing: border-box; }
+        html, body { width: 100%; height: 100%; }
+        body {
+            margin: 0;
+            overflow: hidden;
+            color: #d9e3f0;
+            background:
+                linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px),
+                var(--bg);
+            background-size: 32px 32px;
+            font: 14px/1.4 "Segoe UI", system-ui, sans-serif;
+        }
+
+        .demo {
+            min-height: 100%;
+            display: grid;
+            place-items: center;
+            padding: 24px;
+        }
+
+        .stage {
+            width: min(100%, 640px);
+            display: grid;
+            justify-items: center;
+            gap: 20px;
+        }
+        .movement-pad {
+            position: relative;
+            width: 600px;
+            height: 600px;
+            border: 1px solid rgba(120,173,213,.24);
+            border-radius: 8px;
+            background: rgba(7,16,27,.76);
+            overflow: hidden;
+        }
+        .demo-player {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #37f07d;
+            box-shadow: 0 0 14px rgba(55,240,125,.75);
+            transform: translate(-50%, -50%);
+        }
+
+        h1 { margin: 0; font-size: 20px; font-weight: 650; }
+        .status { min-height: 22px; color: var(--muted); text-align: center; }
+        .controller-picker { display: inline-flex; align-items: center; gap: 8px; color: var(--muted); font-size: 12px; }
+        #gamepad-picker { min-width: min(72vw, 340px); padding: 6px 8px; color: #d9e3f0; background: #0b1624; border: 1px solid var(--line); border-radius: 6px; }
+
+        #inventory {
+            position: relative;
+            width: 50%;
+            height: 50%;
+            top: 25%;
+            left: 25%;
+            opacity: 0;
+            visibility: hidden;
+            transform: scale(.92);
+            transition: opacity 180ms ease, transform 180ms ease, visibility 0s linear 180ms;
+            pointer-events: none;
+        }
+        #inventory.is-visible {
+            opacity: 1;
+            visibility: visible;
+            transform: scale(1);
+            transition-delay: 0s;
+            pointer-events: auto;
+        }
+
+        .page { position: absolute; inset: 0; display: none; }
+        .page.is-active { display: block; }
+        button {
+            color: #d9e3f0;
+            background: var(--panel);
+            border: 1px solid var(--line);
+            cursor: pointer;
+        }
+        .slot, #page-button {
+            position: absolute;
+            display: grid;
+            place-items: center;
+            width: var(--slot);
+            height: var(--slot);
+            padding: 0;
+            border-radius: 50%;
+            box-shadow: 0 4px 14px rgba(0,0,0,.4), inset 0 0 0 1px rgba(255,255,255,.05);
+            transition: background-color 120ms ease, border-color 120ms ease, transform 120ms ease;
+        }
+        .slot:hover, .slot:focus-visible, .slot.is-gamepad-selected, #page-button:hover, #page-button:focus-visible {
+            color: #fff;
+            background: #12334c;
+            border-color: var(--accent);
+            outline: none;
+            box-shadow: 0 0 18px rgba(89,216,255,.4);
+        }
+        .slot:active { transform: scale(.94); }
+        .slot span { font: 700 13px ui-monospace, monospace; opacity: .8; }
+        .slot-1 { left: 13%; top: 13%; }
+        .slot-2 { left: 50%; top: 0; transform: translateX(-50%); }
+        .slot-3 { right: 13%; top: 13%; }
+        .slot-4 { right: 0; top: 50%; transform: translateY(-50%); }
+        .slot-5 { right: 13%; bottom: 13%; }
+        .slot-6 { left: 50%; bottom: 0; transform: translateX(-50%); }
+        .slot-7 { left: 13%; bottom: 13%; }
+        .slot-8 { left: 0; top: 50%; transform: translateY(-50%); }
+
+        #page-button {
+            left: 50%;
+            top: 50%;
+            z-index: 2;
+            width: calc(var(--slot) * .92);
+            height: calc(var(--slot) * .92);
+            transform: translate(-50%, -50%);
+            border-color: rgba(89,216,255,.9);
+            background: #0b1b2b;
+        }
+        #page-button::before {
+            content: "";
+            position: absolute;
+            inset: -7px;
+            border: 1px solid rgba(89,216,255,.32);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        #page-button:active { transform: translate(-50%, -50%) scale(.94); }
+        .page-number { font: 800 15px ui-monospace, monospace; }
+        .page-label { margin-top: -10px; font-size: 9px; opacity: .6; }
+
+        .legend {
+            width: min(100%, 520px);
+            display: grid;
+            gap: 8px;
+            padding: 12px 14px;
+            color: var(--muted);
+            background: rgba(7,16,27,.76);
+            border: 1px solid rgba(120,173,213,.24);
+            border-radius: 8px;
+            font-size: 12px;
+            text-align: center;
+        }
+        .legend strong { color: #d9e3f0; font-weight: 650; }
+        @media (prefers-reduced-motion: reduce) { *, *::before { transition-duration: .01ms !important; } }
+    </style>
+</head>
+<body>
+    <main class="demo">
+        <section class="stage" aria-label="Inventory demo">
+            <h1>Inventory demo</h1>
+            <div id="status" class="status" aria-live="polite">Hidden. Press a slot key or K.</div>
+            <label class="controller-picker" for="gamepad-picker">Controller
+                <select id="gamepad-picker" aria-label="Select controller">
+                    <option value="">No controller detected</option>
+                </select>
+            </label>
+            <div class="movement-pad" aria-label="Left stick movement preview">
+            <section id="inventory" aria-label="Inventory" aria-hidden="true">
+                <div class="page is-active" data-page="0">
+                    <button class="slot slot-1" type="button" data-slot="1" aria-label="Inventory slot 1"><span>1</span></button>
+                    <button class="slot slot-2" type="button" data-slot="2" aria-label="Inventory slot 2"><span>2</span></button>
+                    <button class="slot slot-3" type="button" data-slot="3" aria-label="Inventory slot 3"><span>3</span></button>
+                    <button class="slot slot-4" type="button" data-slot="4" aria-label="Inventory slot 4"><span>4</span></button>
+                    <button class="slot slot-5" type="button" data-slot="5" aria-label="Inventory slot 5"><span>5</span></button>
+                    <button class="slot slot-6" type="button" data-slot="6" aria-label="Inventory slot 6"><span>6</span></button>
+                    <button class="slot slot-7" type="button" data-slot="7" aria-label="Inventory slot 7"><span>7</span></button>
+                    <button class="slot slot-8" type="button" data-slot="8" aria-label="Inventory slot 8"><span>8</span></button>
+                </div>
+                <div class="page" data-page="1">
+                    <button class="slot slot-1" type="button" data-slot="1" aria-label="Inventory slot 1"><span>1</span></button>
+                    <button class="slot slot-2" type="button" data-slot="2" aria-label="Inventory slot 2"><span>2</span></button>
+                    <button class="slot slot-3" type="button" data-slot="3" aria-label="Inventory slot 3"><span>3</span></button>
+                    <button class="slot slot-4" type="button" data-slot="4" aria-label="Inventory slot 4"><span>4</span></button>
+                    <button class="slot slot-5" type="button" data-slot="5" aria-label="Inventory slot 5"><span>5</span></button>
+                    <button class="slot slot-6" type="button" data-slot="6" aria-label="Inventory slot 6"><span>6</span></button>
+                    <button class="slot slot-7" type="button" data-slot="7" aria-label="Inventory slot 7"><span>7</span></button>
+                    <button class="slot slot-8" type="button" data-slot="8" aria-label="Inventory slot 8"><span>8</span></button>
+                </div>
+                <button id="page-button" type="button" aria-label="Change inventory page" title="Change inventory page">
+                    <span class="page-number">1</span>
+                    <span class="page-label">/ 2</span>
+                </button>
+            </section>
+            <div id="demo-player" class="demo-player"></div></div>
+            <div class="legend">
+                <div><strong>Keys:</strong> I O P L , M N J = slots 1-8 &nbsp;|&nbsp; K = change page</div>
+                <div>Left stick moves the green dot. Right stick selects 1-8. Empty slots; right-click and touch are reserved.</div>
+            </div>
+        </section>
+    </main>
+    <script>
+        (() => {
+            const inventory = document.getElementById("inventory");
+            const status = document.getElementById("status");
+            const pageButton = document.getElementById("page-button");
+            const demoPlayer = document.getElementById("demo-player");
+            const movementPad = document.querySelector(".movement-pad");
+            const picker = document.getElementById("gamepad-picker");
+            const state = {
+                page: 0,
+                hideTimer: null,
+                slotKeys: new Map([["i",1],["o",2],["p",3],["l",4],[",",5],["m",6],["n",7],["j",8]]),
+                gamepadSlot: null,
+                pageButtonPressed: false,
+                leftX: 0,
+                leftY: 0,
+                connected: false,
+                name: "",
+                selectedIndex: null
+            };
+            const GAMEPAD_DEADZONE = 0.22;
+
+            function show(message) {
+                inventory.classList.add("is-visible");
+                inventory.setAttribute("aria-hidden", "false");
+                status.textContent = message + " | Page " + (state.page + 1) + "/2";
+                clearTimeout(state.hideTimer);
+                state.hideTimer = setTimeout(hide, 1800);
+            }
+
+            function hide() {
+                inventory.classList.remove("is-visible");
+                inventory.setAttribute("aria-hidden", "true");
+                status.textContent = "Hidden. Press a slot key or K.";
+            }
+
+            function changePage() {
+                state.page = state.page === 0 ? 1 : 0;
+                document.querySelectorAll(".page").forEach((page) => {
+                    page.classList.toggle("is-active", Number(page.dataset.page) === state.page);
+                });
+                pageButton.querySelector(".page-number").textContent = String(state.page + 1);
+                show("Changed page");
+            }
+
+            function selectSlot(slot, source = "Keyboard") {
+                document.querySelectorAll(".slot").forEach((button) => {
+                    button.classList.toggle(
+                        "is-gamepad-selected",
+                        Number(button.dataset.slot) === slot &&
+                        Number(button.closest(".page")?.dataset.page) === state.page,
+                    );
+                });
+                show(source + " selected empty slot " + slot);
+            }
+
+            function buttonAxis(gamepad, positiveIndex, negativeIndex) {
+                const positive = gamepad.buttons?.[positiveIndex]?.pressed ? 1 : 0;
+                const negative = gamepad.buttons?.[negativeIndex]?.pressed ? 1 : 0;
+                return positive - negative;
+            }
+
+            function buttonSlot(gamepad) {
+                const buttonMap = [[4,1],[0,2],[5,3],[1,4],[9,5],[3,6],[8,7],[2,8]];
+                for (const [button, slot] of buttonMap) {
+                    if (gamepad.buttons?.[button]?.pressed) return slot;
+                }
+                return null;
+            }
+
+            function pageButtonPressed(gamepad) {
+                return [11, 10, 6, 7].some((button) => gamepad.buttons?.[button]?.pressed);
+            }
+
+            function applyDeadzone(value) {
+                if (Math.abs(value) <= GAMEPAD_DEADZONE) return 0;
+                return Math.sign(value) * (Math.abs(value) - GAMEPAD_DEADZONE) / (1 - GAMEPAD_DEADZONE);
+            }
+
+            function getRightStickSlot(x, y) {
+                if (x === 0 && y === 0) return null;
+                const angle = Math.atan2(y, x);
+                if (angle >= -Math.PI / 8 && angle < Math.PI / 8) return 4;
+                if (angle >= Math.PI / 8 && angle < 3 * Math.PI / 8) return 5;
+                if (angle >= 3 * Math.PI / 8 && angle < 5 * Math.PI / 8) return 6;
+                if (angle >= 5 * Math.PI / 8 && angle < 7 * Math.PI / 8) return 7;
+                if (angle >= 7 * Math.PI / 8 || angle < -7 * Math.PI / 8) return 8;
+                if (angle >= -7 * Math.PI / 8 && angle < -5 * Math.PI / 8) return 1;
+                if (angle >= -5 * Math.PI / 8 && angle < -3 * Math.PI / 8) return 2;
+                return 3;
+            }
+
+            function getGamepads() {
+                if (!navigator.getGamepads) return [];
+                try { return Array.from(navigator.getGamepads() || []).filter(Boolean); }
+                catch (_) { return []; }
+            }
+
+            function refreshPicker() {
+                const gamepads = getGamepads();
+                picker.innerHTML = "";
+                if (!gamepads.length) {
+                    picker.add(new Option("No controller detected", ""));
+                    state.selectedIndex = null;
+                    return;
+                }
+                gamepads.forEach((gamepad) => picker.add(new Option(
+                    (gamepad.index + ": " + (gamepad.id || "Unnamed controller")),
+                    String(gamepad.index),
+                )));
+                const selected = gamepads.some((gamepad) => gamepad.index === state.selectedIndex)
+                    ? state.selectedIndex
+                    : gamepads[0].index;
+                state.selectedIndex = selected;
+                picker.value = String(selected);
+            }
+
+            function pollGamepad() {
+                const gamepads = getGamepads();
+                if (state.selectedIndex === null && gamepads.length) refreshPicker();
+                const gamepad = gamepads.find((candidate) => candidate.index === state.selectedIndex);
+                if (!gamepad) {
+                    state.connected = false;
+                    state.name = "";
+                    state.leftX = 0;
+                    state.leftY = 0;
+                    state.gamepadSlot = null;
+                    return;
+                }
+                state.connected = true;
+                state.name = gamepad.id || "Unknown gamepad";
+                const axes = Array.from(gamepad.axes || []);
+                state.leftX = applyDeadzone(Number(axes[0]) || 0);
+                state.leftY = applyDeadzone(Number(axes[1]) || 0);
+                if (state.leftX === 0 && state.leftY === 0) {
+                    state.leftX = buttonAxis(gamepad, 15, 14);
+                    state.leftY = buttonAxis(gamepad, 13, 12);
+                }
+                const rightSlot = getRightStickSlot(
+                    applyDeadzone(Number(axes[2]) || 0),
+                    applyDeadzone(Number(axes[3]) || 0),
+                ) || buttonSlot(gamepad);
+                if (rightSlot !== state.gamepadSlot) {
+                    state.gamepadSlot = rightSlot;
+                    if (rightSlot) selectSlot(rightSlot, "Gamepad right stick");
+                }
+                const pressed = pageButtonPressed(gamepad);
+                if (pressed && !state.pageButtonPressed) changePage();
+                state.pageButtonPressed = pressed;
+                const stickStatus = state.leftX || state.leftY ? "Left stick moving" : "Left stick centered";
+                status.textContent = state.connected
+                    ? state.name + " | " + stickStatus + " | Right stick selects"
+                    : "No gamepad detected. Press a gamepad button, then move a stick.";
+            }
+
+            function gamepadLoop() {
+                pollGamepad();
+                const rect = movementPad.getBoundingClientRect();
+                const x = rect.width / 2 + state.leftX * Math.max(0, rect.width / 2 - 18);
+                const y = rect.height / 2 + state.leftY * Math.max(0, rect.height / 2 - 18);
+                demoPlayer.style.left = x + "px";
+                demoPlayer.style.top = y + "px";
+                requestAnimationFrame(gamepadLoop);
+            }
+
+            picker.addEventListener("change", () => {
+                state.selectedIndex = picker.value === "" ? null : Number(picker.value);
+                state.gamepadSlot = null;
+                status.textContent = "Controller selected. Move a stick to test it.";
+            });
+            window.addEventListener("gamepadconnected", () => {
+                refreshPicker();
+                status.textContent = "Gamepad connected. Select a controller above.";
+            });
+            window.addEventListener("gamepaddisconnected", () => {
+                refreshPicker();
+                status.textContent = "Gamepad disconnected. Select another controller.";
+            });
+            refreshPicker();
+
+            pageButton.addEventListener("click", changePage);
+            inventory.querySelectorAll(".slot").forEach((button) => {
+                button.addEventListener("click", () => selectSlot(Number(button.dataset.slot)));
+            });
+            inventory.addEventListener("contextmenu", (event) => {
+                event.preventDefault();
+                show("Reserved right-click input");
+            });
+            inventory.addEventListener("pointerdown", (event) => {
+                if (event.pointerType === "touch") show("Reserved touch input");
+            });
+            window.addEventListener("keydown", (event) => {
+                const key = event.key.toLowerCase();
+                if (key === "k") {
+                    event.preventDefault();
+                    changePage();
+                    return;
+                }
+                const slot = state.slotKeys.get(key);
+                if (slot) {
+                    event.preventDefault();
+                    selectSlot(slot);
+                }
+            });
+            gamepadLoop();
+        })();
+    </script>
+</body>
+</html>

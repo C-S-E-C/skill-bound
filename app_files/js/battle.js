@@ -80,7 +80,28 @@ const dom = {
     countdown: null,
     eventLog: null,
     selfName: null,
+    inventory: null,
+    inventoryPageButton: null,
+    gamepadPicker: null,
 };
+
+const inventoryState = {
+    page: 0,
+    hideTimer: null,
+    slotKeys: new Map([
+        ["i", 1], ["o", 2], ["p", 3], ["l", 4],
+        [",", 5], ["m", 6], ["n", 7], ["j", 8],
+    ]),
+};
+
+const gamepadState = {
+    leftX: 0,
+    leftY: 0,
+    rightSlot: null,
+    pageButtonPressed: false,
+    selectedIndex: null,
+};
+const GAMEPAD_DEADZONE = 0.22;
 
 window.addEventListener("DOMContentLoaded", init);
 
@@ -141,10 +162,17 @@ function cacheDom() {
     dom.countdown = document.getElementById("countdown");
     dom.eventLog = document.getElementById("event-log");
     dom.selfName = document.getElementById("self-name");
+    dom.inventory = document.getElementById("inventory");
+    dom.inventoryPageButton = document.getElementById("inventory-page-button");
+    dom.gamepadPicker = document.getElementById("gamepad-picker");
 }
 
 function bindEvents() {
+    bindInventoryEvents();
+    bindGamepadEvents();
+
     window.addEventListener("keydown", (e) => {
+        if (handleInventoryKey(e)) return;
         if (e.key === "F3") {
             e.preventDefault();
             debugState.enabled = !debugState.enabled;
@@ -189,6 +217,125 @@ function bindEvents() {
 
     // Battle starts automatically when every expected WebRTC peer confirms readiness.
     if (dom.startGame) dom.startGame.remove();
+}
+
+function bindGamepadEvents() {
+    dom.gamepadPicker?.addEventListener("change", () => {
+        gamepadState.selectedIndex = dom.gamepadPicker.value === ""
+            ? null
+            : Number(dom.gamepadPicker.value);
+        gamepadState.rightSlot = null;
+        log("Controller selected.");
+    });
+    window.addEventListener("gamepadconnected", () => {
+        refreshGamepadPicker();
+        log("Gamepad connected. Select a controller below.");
+    });
+    window.addEventListener("gamepaddisconnected", (event) => {
+        if (Number(event.gamepad?.index) === gamepadState.selectedIndex) {
+            gamepadState.selectedIndex = null;
+            gamepadState.rightSlot = null;
+        }
+        refreshGamepadPicker();
+        gamepadState.leftX = 0;
+        gamepadState.leftY = 0;
+        log("Gamepad disconnected.");
+    });
+    refreshGamepadPicker();
+}
+
+function listGamepads() {
+    if (!navigator.getGamepads) return [];
+    try {
+        return Array.from(navigator.getGamepads() || []).filter(Boolean);
+    } catch (_) {
+        return [];
+    }
+}
+
+function refreshGamepadPicker() {
+    if (!dom.gamepadPicker) return;
+    const gamepads = listGamepads();
+    const previous = gamepadState.selectedIndex;
+    dom.gamepadPicker.innerHTML = "";
+    if (!gamepads.length) {
+        dom.gamepadPicker.add(new Option("No controller detected", ""));
+        gamepadState.selectedIndex = null;
+        return;
+    }
+    gamepads.forEach((gamepad) => {
+        dom.gamepadPicker.add(new Option(
+            `${gamepad.index}: ${gamepad.id || "Unnamed controller"}`,
+            String(gamepad.index),
+        ));
+    });
+    const selected = gamepads.some((gamepad) => gamepad.index === previous)
+        ? previous
+        : gamepads[0].index;
+    gamepadState.selectedIndex = selected;
+    dom.gamepadPicker.value = String(selected);
+}
+
+function bindInventoryEvents() {
+    if (!dom.inventory) return;
+
+    dom.inventoryPageButton?.addEventListener("click", () => cycleInventoryPage());
+    dom.inventory.querySelectorAll(".inventory-slot").forEach((slot) => {
+        slot.addEventListener("click", () => selectInventorySlot(Number(slot.dataset.slot)));
+    });
+
+    // Reserved extension points for future context-menu and touch controls.
+    dom.inventory.addEventListener("contextmenu", (event) => {
+        event.preventDefault();
+    });
+}
+
+function handleInventoryKey(event) {
+    const key = event.key.toLowerCase();
+    if (key === "k") {
+        event.preventDefault();
+        cycleInventoryPage();
+        return true;
+    }
+    const slot = inventoryState.slotKeys.get(key);
+    if (!slot) return false;
+    event.preventDefault();
+    selectInventorySlot(slot);
+    return true;
+}
+
+function cycleInventoryPage() {
+    inventoryState.page = inventoryState.page === 0 ? 1 : 0;
+    dom.inventory?.querySelectorAll(".inventory-page").forEach((page) => {
+        page.classList.toggle("is-active", Number(page.dataset.page) === inventoryState.page);
+    });
+    const pageNumber = dom.inventoryPageButton?.querySelector(".inventory-page-number");
+    if (pageNumber) pageNumber.textContent = String(inventoryState.page + 1);
+    showInventory();
+}
+
+function selectInventorySlot(slotNumber, source = "Keyboard") {
+    // Empty slots intentionally do nothing until item definitions are added.
+    if (slotNumber < 1 || slotNumber > 8) return;
+    dom.inventory?.querySelectorAll(".inventory-slot").forEach((slot) => {
+        slot.classList.toggle(
+            "is-gamepad-selected",
+            Number(slot.dataset.slot) === slotNumber &&
+            Number(slot.closest(".inventory-page")?.dataset.page) === inventoryState.page,
+        );
+    });
+    showInventory();
+}
+
+function showInventory() {
+    if (!dom.inventory) return;
+    dom.inventory.classList.add("is-visible");
+    dom.inventory.setAttribute("aria-hidden", "false");
+    clearTimeout(inventoryState.hideTimer);
+    inventoryState.hideTimer = setTimeout(() => {
+        dom.inventory.classList.remove("is-visible");
+        dom.inventory.setAttribute("aria-hidden", "true");
+    }, 1800);
 }
 
 async function connectBattleWebRTC() {
@@ -712,6 +859,7 @@ function gameLoop(timestamp) {
     const frameStartedAt = performance.now();
     const dt = Math.max(0, (timestamp - lastFrameTime) / 1000);
     lastFrameTime = timestamp;
+    pollGamepad();
     updateSelfMovement(dt, timestamp);
     updateCamera();
     renderProjectiles([]);
@@ -786,12 +934,112 @@ function getInputDirection() {
     if (keys.has("a") || keys.has("arrowleft")) dx -= 1;
     if (keys.has("d") || keys.has("arrowright")) dx += 1;
 
+    dx += gamepadState.leftX;
+    dy += gamepadState.leftY;
+    dx = clamp(dx, -1, 1);
+    dy = clamp(dy, -1, 1);
+
     if (dx !== 0 && dy !== 0) {
         dx *= DIAGONAL_SPEED_MULTIPLIER;
         dy *= DIAGONAL_SPEED_MULTIPLIER;
     }
 
     return { dx, dy };
+}
+
+function pollGamepad() {
+    if (!navigator.getGamepads) return;
+    let gamepads;
+    try {
+        gamepads = navigator.getGamepads();
+    } catch (_) {
+        return;
+    }
+    const available = Array.from(gamepads || []).filter(Boolean);
+    if (gamepadState.selectedIndex == null && available.length) {
+        refreshGamepadPicker();
+    }
+    const gamepad = available.find((candidate) => candidate.index === gamepadState.selectedIndex);
+    if (!gamepad) {
+        gamepadState.leftX = 0;
+        gamepadState.leftY = 0;
+        gamepadState.rightSlot = null;
+        return;
+    }
+
+    const axes = Array.from(gamepad.axes || []);
+    const left = readStickAxes(axes, 0, 1);
+    const right = readStickAxes(axes, 2, 3);
+    gamepadState.leftX = applyGamepadDeadzone(left.x);
+    gamepadState.leftY = applyGamepadDeadzone(left.y);
+
+    if (gamepadState.leftX === 0 && gamepadState.leftY === 0) {
+        gamepadState.leftX = gamepadButtonAxis(gamepad, 15, 14);
+        gamepadState.leftY = gamepadButtonAxis(gamepad, 13, 12);
+    }
+
+    const rightX = applyGamepadDeadzone(right.x);
+    const rightY = applyGamepadDeadzone(right.y);
+    const rightSlot = getGamepadInventorySlot(rightX, rightY) || getGamepadButtonSlot(gamepad);
+    if (rightSlot !== gamepadState.rightSlot) {
+        gamepadState.rightSlot = rightSlot;
+        if (rightSlot) selectInventorySlot(rightSlot, "Gamepad right stick");
+    }
+
+    const pageButtonPressed = isGamepadPageButtonPressed(gamepad);
+    if (pageButtonPressed && !gamepadState.pageButtonPressed) {
+        cycleInventoryPage();
+    }
+    gamepadState.pageButtonPressed = pageButtonPressed;
+}
+
+function readStickAxes(axes, xIndex, yIndex) {
+    // Standard mapping uses 0/1 and 2/3; the fallback supports RC adapters that expose fewer axes.
+    if (axes.length >= yIndex + 1) {
+        return { x: Number(axes[xIndex]) || 0, y: Number(axes[yIndex]) || 0 };
+    }
+    return { x: 0, y: 0 };
+}
+
+function gamepadButtonAxis(gamepad, positiveIndex, negativeIndex) {
+    const positive = gamepad.buttons?.[positiveIndex]?.pressed ? 1 : 0;
+    const negative = gamepad.buttons?.[negativeIndex]?.pressed ? 1 : 0;
+    return positive - negative;
+}
+
+function getGamepadButtonSlot(gamepad) {
+    const buttonMap = [
+        [4, 1], [0, 2], [5, 3], [1, 4],
+        [9, 5], [3, 6], [8, 7], [2, 8],
+    ];
+    for (const [button, slot] of buttonMap) {
+        if (gamepad.buttons?.[button]?.pressed) return slot;
+    }
+    return null;
+}
+
+function isGamepadPageButtonPressed(gamepad) {
+    // Standard gamepad R3 is button 11. Also accept common RC auxiliary buttons.
+    return [11, 10, 6, 7].some((button) => gamepad.buttons?.[button]?.pressed);
+}
+
+function applyGamepadDeadzone(value) {
+    if (Math.abs(value) <= GAMEPAD_DEADZONE) return 0;
+    const sign = Math.sign(value);
+    return sign * (Math.abs(value) - GAMEPAD_DEADZONE) / (1 - GAMEPAD_DEADZONE);
+}
+
+function getGamepadInventorySlot(x, y) {
+    if (x === 0 && y === 0) return null;
+    const angle = Math.atan2(y, x);
+    if (angle >= -Math.PI / 8 && angle < Math.PI / 8) return 4;
+    if (angle >= Math.PI / 8 && angle < 3 * Math.PI / 8) return 5;
+    if (angle >= 3 * Math.PI / 8 && angle < 5 * Math.PI / 8) return 6;
+    if (angle >= 5 * Math.PI / 8 && angle < 7 * Math.PI / 8) return 7;
+    if (angle >= 7 * Math.PI / 8 || angle < -7 * Math.PI / 8) return 8;
+    if (angle >= -7 * Math.PI / 8 && angle < -5 * Math.PI / 8) return 1;
+    if (angle >= -5 * Math.PI / 8 && angle < -3 * Math.PI / 8) return 2;
+    return 3;
 }
 
 function buildMovementRoutes(previous, next) {
