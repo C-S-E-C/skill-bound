@@ -7,13 +7,11 @@ if (localStorage.getItem("userid") == null) {
     window.location.href = "login.html";
 }
 
-// Get DOM elements
-const bgMusic = document.getElementById("background-music");
-
-// Initialize music
-document.getElementById("background-music").currentTime =
-    sessionStorage.getItem("bgmtime") || 0;
-document.getElementById("background-music").play();
+// Initialize music through the shell audio channel.
+const audio = window.audioHandler;
+if (localStorage.getItem("musicEnabled") !== "false") {
+    audio?.play(sessionStorage.getItem("bgmtime") || 0);
+}
 
 // Update UI with user stats
 function updateEconomy() {
@@ -29,13 +27,9 @@ setInterval(() => {
     updateEconomy();
 }, 1000);
 
-// Track music playback time
-setInterval(function () {
-    sessionStorage.setItem(
-        "bgmtime",
-        document.getElementById("background-music").currentTime,
-    );
-}, 50);
+window.addEventListener("audio-state", (event) => {
+    sessionStorage.setItem("bgmtime", event.detail.currentTime);
+});
 
 // Button event handlers
 document.getElementById("map").addEventListener("click", function () {
@@ -46,4 +40,15 @@ document.getElementById("map").addEventListener("click", function () {
 document.getElementById("manual").addEventListener("click", function () {
     // Manual/help functionality can be added here
     console.log("Manual button clicked");
+});
+
+document.getElementById("settings").addEventListener("click", function () {
+    const popup = window.open(
+        "settings.html",
+        "SettingsPopup",
+        "width=400,height=300,top=100,left=100,scrollbars=yes,resizable=yes"
+    );
+    if (!popup) {
+        console.warn("Settings popup was blocked by the browser.");
+    }
 });

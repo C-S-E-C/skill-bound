@@ -13,6 +13,9 @@ const languages = [
 async function changeLanguage(lang) {
     console.log("Language changed to:", lang);
     localStorage.setItem("lang", lang);
+    document.querySelectorAll("#lang-select li").forEach((option) => {
+        option.classList.toggle("selected", option.getAttribute("value") === lang);
+    });
     document.getElementById("continue").style.display = "block";
 
     if (lang !== "en_us") {
@@ -33,6 +36,11 @@ for (var i = 0; i < languages.length; i++) {
     option.onclick = () => changeLanguage(lang.id);
     option.innerText = lang.name;
     selectelement.appendChild(option);
+}
+
+const savedLanguage = localStorage.getItem("lang");
+if (savedLanguage && languages.some((language) => language.id === savedLanguage)) {
+    changeLanguage(savedLanguage);
 }
 
 // Search function

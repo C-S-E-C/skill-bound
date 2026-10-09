@@ -23,15 +23,13 @@ if ("WebSocket" in window) {
 
 const warningDiv = document.getElementById("warning");
 const startBtn = document.getElementById("start-game");
-const bgMusic = document.getElementById("background-music");
+const audio = window.audioHandler;
 const logoDiv = document.getElementById("syntropica-logo");
 const loadedElements = document.getElementsByClassName("loaded");
 
 function playMusic() {
-    if (bgMusic) {
-        bgMusic.play().catch(function (e) {
-            console.log("Music playback failed:", e);
-        });
+    if (audio && localStorage.getItem("musicEnabled") !== "false") {
+        audio.play(sessionStorage.getItem("bgmtime") || 0);
     }
 }
 
@@ -58,12 +56,9 @@ logoDiv.addEventListener("animationend", function () {
     };
 });
 
-setInterval(function () {
-    sessionStorage.setItem(
-        "bgmtime",
-        document.getElementById("background-music").currentTime,
-    );
-}, 50);
+window.addEventListener("audio-state", (event) => {
+    sessionStorage.setItem("bgmtime", event.detail.currentTime);
+});
 
 // Load WebSocket server configuration
 fetch("/dynamic.json")

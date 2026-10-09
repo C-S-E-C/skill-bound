@@ -9,15 +9,13 @@
     <link rel="stylesheet" href="css/dashboard.css">
     <!-- External JavaScript Libraries -->
     <script src="js/translate.js"></script>
+    <script src="/js/audioHandler.js"></script>
 </head>
 <body>
-    <audio id="background-music" loop style="display:none;">
-        <source src="music/waiting.mp3" type="audio/mp3">
-    </audio>
     <div id="top-bar">
         <p id="energy" onclick="window.open('energy.html','_blank')"></p>
         <p id="coins"></p>
-        <button id="settings" aria-label="Settings" title="Settings" onclick="window.open('settings.html','_blank')"><span>⚙️</span></button>
+        <button id="settings" aria-label="Settings" title="Settings"><span>⚙️</span></button>
     </div>
     <div id="controls">
         <button id="map"><span class="translate.map"></span></button>

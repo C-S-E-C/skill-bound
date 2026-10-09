@@ -2,9 +2,10 @@
    Pair/Battle Page Script
    ============================================ */
 
-const music = document.getElementById("background-music");
-music.currentTime = sessionStorage.getItem("bgmtime") || 0;
-music.play().catch(() => {});
+const audio = window.audioHandler;
+if (localStorage.getItem("musicEnabled") !== "false") {
+    audio?.play(sessionStorage.getItem("bgmtime") || 0);
+}
 
 const PAIR_PROTOCOL = "skillbound.pairing.v2";
 const PUBLIC_VERIFY_CODE = 0;
@@ -829,6 +830,6 @@ pairingHandler.connectET().catch((error) => {
     console.error("Failed to connect EasyTier:", error);
 });
 
-setInterval(function () {
-    sessionStorage.setItem("bgmtime", music.currentTime);
-}, 50);
+window.addEventListener("audio-state", (event) => {
+    sessionStorage.setItem("bgmtime", event.detail.currentTime);
+});

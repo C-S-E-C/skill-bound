@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings</title>
+    <link rel="stylesheet" href="css/global.css">
+    <style>
+        :root { color-scheme: dark; }
+        body { min-height: 100vh; overflow: auto; padding: 24px; background: radial-gradient(circle at 12% 8%, rgba(96, 165, 250, 0.16), transparent 36%), var(--ui-bg); }
+        main { width: min(100%, 520px); margin: 0 auto; }
+        .settings-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 20px; }
+        h1 { font-size: 1.45rem; line-height: 1.2; }
+        .settings-panel { display: grid; gap: 18px; padding: 22px; background: var(--ui-surface); border: 1px solid var(--ui-border); border-radius: var(--ui-radius); box-shadow: var(--ui-shadow); backdrop-filter: blur(14px); }
+        .setting-row { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--ui-border); }
+        .setting-row:last-of-type { padding-bottom: 0; border-bottom: 0; }
+        .setting-copy { display: grid; gap: 4px; }
+        .setting-copy small, #account-value, #status { color: var(--ui-muted); }
+        select, .action-button { min-height: 38px; padding: 8px 12px; color: var(--ui-text); background: rgba(255, 255, 255, 0.07); border: 1px solid var(--ui-border); }
+        select { min-width: 140px; }
+        .switch { position: relative; display: inline-flex; align-items: center; width: 46px; height: 26px; flex: 0 0 auto; }
+        .switch input { width: 1px; height: 1px; opacity: 0; }
+        .switch-track { position: absolute; inset: 0; border-radius: 999px; background: rgba(255, 255, 255, 0.18); border: 1px solid var(--ui-border); transition: background-color 160ms ease; }
+        .switch-track::after { content: ""; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: var(--ui-text); transition: transform 160ms ease; }
+        .switch input:checked + .switch-track { background: var(--ui-primary-strong); }
+        .switch input:checked + .switch-track::after { transform: translateX(20px); }
+        .settings-actions { display: flex; justify-content: flex-end; align-items: center; gap: 10px; margin-top: 4px; }
+        .action-button.primary { background: var(--ui-primary-strong); border-color: rgba(147, 197, 253, 0.4); }
+        .action-button.danger { color: #fecdd3; border-color: rgba(251, 113, 133, 0.4); }
+        .action-button:hover { background: rgba(96, 165, 250, 0.2); }
+        .action-button.danger:hover { background: rgba(251, 113, 133, 0.15); }
+        #status { min-height: 1.2em; font-size: 0.85rem; }
+        @media (max-width: 480px) { body { padding: 16px; } .settings-panel { padding: 18px; } .setting-row { align-items: flex-start; } }
+    </style>
+</head>
+<body>
+    <main>
+        <header class="settings-header">
+            <h1>Settings</h1>
+            <button id="close-settings" class="action-button" type="button" aria-label="Close settings">Close</button>
+        </header>
+        <section class="settings-panel" aria-label="Settings">
+            <div class="setting-row">
+                <div class="setting-copy"><strong>Language</strong><small>Choose the interface language.</small></div>
+                <select id="language" aria-label="Language">
+                    <option value="en_us">English</option>
+                    <option value="zh_hans">中文 (简体)</option>
+                    <option value="zh_hant">中文 (繁體)</option>
+                </select>
+            </div>
+            <div class="setting-row">
+                <div class="setting-copy"><strong>Background music</strong><small>Remember the music preference for game pages.</small></div>
+                <label class="switch"><input id="music-enabled" type="checkbox"><span class="switch-track"></span></label>
+            </div>
+            <div class="setting-row">
+                <div class="setting-copy"><strong>Account</strong><small id="account-value">Not signed in</small></div>
+                <button id="logout" class="action-button danger" type="button">Log out</button>
+            </div>
+            <div class="settings-actions"><span id="status" role="status" aria-live="polite"></span><button id="save-settings" class="action-button primary" type="button">Save</button></div>
+        </section>
+    </main>
+    <script>
+        "use strict";
+        const language = document.getElementById("language");
+        const musicEnabled = document.getElementById("music-enabled");
+        const accountValue = document.getElementById("account-value");
+        const status = document.getElementById("status");
+        language.value = localStorage.getItem("lang") || "en_us";
+        musicEnabled.checked = localStorage.getItem("musicEnabled") !== "false";
+        accountValue.textContent = localStorage.getItem("userid") || "Not signed in";
+        document.getElementById("save-settings").addEventListener("click", () => {
+            localStorage.setItem("lang", language.value);
+            localStorage.setItem("musicEnabled", String(musicEnabled.checked));
+            status.textContent = "Settings saved.";
+        });
+        document.getElementById("close-settings").addEventListener("click", () => window.close());
+        document.getElementById("logout").addEventListener("click", () => {
+            localStorage.removeItem("userid");
+            localStorage.removeItem("secret");
+            window.location.href = "login.html";
+        });
+    </script>
+</body>
+</html>

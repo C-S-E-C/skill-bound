@@ -137,6 +137,12 @@ body {
     width: 90%;
 }
 
+#lang-select li:hover,
+#lang-select li.selected {
+    background: rgba(255, 255, 255, 0.22);
+    border-color: var(--ui-border-strong);
+}
+
 #lang-search {
     height: 40px;
     width: 65%;

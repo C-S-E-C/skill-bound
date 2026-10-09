@@ -1,11 +1,11 @@
 {
     "alg": "SHA256",
     "this": {
-        "name": "v3.0b2",
-        "id": 10
+        "name": "v3.0b2p1",
+        "id": 11
     },
     "lastRequiredUpdate": 10,
-    "requiredBytes": 7646171,
+    "requiredBytes": 7660445,
     "files": [
         {
             "source": "/app_files/battle.html",
@@ -33,7 +33,7 @@
         },
         {
             "source": "/app_files/css/lang.css",
-            "hash": "28af79eac7148a7431ede2e1461ee9944cf403bd39093132bb841c4466a78bba"
+            "hash": "544d9c30258b6e9ebd36eaf9181e029b23504582497ccc121ea9528132ad9f93"
         },
         {
             "source": "/app_files/css/pair.css",
@@ -45,11 +45,11 @@
         },
         {
             "source": "/app_files/dashboard.html",
-            "hash": "231eced3b596e94ca14bd1cde5d420ac180308e9028159d6c21a0859aa3bd258"
+            "hash": "b266fb67baa4a3fb3a2827dd21333a4ee24029dd02a0b6638fa36ba0d050515a"
         },
         {
             "source": "/app_files/index.html",
-            "hash": "870b124b7756a53e09b8acd9d0fb2cc88a340d4ca2adb2114b64ad1c4478e11c"
+            "hash": "d7af41f4ba511049a875dd825979a80265fe60553c52d575d2d153149a3dd42a"
         },
         {
             "source": "/app_files/js/basic.js",
@@ -69,7 +69,7 @@
         },
         {
             "source": "/app_files/js/dashboard.js",
-            "hash": "a8901f433b056c9b327d17aacc84e000ac00e4cbc021402c823880c4e1a1c5a1"
+            "hash": "d5a0f35e280bac85776e148931e98c14204b42160bbc77779b943f07d4d3a8e9"
         },
         {
             "source": "/app_files/js/energy.js",
@@ -77,11 +77,11 @@
         },
         {
             "source": "/app_files/js/index.js",
-            "hash": "3ab8b00aeac8f03f0a14e594a10e3afe3bd1e77916063c68f913715b843fd712"
+            "hash": "b4683e2e6bf8e75b2543a36ca4e8c21be7e6a0ee08ae2dcf206c3ecfac300c2d"
         },
         {
             "source": "/app_files/js/lang.js",
-            "hash": "c0104e72d8fe9b998eb03788062abcc0e0a9a582cd21c66800c460d25ec74369"
+            "hash": "4eead2433994ff2cc39150a65438ac79d6e7bc21a4e2304701067fb0e4e0b402"
         },
         {
             "source": "/app_files/js/login.js",
@@ -89,7 +89,7 @@
         },
         {
             "source": "/app_files/js/pair.js",
-            "hash": "b2b5675ccc63f0c83923c41d31c11ebb2fb985efb2b1e91f988bcaf3721284ab"
+            "hash": "5660b465006f5fb7e84be00c672ffa5e55193490678f30f6a76324543f2502be"
         },
         {
             "source": "/app_files/js/runtime.js",
@@ -121,7 +121,7 @@
         },
         {
             "source": "/app_files/pair.html",
-            "hash": "1a835b86a29c3d928afbe2f12b88662ead2788ee78958659144bfcac29c2a042"
+            "hash": "53ee79ad61a6e8da88fb16769ad355530259e3a1bdcbb06fcb0b77ba3329b81a"
         },
         {
             "source": "/app_files/return.html",
@@ -142,6 +142,10 @@
         {
             "source": "/js/shell.js",
             "hash": "4af185dc2d9a529dfca133ba7f22504cbbe077427b00e956511c357c3781e1f5"
+        },
+        {
+            "source": "/js/audioHandler.js",
+            "hash": "9c59989da0b2640755257a53bc718d40be8bfcdc13708a134924600faa384678"
         },
         {
             "source": "/maps/1.map",
@@ -177,7 +181,7 @@
         },
         {
             "source": "/index.html",
-            "hash": "aea638892266c2dfabcfc003682e1a418319c8df75dfb3d7d322ebc303a3d91f"
+            "hash": "bc7d883d7928bc90d24d2041567e7ea6071845d0d18ea0a7e6c9557c33540938"
         },
         {
             "source": "/app_files/data/skills.json",
@@ -196,6 +200,10 @@
             "hash": "51c96879cb259c719ba066869f3fd13d545255ef41962cff5d5b1c0a853d8840"
         },
         {
+            "source": "/app_files/settings.html",
+            "hash": "764f01398f632d4a6ba5f7dc6cb8cc57d43f2d27c9bcf6a4ae213a3ad16633ef"
+        },
+        {
             "source": "https://assets.r2.syntropica.top/logo/white.black.svg",
             "hash": ""
         },
@@ -205,7 +213,7 @@
         },
         {
             "source": "/",
-            "hash": "aea638892266c2dfabcfc003682e1a418319c8df75dfb3d7d322ebc303a3d91f"
+            "hash": "bc7d883d7928bc90d24d2041567e7ea6071845d0d18ea0a7e6c9557c33540938"
         }
     ]
 }
