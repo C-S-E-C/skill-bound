@@ -46,7 +46,7 @@ document.getElementById("settings").addEventListener("click", function () {
     const popup = window.open(
         "settings.html",
         "SettingsPopup",
-        "width=400,height=300,top=100,left=100,scrollbars=yes,resizable=yes"
+        "width=800,height=450,top=100,left=100,scrollbars=yes,resizable=yes"
     );
     if (!popup) {
         console.warn("Settings popup was blocked by the browser.");
